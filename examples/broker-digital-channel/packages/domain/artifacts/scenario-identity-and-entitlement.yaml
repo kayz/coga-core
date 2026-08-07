@@ -1,0 +1,49 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: broker.channel.scenario.identity.and.entitlement
+  title: Identity and entitlement failure scenarios
+  version: 0.1.0
+  lifecycle: approved
+  scope: instance
+  visibility: public
+  owners:
+    - example.domain.stewards
+  tags:
+    - scenario
+    - authorization
+spec:
+  artifactType: scenario
+  summary: >-
+    Observable examples for separating platform identity from current broker
+    authorization.
+  statement: |-
+    Scenario: platform session without customer authority
+      Given the platform session is valid but no authenticated broker customer context exists
+      When the user opens a protected capability
+      Then the client does not perform the protected action
+      And the client offers the organization-approved authentication path
+
+    Scenario: stale entitlement evidence
+      Given a previously allowed capability is visible from cached state
+      And current entitlement evidence is absent or expired
+      When the user attempts the capability
+      Then the client requests fresh authority
+      And a failed refresh results in a safe denied or degraded state
+  scope: >-
+    Reused by any application with a platform session and backend-issued customer
+    entitlements.
+  provenance:
+    - source: https://pages.nist.gov/800-63-4/
+      sourceType: standard
+      note: NIST SP 800-63 Digital Identity Guidelines
+  relations:
+    - type: verifies
+      target: broker.channel.identity.context
+    - type: verifies
+      target: broker.channel.entitlement.authority
+  validation:
+    - type: review
+      status: passed
+      validator: coga.review.domain.owner
+  contractRefs: []

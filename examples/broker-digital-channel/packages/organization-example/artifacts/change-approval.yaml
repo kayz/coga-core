@@ -1,0 +1,47 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: example.organization.change.approval
+  title: Example human approval policy
+  version: 0.1.0
+  lifecycle: published
+  scope: instance
+  visibility: public
+  owners:
+    - example.organization.stewards
+  tags:
+    - approval
+    - change-control
+spec:
+  artifactType: policy
+  summary: >-
+    Shared semantic changes and risk-bearing application changes require explicit
+    human ownership and evidence before promotion.
+  statement: >-
+    A domain owner approves changes to shared meaning. A platform or engineering
+    owner approves affected technical constraints. Privacy, suitability,
+    authorization, secret-handling, and production-impacting changes additionally
+    require the responsible organization reviewer. The proposing agent cannot serve
+    as an approver, and missing evidence blocks promotion.
+  scope: >-
+    This is a fictitious example. A real deployment replaces role IDs, risk policy,
+    repository protections, and escalation bindings in a private overlay.
+  provenance:
+    - source: https://csrc.nist.gov/pubs/sp/800/218/final
+      sourceType: standard
+      note: NIST Secure Software Development Framework (SP 800-218)
+  relations:
+    - type: applies-to
+      target: example.organization.scenario.governed.change
+  validation:
+    - type: schema
+      status: passed
+      validator: coga.validation.domain.artifact.schema
+    - type: scenario
+      status: passed
+      target: example.organization.scenario.governed.change
+      validator: coga.validation.scenario.reference
+    - type: review
+      status: passed
+      validator: coga.review.organization.owner
+  contractRefs: []

@@ -1,0 +1,17 @@
+schemaVersion: coga.dev/v0.1
+kind: Application
+metadata:
+  id: test.dangling.application
+  title: Dangling application
+  version: 0.1.0
+  lifecycle: draft
+spec:
+  deliveryTargets:
+    - web
+  harnessDependencies:
+    - id: test.missing.package
+      version: 9.9.9
+  contracts: []
+  scenarios: []
+  operations: {}
+  choices: {}

@@ -1,0 +1,19 @@
+schemaVersion: coga.dev/v0.1
+kind: HarnessPackage
+metadata:
+  id: example.broker-channel.operations
+  title: Broker channel operations harness
+  version: 0.1.0
+  lifecycle: candidate
+  scope: instance
+  visibility: public
+spec:
+  layer: operations
+  description: Reusable diagnosis and recovery knowledge for channel applications.
+  dependencies:
+    - id: example.broker-channel.domain
+      version: 0.1.0
+  artifacts:
+    - id: runbook.channel.api-degradation
+      version: 0.1.0
+      path: ../artifacts/api-degradation-runbook.yaml

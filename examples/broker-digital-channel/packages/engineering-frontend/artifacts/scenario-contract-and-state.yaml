@@ -1,0 +1,47 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: frontend.client.scenario.contract.and.state
+  title: Contract and explicit-state scenarios
+  version: 0.1.0
+  lifecycle: approved
+  scope: instance
+  visibility: public
+  owners:
+    - example.engineering.stewards
+  tags:
+    - scenario
+    - contract
+spec:
+  artifactType: scenario
+  summary: >-
+    Observable examples for incompatible responses and stale data.
+  statement: |-
+    Scenario: response violates the locked contract
+      Given an application is locked to a named contract version
+      When the adapter receives an incompatible response
+      Then the response is not presented as valid business data
+      And the view enters an explicit safe error state
+      And diagnostics omit secrets and personal data
+
+    Scenario: refresh fails while previous data is visible
+      Given the view has previously accepted data
+      When a refresh fails with a recoverable outcome
+      Then any retained data is visibly marked stale
+      And a retry action is available without duplicating the original operation
+  scope: >-
+    Reused by remote-data views across delivery targets.
+  provenance:
+    - source: https://spec.openapis.org/oas/
+      sourceType: standard
+      note: OpenAPI Specification
+  relations:
+    - type: verifies
+      target: frontend.client.contract.boundary
+    - type: verifies
+      target: frontend.client.state.explicit
+  validation:
+    - type: review
+      status: passed
+      validator: coga.review.engineering.owner
+  contractRefs: []

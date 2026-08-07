@@ -1,0 +1,46 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: broker.channel.content.provenance
+  title: Financial content provenance and disclosure
+  version: 0.1.0
+  lifecycle: published
+  scope: instance
+  visibility: public
+  owners:
+    - example.domain.stewards
+  tags:
+    - content
+    - disclosure
+spec:
+  artifactType: rule
+  summary: >-
+    Financial content must retain enough provenance and status for the client to
+    present it without inventing certainty or authority.
+  statement: >-
+    A content contract must distinguish content identity, source, effective or
+    observation time, approval status, freshness state, and applicable disclosure.
+    The client must preserve those meanings, identify unavailable or stale content,
+    and never synthesize a missing claim, timestamp, approval, or risk statement.
+  scope: >-
+    Applies to market, research, educational, promotional, and user-contributed
+    financial information presented by client applications.
+  provenance:
+    - source: https://www.npc.gov.cn/c2/c30834/201912/t20191231_304436.html
+      sourceType: standard
+      note: 中华人民共和国证券法
+  relations:
+    - type: applies-to
+      target: broker.channel.scenario.content.and.suitability
+  validation:
+    - type: schema
+      status: passed
+      validator: coga.validation.domain.artifact.schema
+    - type: scenario
+      status: passed
+      target: broker.channel.scenario.content.and.suitability
+      validator: coga.validation.scenario.reference
+    - type: review
+      status: passed
+      validator: coga.review.domain.content
+  contractRefs: []

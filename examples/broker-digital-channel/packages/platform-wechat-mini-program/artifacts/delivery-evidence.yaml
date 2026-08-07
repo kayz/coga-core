@@ -1,0 +1,48 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: wechat.miniprogram.delivery.evidence
+  title: Mini-program delivery evidence
+  version: 0.1.0
+  lifecycle: published
+  scope: instance
+  visibility: public
+  owners:
+    - example.platform.stewards
+  tags:
+    - delivery
+    - evidence
+spec:
+  artifactType: capability
+  summary: >-
+    A mini-program release candidate can produce reproducible build, preview, and
+    upload evidence without embedding credentials in the repository.
+  statement: >-
+    The delivery adapter records the application revision, locked harness versions,
+    tool version, build result, package report, preview or upload result, and
+    approver-visible risk summary. Credential material is supplied by the execution
+    environment and never stored in an artifact or evidence log.
+  scope: >-
+    Applies to local and CI preparation of mini-program candidates; public example
+    packages do not authorize account administration, platform review, or release.
+  provenance:
+    - source: https://developers.weixin.qq.com/miniprogram/dev/devtools/ci.html
+      sourceType: document
+      note: miniprogram-ci
+  relations:
+    - type: verifies
+      target: wechat.miniprogram.package.boundary
+    - type: applies-to
+      target: wechat.miniprogram.scenario.delivery
+  validation:
+    - type: schema
+      status: passed
+      validator: coga.validation.domain.artifact.schema
+    - type: scenario
+      status: passed
+      target: wechat.miniprogram.scenario.delivery
+      validator: coga.validation.scenario.reference
+  contractRefs:
+    - id: contract.wechat.miniprogram.delivery.evidence
+      version: 0.1.0
+      path: ../../../contracts/miniprogram-delivery-evidence.schema.json

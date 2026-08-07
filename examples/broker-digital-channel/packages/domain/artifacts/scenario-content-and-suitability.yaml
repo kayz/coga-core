@@ -1,0 +1,51 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: broker.channel.scenario.content.and.suitability
+  title: Content and suitability boundary scenarios
+  version: 0.1.0
+  lifecycle: approved
+  scope: instance
+  visibility: public
+  owners:
+    - example.domain.stewards
+  tags:
+    - scenario
+    - content
+spec:
+  artifactType: scenario
+  summary: >-
+    Observable examples for content provenance and authoritative suitability
+    decisions.
+  statement: |-
+    Scenario: stale financial content
+      Given financial content is marked stale by its contract
+      When the application presents the content
+      Then the stale state and source time are visible
+      And the application does not replace them with a locally invented value
+
+    Scenario: discovery does not grant suitability
+      Given a user can discover a financial product or service
+      When the user enters a suitability-sensitive action
+      Then the client obtains current authority and disclosures from the backend
+      And the action does not proceed when the authoritative result is unavailable
+  scope: >-
+    Reused by applications that present financial information and link to
+    suitability-sensitive services.
+  provenance:
+    - source: https://www.csrc.gov.cn/csrc/c101939/c1045348/content.shtml
+      sourceType: standard
+      note: 证券期货投资者适当性管理办法
+    - source: https://www.npc.gov.cn/c2/c30834/201912/t20191231_304436.html
+      sourceType: standard
+      note: 中华人民共和国证券法
+  relations:
+    - type: verifies
+      target: broker.channel.suitability.boundary
+    - type: verifies
+      target: broker.channel.content.provenance
+  validation:
+    - type: review
+      status: passed
+      validator: coga.review.domain.owner
+  contractRefs: []

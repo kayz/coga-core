@@ -1,0 +1,27 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: scenario.customer.access-allowed
+  title: Authorized customer access
+  version: 0.1.0
+  lifecycle: published
+  scope: instance
+  visibility: public
+spec:
+  artifactType: scenario
+  summary: An entitled customer is allowed to enter a protected channel capability.
+  statement: Given a server-issued entitlement, the matching capability is available.
+  provenance:
+    - source: docs/scenarios/access.md
+      sourceType: document
+      locator: Authorized path
+  relations:
+    - type: verifies
+      target: domain.customer.access-rule
+      version: 0.1.0
+  validation:
+    - type: test
+      status: passed
+      checkedAt: 2026-08-08T00:00:00Z
+      validator: test.scenario.access
+  contractRefs: []

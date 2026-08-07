@@ -1,0 +1,39 @@
+schemaVersion: coga.dev/v0.1
+kind: HarnessPackage
+metadata:
+  id: wechat.miniprogram.platform
+  title: WeChat Mini Program Platform
+  version: 0.1.0
+  lifecycle: approved
+  scope: instance
+  visibility: public
+  owners:
+    - example.platform.stewards
+  tags:
+    - platform
+    - wechat-mini-program
+spec:
+  layer: platform
+  description: >-
+    Public platform constraints for WeChat mini-program sessions, privacy,
+    packaging, and delivery evidence.
+  dependencies: []
+  artifacts:
+    - id: wechat.miniprogram.session.exchange
+      version: 0.1.0
+      path: artifacts/session-exchange.yaml
+    - id: wechat.miniprogram.privacy.authorization
+      version: 0.1.0
+      path: artifacts/privacy-authorization.yaml
+    - id: wechat.miniprogram.package.boundary
+      version: 0.1.0
+      path: artifacts/package-boundary.yaml
+    - id: wechat.miniprogram.delivery.evidence
+      version: 0.1.0
+      path: artifacts/delivery-evidence.yaml
+    - id: wechat.miniprogram.scenario.session.and.privacy
+      version: 0.1.0
+      path: artifacts/scenario-session-and-privacy.yaml
+    - id: wechat.miniprogram.scenario.delivery
+      version: 0.1.0
+      path: artifacts/scenario-delivery.yaml

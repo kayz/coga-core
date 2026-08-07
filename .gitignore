@@ -1,0 +1,15 @@
+node_modules/
+dist/
+coverage/
+*.log
+
+# Local-only applications and source material must never enter the public repo.
+/private/
+/.local/
+
+.env
+.env.*
+!.env.example
+
+.DS_Store
+Thumbs.db

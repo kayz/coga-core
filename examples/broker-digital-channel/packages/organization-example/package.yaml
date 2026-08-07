@@ -1,0 +1,40 @@
+schemaVersion: coga.dev/v0.1
+kind: HarnessPackage
+metadata:
+  id: example.broker.organization
+  title: Example Broker Organization Policy
+  version: 0.1.0
+  lifecycle: approved
+  scope: instance
+  visibility: public
+  owners:
+    - example.organization.stewards
+  tags:
+    - organization
+    - public-example
+spec:
+  layer: organization
+  description: >-
+    Fictitious review, secret-isolation, and publication policies showing where a
+    real organization binds its private governance to the instance.
+  dependencies:
+    - id: broker.digital.channel.domain
+      version: 0.1.0
+    - id: frontend.client.engineering
+      version: 0.1.0
+  artifacts:
+    - id: example.organization.change.approval
+      version: 0.1.0
+      path: artifacts/change-approval.yaml
+    - id: example.organization.secret.isolation
+      version: 0.1.0
+      path: artifacts/secret-isolation.yaml
+    - id: example.organization.publication.allowlist
+      version: 0.1.0
+      path: artifacts/publication-allowlist.yaml
+    - id: example.organization.scenario.governed.change
+      version: 0.1.0
+      path: artifacts/scenario-governed-change.yaml
+    - id: example.organization.scenario.publication
+      version: 0.1.0
+      path: artifacts/scenario-publication.yaml

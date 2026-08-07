@@ -1,0 +1,14 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: test.invalid-rule.rule
+  title: Invalid published rule
+  version: 0.1.0
+  lifecycle: published
+spec:
+  artifactType: rule
+  summary: This published rule has neither authority nor validation.
+  provenance: []
+  relations: []
+  validation: []
+  contractRefs: []

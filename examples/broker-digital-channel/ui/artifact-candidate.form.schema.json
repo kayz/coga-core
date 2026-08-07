@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coga:form:artifact-candidate:0.1.0",
+  "title": "Domain artifact candidate",
+  "description": "Form contract for proposing, not publishing, a COGA domain artifact.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "schemaVersion": {
+      "const": "coga.dev/v0.1"
+    },
+    "kind": {
+      "const": "DomainArtifact"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "version",
+        "lifecycle",
+        "scope",
+        "visibility"
+      ],
+      "properties": {
+        "id": {
+          "title": "Stable ID",
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "title": "Exact SemVer",
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$",
+          "default": "0.1.0"
+        },
+        "lifecycle": {
+          "const": "candidate"
+        },
+        "scope": {
+          "const": "instance"
+        },
+        "visibility": {
+          "const": "public"
+        },
+        "owners": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactType",
+        "summary",
+        "scope",
+        "provenance",
+        "relations",
+        "validation",
+        "contractRefs"
+      ],
+      "properties": {
+        "artifactType": {
+          "type": "string",
+          "enum": [
+            "concept",
+            "rule",
+            "capability",
+            "scenario",
+            "policy",
+            "runbook"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "statement": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "sourceType"],
+            "properties": {
+              "source": {
+                "type": "string",
+                "format": "uri"
+              },
+              "sourceType": {
+                "type": "string",
+                "enum": [
+                  "document",
+                  "standard",
+                  "expert",
+                  "system",
+                  "observation"
+                ]
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "target"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "depends-on",
+                  "refines",
+                  "conflicts-with",
+                  "supersedes",
+                  "implements",
+                  "verifies",
+                  "applies-to"
+                ]
+              },
+              "target": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+              }
+            }
+          }
+        },
+        "validation": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "status"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["schema", "scenario", "test", "review"]
+              },
+              "status": {
+                "type": "string",
+                "enum": ["pending", "passed", "failed"]
+              },
+              "target": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+              },
+              "validator": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "minItems": 1
+        },
+        "contractRefs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "path"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-coga-workflow": {
+    "writeMode": "proposal-patch",
+    "publishRequiresHumanReview": true
+  }
+}

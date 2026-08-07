@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coga:contract:miniprogram-delivery-evidence:0.1.0",
+  "title": "Mini-program delivery evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["revision", "toolVersion", "buildStatus", "packageReportRef"],
+  "properties": {
+    "revision": {
+      "type": "string"
+    },
+    "toolVersion": {
+      "type": "string"
+    },
+    "buildStatus": {
+      "type": "string",
+      "enum": ["passed", "failed"]
+    },
+    "packageReportRef": {
+      "type": "string"
+    },
+    "platformEvidenceRef": {
+      "type": "string"
+    }
+  }
+}

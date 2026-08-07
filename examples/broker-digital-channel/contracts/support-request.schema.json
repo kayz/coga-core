@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coga:example:contract:support-request:0.1.0",
+  "title": "Fictitious support request",
+  "description": "A sanitized example contract shape, not a production or proprietary API.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["requestRef", "category", "consentToContact", "occurredAt"],
+  "properties": {
+    "requestRef": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "description": "Organization-defined category without free-form private content."
+    },
+    "consentToContact": {
+      "type": "boolean"
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

@@ -1,0 +1,52 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: wechat.miniprogram.privacy.authorization
+  title: Mini-program privacy authorization
+  version: 0.1.0
+  lifecycle: published
+  scope: instance
+  visibility: public
+  owners:
+    - example.platform.stewards
+  tags:
+    - privacy
+    - permission
+spec:
+  artifactType: policy
+  summary: >-
+    Privacy-sensitive platform capabilities require declared purpose, platform
+    authorization handling, and a deliberate denial path.
+  statement: >-
+    Before invoking a privacy-sensitive platform API, the application must present
+    the applicable purpose and follow the current platform privacy-authorization
+    flow. Denial, withdrawal, or unavailable permission must produce a documented
+    safe state. The application must not repeatedly coerce consent or silently
+    substitute unrelated data.
+  scope: >-
+    Applies to WeChat platform APIs governed by the mini-program privacy mechanism;
+    organization-specific notices and data inventories remain private overlays.
+  provenance:
+    - source: https://developers.weixin.qq.com/miniprogram/dev/framework/user-privacy/
+      sourceType: document
+      note: 小程序隐私保护指引
+    - source: https://www.npc.gov.cn/npc/c2/c30834/202108/t20210820_313088.html
+      sourceType: standard
+      note: 中华人民共和国个人信息保护法
+  relations:
+    - type: refines
+      target: broker.channel.personal.data.minimization
+    - type: applies-to
+      target: wechat.miniprogram.scenario.session.and.privacy
+  validation:
+    - type: schema
+      status: passed
+      validator: coga.validation.domain.artifact.schema
+    - type: scenario
+      status: passed
+      target: wechat.miniprogram.scenario.session.and.privacy
+      validator: coga.validation.scenario.reference
+    - type: review
+      status: passed
+      validator: coga.review.platform.privacy
+  contractRefs: []

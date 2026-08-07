@@ -1,0 +1,46 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: example.organization.scenario.governed.change
+  title: Governed change scenario
+  version: 0.1.0
+  lifecycle: approved
+  scope: instance
+  visibility: public
+  owners:
+    - example.organization.stewards
+  tags:
+    - scenario
+    - approval
+spec:
+  artifactType: scenario
+  summary: >-
+    An observable example for agent-proposed, human-approved sensitive change.
+  statement: |-
+    Scenario: an agent proposes an authorization rule change
+      Given a candidate changes shared authorization meaning
+      When the curator supplies provenance, scenarios, and an impact report
+      Then deterministic validation runs against the exact candidate
+      And the proposing agent is not recorded as an approver
+      And publication remains blocked until the required human owners approve
+
+    Scenario: a task needs a platform credential
+      Given the manifest names an authorized secret capability
+      When the delivery adapter executes the bounded operation
+      Then the environment resolves the secret without writing its value to evidence
+  scope: >-
+    Reused by example governance tests; real role and approval bindings are private.
+  provenance:
+    - source: https://csrc.nist.gov/pubs/sp/800/218/final
+      sourceType: standard
+      note: NIST Secure Software Development Framework (SP 800-218)
+  relations:
+    - type: verifies
+      target: example.organization.change.approval
+    - type: verifies
+      target: example.organization.secret.isolation
+  validation:
+    - type: review
+      status: passed
+      validator: coga.review.organization.owner
+  contractRefs: []

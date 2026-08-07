@@ -1,0 +1,23 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: capability.customer.profile
+  title: Read customer profile
+  version: 0.1.0
+  lifecycle: candidate
+  scope: instance
+  visibility: public
+spec:
+  artifactType: capability
+  summary: Reads the authenticated customer's profile through an explicit service contract.
+  statement: Profile data is read from the customer API and is never synthesized by a client.
+  provenance: []
+  relations:
+    - type: depends-on
+      target: domain.customer.identity
+      version: 0.1.0
+  validation: []
+  contractRefs:
+    - id: contract.customer.profile-api
+      version: 0.1.0
+      path: ../contracts/customer-profile.openapi.yaml

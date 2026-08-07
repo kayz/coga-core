@@ -1,0 +1,21 @@
+schemaVersion: coga.dev/v0.1
+kind: CogaInstance
+metadata:
+  id: test.dangling.instance
+  title: Dangling references fixture
+  version: 0.1.0
+  lifecycle: draft
+spec:
+  domain:
+    name: Dangling fixture
+    boundary: Exercises cross-reference checks.
+    nonGoals: []
+  packages:
+    - id: test.dangling.package
+      version: 0.1.0
+      path: package.yaml
+  applications:
+    - id: test.dangling.application
+      version: 0.1.0
+      path: application.yaml
+  governance: {}

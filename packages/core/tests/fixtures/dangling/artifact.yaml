@@ -1,0 +1,16 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: test.dangling.concept
+  title: Dangling concept
+  version: 0.1.0
+  lifecycle: draft
+spec:
+  artifactType: concept
+  summary: Deliberately relates to an artifact that is not loaded.
+  provenance: []
+  relations:
+    - type: depends-on
+      target: test.missing.concept
+  validation: []
+  contractRefs: []

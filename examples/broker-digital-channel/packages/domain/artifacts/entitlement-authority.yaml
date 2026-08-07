@@ -1,0 +1,49 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: broker.channel.entitlement.authority
+  title: Authoritative entitlement behavior
+  version: 0.1.0
+  lifecycle: published
+  scope: instance
+  visibility: public
+  owners:
+    - example.domain.stewards
+  tags:
+    - authorization
+    - fail-closed
+spec:
+  artifactType: rule
+  summary: >-
+    Client applications render protected capabilities only from current,
+    backend-issued authorization evidence.
+  statement: >-
+    The client must not infer or elevate an entitlement from platform identity,
+    cached presentation state, local configuration, or a visible control. When
+    authorization evidence is missing, expired, malformed, or contradictory, the
+    client denies the protected action or presents an explicitly safe degraded
+    state and requests fresh authority.
+  scope: >-
+    Applies to every protected capability exposed through a broker digital customer
+    channel; exact entitlement policy remains backend- and application-owned.
+  provenance:
+    - source: https://owasp.org/www-project-application-security-verification-standard/
+      sourceType: standard
+      note: OWASP Application Security Verification Standard
+    - source: https://pages.nist.gov/800-63-4/
+      sourceType: standard
+      note: NIST SP 800-63 Digital Identity Guidelines
+  relations:
+    - type: depends-on
+      target: broker.channel.identity.context
+    - type: applies-to
+      target: broker.channel.scenario.identity.and.entitlement
+  validation:
+    - type: schema
+      status: passed
+      validator: coga.validation.domain.artifact.schema
+    - type: scenario
+      status: passed
+      target: broker.channel.scenario.identity.and.entitlement
+      validator: coga.validation.scenario.reference
+  contractRefs: []

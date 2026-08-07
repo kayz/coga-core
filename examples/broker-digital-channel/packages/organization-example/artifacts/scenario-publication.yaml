@@ -1,0 +1,39 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: example.organization.scenario.publication
+  title: Public bundle rejection scenario
+  version: 0.1.0
+  lifecycle: approved
+  scope: instance
+  visibility: public
+  owners:
+    - example.organization.stewards
+  tags:
+    - scenario
+    - publication
+spec:
+  artifactType: scenario
+  summary: >-
+    An observable example for allowlist-based public export.
+  statement: |-
+    Scenario: a candidate contains a private environment binding
+      Given a resource is marked for public export
+      And its content contains a private endpoint or secret-shaped value
+      When the publication validator builds the inventory
+      Then the resource is rejected with its file and field location
+      And no partial public bundle is promoted
+  scope: >-
+    Reused by publication preparation for sanitized example resources.
+  provenance:
+    - source: https://csrc.nist.gov/pubs/sp/800/218/final
+      sourceType: standard
+      note: NIST Secure Software Development Framework (SP 800-218)
+  relations:
+    - type: verifies
+      target: example.organization.publication.allowlist
+  validation:
+    - type: review
+      status: passed
+      validator: coga.review.organization.publication
+  contractRefs: []

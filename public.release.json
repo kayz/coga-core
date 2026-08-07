@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "coga.dev/public-release/v0.1",
+  "version": "0.1.0",
+  "allow": [
+    ".gitattributes",
+    ".github/",
+    ".gitignore",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "README.md",
+    "README.zh-CN.md",
+    "SECURITY.md",
+    "VISION.md",
+    "VISION.zh-CN.md",
+    "docs/",
+    "examples/broker-digital-channel/",
+    "package-lock.json",
+    "package.json",
+    "packages/core/",
+    "public.release.json",
+    "scripts/",
+    "tsconfig.base.json"
+  ],
+  "deny": [".local/", "private/"]
+}

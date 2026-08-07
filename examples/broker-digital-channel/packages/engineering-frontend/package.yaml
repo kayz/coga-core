@@ -1,0 +1,39 @@
+schemaVersion: coga.dev/v0.1
+kind: HarnessPackage
+metadata:
+  id: frontend.client.engineering
+  title: Frontend Client Engineering
+  version: 0.1.0
+  lifecycle: approved
+  scope: instance
+  visibility: public
+  owners:
+    - example.engineering.stewards
+  tags:
+    - engineering
+    - frontend
+spec:
+  layer: engineering
+  description: >-
+    Delivery-target-neutral frontend constraints for contracts, UI state,
+    accessibility, and candidate evidence.
+  dependencies: []
+  artifacts:
+    - id: frontend.client.contract.boundary
+      version: 0.1.0
+      path: artifacts/contract-boundary.yaml
+    - id: frontend.client.state.explicit
+      version: 0.1.0
+      path: artifacts/explicit-state.yaml
+    - id: frontend.client.accessible.interaction
+      version: 0.1.0
+      path: artifacts/accessible-interaction.yaml
+    - id: frontend.client.verification.evidence
+      version: 0.1.0
+      path: artifacts/verification-evidence.yaml
+    - id: frontend.client.scenario.contract.and.state
+      version: 0.1.0
+      path: artifacts/scenario-contract-and-state.yaml
+    - id: frontend.client.scenario.accessibility
+      version: 0.1.0
+      path: artifacts/scenario-accessibility.yaml

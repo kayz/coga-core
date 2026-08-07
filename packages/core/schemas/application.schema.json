@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://coga.dev/schemas/v0.1/application.schema.json",
+  "title": "COGA Application",
+  "description": "A separately deliverable product that consumes exact harness package versions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "schemaVersion": {
+      "title": "Schema version",
+      "description": "Frozen COGA resource contract version.",
+      "type": "string",
+      "const": "coga.dev/v0.1",
+      "default": "coga.dev/v0.1"
+    },
+    "kind": {
+      "title": "Resource kind",
+      "description": "Discriminator for an independently deliverable application.",
+      "type": "string",
+      "const": "Application",
+      "default": "Application"
+    },
+    "metadata": {
+      "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/metadata"
+    },
+    "spec": {
+      "title": "Application definition",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deliveryTargets",
+        "harnessDependencies",
+        "contracts",
+        "scenarios",
+        "operations"
+      ],
+      "properties": {
+        "deliveryTargets": {
+          "title": "Delivery targets",
+          "description": "Platform-neutral target labels such as wechat-miniapp, web, or service.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "x-coga-ui": {
+            "control": "tags"
+          }
+        },
+        "harnessDependencies": {
+          "title": "Exact harness dependencies",
+          "description": "Harness package versions this application was designed and verified against.",
+          "type": "array",
+          "items": {
+            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "x-coga-ui": {
+            "control": "dependency-list"
+          }
+        },
+        "contracts": {
+          "title": "External contracts",
+          "description": "OpenAPI, JSON Schema, event, or tool contracts used by the application.",
+          "type": "array",
+          "items": {
+            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/contractRef"
+          },
+          "uniqueItems": true,
+          "default": [],
+          "x-coga-ui": {
+            "control": "contract-list"
+          }
+        },
+        "scenarios": {
+          "title": "Acceptance scenarios",
+          "type": "array",
+          "items": {
+            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+          },
+          "uniqueItems": true,
+          "default": [],
+          "x-coga-ui": {
+            "control": "artifact-picker",
+            "artifactType": "scenario"
+          }
+        },
+        "operations": {
+          "title": "Operational settings and references",
+          "description": "Application-owned operational configuration. Core resolves optional runbook references and leaves other settings domain-neutral.",
+          "type": "object",
+          "properties": {
+            "runbooks": {
+              "title": "Operational runbooks",
+              "type": "array",
+              "items": {
+                "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+              },
+              "uniqueItems": true,
+              "default": [],
+              "x-coga-ui": {
+                "control": "artifact-picker",
+                "artifactType": "runbook"
+              }
+            },
+            "settings": {
+              "title": "Application operational settings",
+              "description": "Application-defined settings that Core stores but does not interpret.",
+              "type": "object",
+              "default": {},
+              "x-coga-ui": {
+                "control": "object"
+              }
+            }
+          },
+          "additionalProperties": true,
+          "default": {},
+          "x-coga-ui": {
+            "control": "object"
+          }
+        },
+        "choices": {
+          "title": "Application choices",
+          "description": "Application-specific product decisions. Core validates only that this value is an object and does not interpret it.",
+          "type": "object",
+          "default": {},
+          "x-coga-ui": {
+            "control": "object"
+          }
+        }
+      }
+    }
+  }
+}

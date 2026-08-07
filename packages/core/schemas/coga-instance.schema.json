@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://coga.dev/schemas/v0.1/coga-instance.schema.json",
+  "title": "COGA Instance",
+  "description": "A bounded domain factory that registers exact harness packages and applications.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "schemaVersion": {
+      "title": "Schema version",
+      "description": "Frozen COGA resource contract version.",
+      "type": "string",
+      "const": "coga.dev/v0.1",
+      "default": "coga.dev/v0.1"
+    },
+    "kind": {
+      "title": "Resource kind",
+      "description": "Discriminator for a bounded COGA factory instance.",
+      "type": "string",
+      "const": "CogaInstance",
+      "default": "CogaInstance"
+    },
+    "metadata": {
+      "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/metadata"
+    },
+    "spec": {
+      "title": "Instance definition",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain", "packages", "applications", "governance"],
+      "properties": {
+        "domain": {
+          "title": "Bounded domain",
+          "description": "The positive boundary and explicit non-goals of this factory instance.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "boundary", "nonGoals"],
+          "properties": {
+            "name": {
+              "title": "Domain name",
+              "type": "string",
+              "minLength": 1
+            },
+            "boundary": {
+              "title": "Boundary",
+              "description": "Markdown statement of what the instance is authorized and equipped to produce.",
+              "type": "string",
+              "minLength": 1,
+              "x-coga-ui": {
+                "control": "markdown"
+              }
+            },
+            "nonGoals": {
+              "title": "Non-goals",
+              "description": "Explicit exclusions that prevent domain and product knowledge from leaking across boundaries.",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true,
+              "default": [],
+              "x-coga-ui": {
+                "control": "list"
+              }
+            }
+          }
+        },
+        "packages": {
+          "title": "Registered harness packages",
+          "type": "array",
+          "items": {
+            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/locatedRef"
+          },
+          "uniqueItems": true,
+          "default": [],
+          "x-coga-ui": {
+            "control": "resource-list"
+          }
+        },
+        "applications": {
+          "title": "Registered applications",
+          "type": "array",
+          "items": {
+            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/locatedRef"
+          },
+          "uniqueItems": true,
+          "default": [],
+          "x-coga-ui": {
+            "control": "resource-list"
+          }
+        },
+        "governance": {
+          "title": "Governance",
+          "description": "Instance-selected policies applied through Core's generic lifecycle mechanism.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "approvalRequiredFor": {
+              "title": "Approval-required lifecycle states",
+              "type": "array",
+              "items": {
+                "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/lifecycle"
+              },
+              "uniqueItems": true,
+              "default": ["published"],
+              "x-coga-ui": {
+                "control": "multi-select"
+              }
+            },
+            "policyRefs": {
+              "title": "Governance policy artifacts",
+              "type": "array",
+              "items": {
+                "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/stableId"
+              },
+              "uniqueItems": true,
+              "default": [],
+              "x-coga-ui": {
+                "control": "artifact-picker"
+              }
+            },
+            "extensions": {
+              "title": "Instance governance extensions",
+              "description": "Domain- or organization-specific settings that Core stores but does not interpret.",
+              "type": "object",
+              "default": {},
+              "x-coga-ui": {
+                "control": "object"
+              }
+            }
+          },
+          "default": {}
+        }
+      }
+    }
+  }
+}

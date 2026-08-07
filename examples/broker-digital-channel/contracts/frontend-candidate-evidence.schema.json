@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coga:contract:frontend-candidate-evidence:0.1.0",
+  "title": "Frontend candidate evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["revision", "harnessLocks", "checks"],
+  "properties": {
+    "revision": {
+      "type": "string"
+    },
+    "harnessLocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "version"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "status"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["passed", "failed"]
+          },
+          "evidenceRef": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

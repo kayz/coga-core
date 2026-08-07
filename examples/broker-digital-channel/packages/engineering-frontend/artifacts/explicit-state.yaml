@@ -1,0 +1,45 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: frontend.client.state.explicit
+  title: Explicit asynchronous UI state
+  version: 0.1.0
+  lifecycle: published
+  scope: instance
+  visibility: public
+  owners:
+    - example.engineering.stewards
+  tags:
+    - state
+    - resilience
+spec:
+  artifactType: rule
+  summary: >-
+    Remote-data views model loading, empty, ready, stale, denied, recoverable-error,
+    and terminal-error states explicitly.
+  statement: >-
+    A view must not collapse an unavailable, denied, stale, or malformed response
+    into an empty success state. Transitions are driven by typed adapter outcomes;
+    retry is offered only for recoverable outcomes, and a previous value is clearly
+    marked stale when it remains visible.
+  scope: >-
+    Applies to asynchronous data and protected-capability presentation in all client
+    delivery targets.
+  provenance:
+    - source: https://www.w3.org/TR/WCAG22/#status-messages
+      sourceType: standard
+      note: Web Content Accessibility Guidelines 2.2 — Status Messages
+  relations:
+    - type: depends-on
+      target: frontend.client.contract.boundary
+    - type: applies-to
+      target: frontend.client.scenario.contract.and.state
+  validation:
+    - type: schema
+      status: passed
+      validator: coga.validation.domain.artifact.schema
+    - type: scenario
+      status: passed
+      target: frontend.client.scenario.contract.and.state
+      validator: coga.validation.scenario.reference
+  contractRefs: []

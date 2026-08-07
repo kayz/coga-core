@@ -1,0 +1,18 @@
+schemaVersion: coga.dev/v0.1
+kind: CogaInstance
+metadata:
+  id: test.invalid-rule.instance
+  title: Invalid published rule fixture
+  version: 0.1.0
+  lifecycle: draft
+spec:
+  domain:
+    name: Invalid rule fixture
+    boundary: Exercises publication semantic checks.
+    nonGoals: []
+  packages:
+    - id: test.invalid-rule.package
+      version: 0.1.0
+      path: package.yaml
+  applications: []
+  governance: {}

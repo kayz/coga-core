@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coga:example:contract:feedback-command:0.1.0",
+  "title": "Fictitious content feedback command",
+  "description": "A sanitized example contract shape, not a production or proprietary API.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["commandRef", "contentRef", "assessment", "occurredAt"],
+  "properties": {
+    "commandRef": {
+      "type": "string"
+    },
+    "contentRef": {
+      "type": "string"
+    },
+    "assessment": {
+      "type": "string",
+      "enum": ["useful", "not-useful"]
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

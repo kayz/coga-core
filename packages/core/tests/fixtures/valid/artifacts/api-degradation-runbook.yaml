@@ -1,0 +1,17 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: runbook.channel.api-degradation
+  title: Channel API degradation response
+  version: 0.1.0
+  lifecycle: candidate
+  scope: instance
+  visibility: public
+spec:
+  artifactType: runbook
+  summary: Diagnose elevated API failures and choose a safe customer-facing fallback.
+  statement: Confirm upstream status before changing the application and preserve correlation evidence.
+  provenance: []
+  relations: []
+  validation: []
+  contractRefs: []

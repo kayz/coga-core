@@ -1,0 +1,28 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: domain.customer.identity
+  title: Customer identity
+  version: 0.1.0
+  lifecycle: published
+  scope: instance
+  visibility: public
+spec:
+  artifactType: concept
+  summary: A channel identity resolved by the authoritative customer service.
+  statement: The application treats identity assertions as server-owned data.
+  scope: Customer-facing digital channel applications only.
+  provenance:
+    - source: docs/domain/customer-identity.md
+      sourceType: document
+      locator: Identity model
+      capturedAt: 2026-08-08T00:00:00Z
+  relations: []
+  validation:
+    - type: review
+      status: passed
+      checkedAt: 2026-08-08T00:00:00Z
+      validator: review.domain-owner
+      evidence:
+        - evidence/customer-identity-review.md
+  contractRefs: []

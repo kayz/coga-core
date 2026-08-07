@@ -1,0 +1,15 @@
+schemaVersion: coga.dev/v0.1
+kind: HarnessPackage
+metadata:
+  id: test.invalid-rule.package
+  title: Invalid rule package
+  version: 0.1.0
+  lifecycle: draft
+spec:
+  layer: domain
+  description: Contains a deliberately invalid published rule.
+  dependencies: []
+  artifacts:
+    - id: test.invalid-rule.rule
+      version: 0.1.0
+      path: rule.yaml

@@ -1,0 +1,31 @@
+schemaVersion: coga.dev/v0.1
+kind: CogaInstance
+metadata:
+  id: example.broker-channel.instance
+  title: Example broker digital channel factory
+  version: 0.1.0
+  lifecycle: candidate
+  scope: instance
+  visibility: public
+spec:
+  domain:
+    name: Broker digital customer channels
+    boundary: Produces customer-facing channel applications backed by explicit service contracts.
+    nonGoals:
+      - Financial research and pricing engines
+  packages:
+    - id: example.broker-channel.domain
+      version: 0.1.0
+      path: packages/domain.yaml
+    - id: example.broker-channel.operations
+      version: 0.1.0
+      path: packages/operations.yaml
+  applications:
+    - id: example.application.demo
+      version: 0.1.0
+      path: applications/demo.yaml
+  governance:
+    approvalRequiredFor:
+      - published
+    policyRefs: []
+    extensions: {}

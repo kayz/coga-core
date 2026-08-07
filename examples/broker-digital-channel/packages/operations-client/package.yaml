@@ -1,0 +1,40 @@
+schemaVersion: coga.dev/v0.1
+kind: HarnessPackage
+metadata:
+  id: client.application.operations
+  title: Client Application Operations
+  version: 0.1.0
+  lifecycle: approved
+  scope: instance
+  visibility: public
+  owners:
+    - example.operations.stewards
+  tags:
+    - operations
+    - client-application
+spec:
+  layer: operations
+  description: >-
+    Shared client-side telemetry, incident triage, rollback preparation, and
+    operational learning for applications in this instance.
+  dependencies:
+    - id: broker.digital.channel.domain
+      version: 0.1.0
+    - id: frontend.client.engineering
+      version: 0.1.0
+  artifacts:
+    - id: client.operations.telemetry.minimization
+      version: 0.1.0
+      path: artifacts/telemetry-minimization.yaml
+    - id: client.operations.incident.triage
+      version: 0.1.0
+      path: artifacts/incident-triage.yaml
+    - id: client.operations.release.rollback
+      version: 0.1.0
+      path: artifacts/release-rollback.yaml
+    - id: client.operations.scenario.incident
+      version: 0.1.0
+      path: artifacts/scenario-incident.yaml
+    - id: client.operations.scenario.release
+      version: 0.1.0
+      path: artifacts/scenario-release.yaml

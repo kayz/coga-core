@@ -1,0 +1,68 @@
+{
+  "ui:order": ["schemaVersion", "kind", "metadata", "spec"],
+  "schemaVersion": {
+    "ui:readonly": true
+  },
+  "kind": {
+    "ui:readonly": true
+  },
+  "metadata": {
+    "ui:order": [
+      "id",
+      "title",
+      "version",
+      "lifecycle",
+      "scope",
+      "visibility",
+      "owners",
+      "tags"
+    ],
+    "id": {
+      "ui:help": "Use a stable lowercase dot-separated ID; never put an application name in a shared invariant."
+    },
+    "lifecycle": {
+      "ui:readonly": true,
+      "ui:help": "Forms submit candidates. Publication is a separate reviewed transition."
+    },
+    "scope": {
+      "ui:readonly": true
+    },
+    "visibility": {
+      "ui:readonly": true,
+      "ui:help": "This form belongs to the sanitized public example. Private overlays use a separate schema."
+    }
+  },
+  "spec": {
+    "ui:order": [
+      "artifactType",
+      "summary",
+      "statement",
+      "scope",
+      "provenance",
+      "relations",
+      "validation",
+      "contractRefs"
+    ],
+    "summary": {
+      "ui:widget": "textarea"
+    },
+    "statement": {
+      "ui:widget": "textarea",
+      "ui:help": "State observable meaning and failure behavior; do not paste source text."
+    },
+    "scope": {
+      "ui:widget": "textarea"
+    },
+    "provenance": {
+      "ui:options": {
+        "orderable": true
+      }
+    },
+    "validation": {
+      "ui:help": "Published rules need deterministic validation and an observable scenario reference."
+    },
+    "contractRefs": {
+      "ui:help": "Capabilities declare their executable or exchange contracts; other artifacts may keep this list empty."
+    }
+  }
+}

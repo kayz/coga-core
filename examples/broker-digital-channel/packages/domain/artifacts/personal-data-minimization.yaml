@@ -1,0 +1,49 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: broker.channel.personal.data.minimization
+  title: Purpose-bound personal data
+  version: 0.1.0
+  lifecycle: published
+  scope: instance
+  visibility: public
+  owners:
+    - example.domain.stewards
+  tags:
+    - privacy
+    - data-minimization
+spec:
+  artifactType: policy
+  summary: >-
+    Client channels minimize personal data and keep sensitive account information
+    out of source, logs, analytics, screenshots, and harness knowledge.
+  statement: >-
+    Each collected field requires a stated channel purpose and a defined retention
+    owner. Financial-account and identity data receive sensitive-data handling. The
+    client must not place raw identifiers, credentials, tokens, or private content
+    in telemetry or reusable harness artifacts; denial of optional collection must
+    have an explicit user-visible outcome.
+  scope: >-
+    Applies to collection, storage, use, transfer, display, diagnostics, analytics,
+    and deletion in every application consuming this domain package.
+  provenance:
+    - source: https://www.npc.gov.cn/npc/c2/c30834/202108/t20210820_313088.html
+      sourceType: standard
+      note: 中华人民共和国个人信息保护法
+  relations:
+    - type: applies-to
+      target: broker.channel.identity.context
+    - type: applies-to
+      target: broker.channel.scenario.data.denial
+  validation:
+    - type: schema
+      status: passed
+      validator: coga.validation.domain.artifact.schema
+    - type: scenario
+      status: passed
+      target: broker.channel.scenario.data.denial
+      validator: coga.validation.scenario.reference
+    - type: review
+      status: passed
+      validator: coga.review.domain.privacy
+  contractRefs: []

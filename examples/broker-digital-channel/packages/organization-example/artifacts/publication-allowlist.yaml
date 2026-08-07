@@ -1,0 +1,47 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: example.organization.publication.allowlist
+  title: Example public publication allowlist
+  version: 0.1.0
+  lifecycle: published
+  scope: instance
+  visibility: public
+  owners:
+    - example.organization.stewards
+  tags:
+    - publication
+    - sanitization
+spec:
+  artifactType: policy
+  summary: >-
+    Public export is allowlist-based and accepts only explicitly public,
+    instance-scoped resources whose sources and content pass sanitization review.
+  statement: >-
+    A public bundle includes only resources marked with instance scope and public
+    visibility. It rejects unresolved local references, secrets, personal data,
+    private endpoints, organization identifiers, screenshots, exact entitlement
+    amounts, proprietary API material, and copied private requirements. A human
+    reviews the final inventory and diff before publication.
+  scope: >-
+    Applies to this illustrative public instance and any derived example bundle; a
+    real organization maintains additional private detection rules outside it.
+  provenance:
+    - source: https://csrc.nist.gov/pubs/sp/800/218/final
+      sourceType: standard
+      note: NIST Secure Software Development Framework (SP 800-218)
+  relations:
+    - type: applies-to
+      target: example.organization.scenario.publication
+  validation:
+    - type: schema
+      status: passed
+      validator: coga.validation.domain.artifact.schema
+    - type: scenario
+      status: passed
+      target: example.organization.scenario.publication
+      validator: coga.validation.scenario.reference
+    - type: review
+      status: passed
+      validator: coga.review.organization.publication
+  contractRefs: []

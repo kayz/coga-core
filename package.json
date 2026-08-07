@@ -1,0 +1,32 @@
+{
+  "name": "coga-core-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "description": "COGA Core and public example instances",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "format:check": "prettier --check \"**/*.{cjs,js,json,md,mjs,ts,yaml,yml}\" --ignore-path .gitignore",
+    "validate:example": "node packages/core/dist/cli.js validate examples/broker-digital-channel/instance.yaml",
+    "catalog:example": "node packages/core/dist/cli.js catalog examples/broker-digital-channel/instance.yaml --format markdown",
+    "impact:example": "node packages/core/dist/cli.js impact examples/broker-digital-channel/instance.yaml broker.channel.identity.context",
+    "docs:check": "node scripts/check-doc-links.mjs",
+    "privacy:check": "node scripts/privacy-check.mjs",
+    "boundary:check": "node scripts/public-boundary-check.mjs",
+    "check:public": "npm run format:check && npm run typecheck && npm run test && npm run build && npm run validate:example && npm run docs:check && npm run privacy:check && npm run boundary:check",
+    "check:local": "npm run check:public && node scripts/check-private.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2",
+    "typescript": "5.9.3"
+  },
+  "license": "Apache-2.0"
+}

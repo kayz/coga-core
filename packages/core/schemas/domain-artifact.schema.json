@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://coga.dev/schemas/v0.1/domain-artifact.schema.json",
+  "title": "COGA Domain Artifact",
+  "description": "A versioned, attributable, and verifiable unit of knowledge used by a COGA harness.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "schemaVersion": {
+      "title": "Schema version",
+      "description": "Frozen COGA resource contract version.",
+      "type": "string",
+      "const": "coga.dev/v0.1",
+      "default": "coga.dev/v0.1"
+    },
+    "kind": {
+      "title": "Resource kind",
+      "description": "Discriminator for a reusable unit of harness knowledge.",
+      "type": "string",
+      "const": "DomainArtifact",
+      "default": "DomainArtifact"
+    },
+    "metadata": {
+      "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/metadata"
+    },
+    "spec": {
+      "title": "Artifact definition",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactType",
+        "summary",
+        "provenance",
+        "relations",
+        "validation",
+        "contractRefs"
+      ],
+      "properties": {
+        "artifactType": {
+          "title": "Artifact type",
+          "description": "The semantic role played by this artifact.",
+          "type": "string",
+          "enum": [
+            "concept",
+            "rule",
+            "capability",
+            "scenario",
+            "policy",
+            "runbook"
+          ],
+          "x-coga-ui": {
+            "control": "select"
+          }
+        },
+        "summary": {
+          "title": "Summary",
+          "description": "A concise human-readable explanation suitable for catalogs and reviews.",
+          "type": "string",
+          "minLength": 1,
+          "x-coga-ui": {
+            "control": "textarea",
+            "rows": 3
+          }
+        },
+        "statement": {
+          "title": "Normative statement",
+          "description": "Optional Markdown statement defining the artifact's normative meaning.",
+          "type": "string",
+          "minLength": 1,
+          "x-coga-ui": {
+            "control": "markdown"
+          }
+        },
+        "scope": {
+          "title": "Scope",
+          "description": "Optional Markdown boundary describing where the artifact applies and where it does not.",
+          "type": "string",
+          "minLength": 1,
+          "x-coga-ui": {
+            "control": "markdown"
+          }
+        },
+        "provenance": {
+          "title": "Provenance",
+          "type": "array",
+          "items": {
+            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/provenance"
+          },
+          "default": [],
+          "x-coga-ui": {
+            "control": "list"
+          }
+        },
+        "relations": {
+          "title": "Relations",
+          "type": "array",
+          "items": {
+            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/relation"
+          },
+          "default": [],
+          "x-coga-ui": {
+            "control": "relation-list"
+          }
+        },
+        "validation": {
+          "title": "Validation",
+          "type": "array",
+          "items": {
+            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/validation"
+          },
+          "default": [],
+          "x-coga-ui": {
+            "control": "evidence-list"
+          }
+        },
+        "contractRefs": {
+          "title": "Capability contracts",
+          "description": "Contracts implemented or required by this artifact. Capabilities must declare at least one.",
+          "type": "array",
+          "items": {
+            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/contractRef"
+          },
+          "default": [],
+          "x-coga-ui": {
+            "control": "contract-list"
+          }
+        }
+      }
+    }
+  }
+}

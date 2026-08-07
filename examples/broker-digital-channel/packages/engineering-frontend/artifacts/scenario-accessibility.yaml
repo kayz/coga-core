@@ -1,0 +1,43 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: frontend.client.scenario.accessibility
+  title: Critical interaction accessibility scenario
+  version: 0.1.0
+  lifecycle: approved
+  scope: instance
+  visibility: public
+  owners:
+    - example.engineering.stewards
+  tags:
+    - scenario
+    - accessibility
+spec:
+  artifactType: scenario
+  summary: >-
+    An observable example for critical content, control, and status semantics.
+  statement: |-
+    Scenario: a critical action reports validation and completion
+      Given a user navigates the journey without relying on color alone
+      When validation prevents the action
+      Then each error identifies the affected input and corrective meaning
+      When the corrected action completes asynchronously
+      Then the completion status is programmatically perceivable
+      And focus or reading order remains predictable
+  scope: >-
+    Reused for each application's selected core journeys with target-specific test
+    adapters.
+  provenance:
+    - source: https://www.w3.org/TR/WCAG22/
+      sourceType: standard
+      note: Web Content Accessibility Guidelines 2.2
+  relations:
+    - type: verifies
+      target: frontend.client.accessible.interaction
+    - type: verifies
+      target: frontend.client.verification.evidence
+  validation:
+    - type: review
+      status: passed
+      validator: coga.review.engineering.accessibility
+  contractRefs: []

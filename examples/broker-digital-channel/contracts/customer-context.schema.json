@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coga:example:contract:customer-context:0.1.0",
+  "title": "Fictitious customer context",
+  "description": "A sanitized example contract shape, not a production or proprietary API.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["subjectRef", "authenticated", "authorityVersion", "expiresAt"],
+  "properties": {
+    "subjectRef": {
+      "type": "string",
+      "description": "Opaque, non-display reference supplied by the trusted backend."
+    },
+    "authenticated": {
+      "type": "boolean"
+    },
+    "authorityVersion": {
+      "type": "string",
+      "description": "Opaque version of the backend authorization decision."
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

@@ -1,0 +1,46 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: wechat.miniprogram.session.exchange
+  title: WeChat session exchange boundary
+  version: 0.1.0
+  lifecycle: published
+  scope: instance
+  visibility: public
+  owners:
+    - example.platform.stewards
+  tags:
+    - session
+    - authentication
+spec:
+  artifactType: rule
+  summary: >-
+    A temporary mini-program login credential is exchanged by a trusted backend and
+    is not itself a durable customer identity or client-side authorization.
+  statement: >-
+    The client obtains a temporary login credential through the platform flow and
+    sends it only to the configured trusted backend exchange. Secrets, durable
+    session authority, and platform-to-customer identity mapping remain server-side.
+    Expired or failed exchange returns the client to an explicit unauthenticated
+    state without treating cached profile data as authority.
+  scope: >-
+    Applies to WeChat mini-program applications that establish an application
+    session or associate a platform user with a backend customer context.
+  provenance:
+    - source: https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/login.html
+      sourceType: document
+      note: 小程序登录
+  relations:
+    - type: depends-on
+      target: broker.channel.identity.context
+    - type: applies-to
+      target: wechat.miniprogram.scenario.session.and.privacy
+  validation:
+    - type: schema
+      status: passed
+      validator: coga.validation.domain.artifact.schema
+    - type: scenario
+      status: passed
+      target: wechat.miniprogram.scenario.session.and.privacy
+      validator: coga.validation.scenario.reference
+  contractRefs: []

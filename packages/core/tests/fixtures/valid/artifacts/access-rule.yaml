@@ -1,0 +1,29 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: domain.customer.access-rule
+  title: Server-authoritative access
+  version: 0.1.0
+  lifecycle: published
+  scope: instance
+  visibility: public
+spec:
+  artifactType: rule
+  summary: Applications grant protected features only from server-issued entitlements.
+  statement: A client must not infer or elevate an entitlement locally.
+  scope: Authorization of protected customer channel capabilities.
+  provenance:
+    - source: docs/domain/access-control.md
+      sourceType: document
+      locator: Authorization invariant
+  relations:
+    - type: depends-on
+      target: domain.customer.identity
+      version: 0.1.0
+  validation:
+    - type: scenario
+      status: passed
+      target: scenario.customer.access-allowed
+      checkedAt: 2026-08-08T00:00:00Z
+      validator: test.scenario.access
+  contractRefs: []

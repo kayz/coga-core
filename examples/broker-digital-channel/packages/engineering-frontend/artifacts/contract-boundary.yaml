@@ -1,0 +1,43 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: frontend.client.contract.boundary
+  title: Contract-first backend boundary
+  version: 0.1.0
+  lifecycle: published
+  scope: instance
+  visibility: public
+  owners:
+    - example.engineering.stewards
+  tags:
+    - api-contract
+    - compatibility
+spec:
+  artifactType: rule
+  summary: >-
+    Frontend code consumes a versioned, validated contract through an adapter rather
+    than depending on undocumented backend response shapes.
+  statement: >-
+    Each external operation used by an application has a locked contract identifier
+    and version. The client adapter validates or safely rejects incompatible data,
+    maps transport errors into explicit application states, and preserves unknown
+    values for diagnosis without presenting them as trusted business meaning.
+  scope: >-
+    Applies to remote HTTP-style interfaces used by a client application; this
+    public package contains no proprietary operation, endpoint, or payload schema.
+  provenance:
+    - source: https://spec.openapis.org/oas/
+      sourceType: standard
+      note: OpenAPI Specification
+  relations:
+    - type: applies-to
+      target: frontend.client.scenario.contract.and.state
+  validation:
+    - type: schema
+      status: passed
+      validator: coga.validation.domain.artifact.schema
+    - type: scenario
+      status: passed
+      target: frontend.client.scenario.contract.and.state
+      validator: coga.validation.scenario.reference
+  contractRefs: []
