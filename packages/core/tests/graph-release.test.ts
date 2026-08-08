@@ -1,5 +1,5 @@
 import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
+import { dirname, relative, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   impactWithReasons,
@@ -63,6 +63,10 @@ function releaseEvidence(loaded: LoadedCogaInstance): EvidenceBundle[] {
   return loaded.artifacts.map((resource, index) => {
     const document = resource.document as DomainArtifact;
     const digest = sha256(resourceBytes(resource.path));
+    const materialPath = relative(
+      dirname(loaded.manifestPath),
+      resource.path,
+    ).replaceAll("\\", "/");
     return {
       schemaVersion: "coga.dev/control/v0.1",
       kind: "EvidenceBundle",
@@ -84,7 +88,7 @@ function releaseEvidence(loaded: LoadedCogaInstance): EvidenceBundle[] {
         },
         disposition: "candidate",
         subject: {
-          path: resource.path,
+          path: materialPath,
           mediaType: "application/yaml",
           digest,
         },
@@ -98,7 +102,7 @@ function releaseEvidence(loaded: LoadedCogaInstance): EvidenceBundle[] {
               id: "adapter.validator.release",
               version: "0.1.0",
             },
-            materialPaths: [resource.path],
+            materialPaths: [materialPath],
           },
         ],
         execution: {

@@ -13,6 +13,27 @@ export interface EvidenceVerificationOptions {
   readFile?: (path: string) => Uint8Array;
 }
 
+/** Accept only portable, workspace-relative material paths. */
+export function isConfinedEvidencePath(path: string): boolean {
+  if (
+    !path ||
+    path.includes("\0") ||
+    /^[\\/]/u.test(path) ||
+    /^[A-Za-z]:/u.test(path)
+  ) {
+    return false;
+  }
+  const segments = path.split(/[\\/]/u);
+  return segments.every(
+    (segment) => segment.length > 0 && segment !== "." && segment !== "..",
+  );
+}
+
+function resolveMaterialPath(baseDir: string, path: string): string | null {
+  if (!isConfinedEvidencePath(path)) return null;
+  return resolve(baseDir, ...path.split(/[\\/]/u));
+}
+
 /** Verify evidence bytes and claim coverage; file contents never enter issues or logs. */
 export function verifyEvidenceBundle(
   bundle: EvidenceBundle,
@@ -26,7 +47,16 @@ export function verifyEvidenceBundle(
   ];
   const materialPaths = new Set(materials.map((material) => material.path));
   for (const material of materials) {
-    const path = resolve(options.baseDir, material.path);
+    const path = resolveMaterialPath(options.baseDir, material.path);
+    if (!path) {
+      issues.push({
+        code: "evidence.material-path-invalid",
+        message:
+          "Evidence material path must be portable and relative to the evidence base directory.",
+        path: material.path,
+      });
+      continue;
+    }
     try {
       const actual = sha256(reader(path));
       if (actual !== material.digest) {

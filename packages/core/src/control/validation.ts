@@ -8,6 +8,7 @@ import type { FormatsPlugin } from "ajv-formats";
 import { verifyAuditTrail } from "./audit.js";
 import { canonicalJson, sha256 } from "./canonical.js";
 import {
+  isConfinedEvidencePath,
   verifyEvidenceBundle,
   type EvidenceVerificationOptions,
 } from "./evidence.js";
@@ -124,6 +125,17 @@ function evidenceSemantics(bundle: EvidenceBundle): ControlValidationIssue[] {
     bundle.spec.subject,
     ...bundle.spec.materials,
   ].entries()) {
+    if (!isConfinedEvidencePath(material.path)) {
+      issues.push({
+        code: "evidence.material-path-invalid",
+        message:
+          "Evidence material paths must be portable workspace-relative paths.",
+        path:
+          index === 0
+            ? "/spec/subject/path"
+            : `/spec/materials/${index - 1}/path`,
+      });
+    }
     if (materialPaths.has(material.path)) {
       issues.push({
         code: "evidence.duplicate-material-path",

@@ -1,3 +1,4 @@
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   AdapterRegistry,
@@ -279,18 +280,19 @@ describe("COGA control plane contracts", () => {
 
   it("verifies evidence bytes and required claim coverage", () => {
     const bundle = evidence();
+    const baseDir = resolve("virtual-evidence");
     const bytes: Record<string, Buffer> = {
-      "C:\\virtual\\candidate.yaml": Buffer.from("candidate"),
-      "C:\\virtual\\report.json": Buffer.from("report"),
+      [resolve(baseDir, "candidate.yaml")]: Buffer.from("candidate"),
+      [resolve(baseDir, "report.json")]: Buffer.from("report"),
     };
     const valid = verifyEvidenceBundle(bundle, {
-      baseDir: "C:\\virtual",
+      baseDir,
       requiredClaims: ["candidate.valid"],
       readFile: (path) => bytes[path]!,
     });
     expect(valid).toEqual([]);
     const invalid = verifyEvidenceBundle(bundle, {
-      baseDir: "C:\\virtual",
+      baseDir,
       requiredClaims: ["security.reviewed"],
       readFile: (path) =>
         path.endsWith("report.json") ? Buffer.from("tampered") : bytes[path]!,
@@ -301,6 +303,32 @@ describe("COGA control plane contracts", () => {
         "evidence.required-claim-missing",
       ]),
     );
+
+    for (const unsafePath of [
+      "../candidate.yaml",
+      "/tmp/candidate.yaml",
+      "C:\\secrets\\candidate.yaml",
+    ]) {
+      const unsafe = structuredClone(bundle);
+      unsafe.spec.subject.path = unsafePath;
+      const validation = validateControlDocument(unsafe);
+      expect(validation.valid).toBe(false);
+      expect(
+        validation.issues.some((entry) =>
+          ["control.schema.pattern", "evidence.material-path-invalid"].includes(
+            entry.code,
+          ),
+        ),
+      ).toBe(true);
+      expect(
+        verifyEvidenceBundle(unsafe, {
+          baseDir,
+          readFile: () => {
+            throw new Error("An unsafe path must not be read.");
+          },
+        }).map((entry) => entry.code),
+      ).toContain("evidence.material-path-invalid");
+    }
   });
 
   it("rejects unknown, duplicate, wrong-kind, and wrong-version adapters", () => {
