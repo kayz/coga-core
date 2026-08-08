@@ -59,4 +59,7 @@ spec:
       sourceOfTruth: versioned-files
       publishRule: human-review-and-evidence-required
       candidateForm: ui/artifact-candidate.form.schema.json
+      factoryReviewForm: ui/factory-change.form.schema.json
+      factoryProfile: factory/profile.yaml
+      releaseInputs: factory/releases/broker-channel-0.1.0.inputs.yaml
       reviewPolicy: docs/knowledge-governance.md

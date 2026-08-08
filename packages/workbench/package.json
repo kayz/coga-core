@@ -1,0 +1,46 @@
+{
+  "name": "@coga/workbench",
+  "version": "0.1.0",
+  "description": "Local human governance interface for the COGA reference factory.",
+  "type": "module",
+  "bin": {
+    "coga-workbench": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "public",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-assets.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && vitest run",
+    "prepack": "npm run build"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@coga/factory": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "coga",
+    "workbench",
+    "governance",
+    "domain-harness"
+  ]
+}

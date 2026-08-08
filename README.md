@@ -1,6 +1,6 @@
 # COGA Core
 
-[中文说明](README.zh-CN.md) · [Vision](VISION.md) · [Public example](examples/broker-digital-channel/README.md) · [Changelog](CHANGELOG.md)
+[中文说明](README.zh-CN.md) · [Vision](VISION.md) · [Executable factory reference](docs/factory-reference.md) · [Public example](examples/broker-digital-channel/README.md) · [Changelog](CHANGELOG.md)
 
 COGA Core is the open, domain-neutral contract layer for a human-governed,
 agent-operated software factory. It helps a team **calibrate a bounded domain**
@@ -41,8 +41,11 @@ governance decisions.
 - a sanitized
   [Broker Digital Customer Channel example](examples/broker-digital-channel/README.md)
   with five Harness layers and two fictitious consuming applications;
-- form-ready schema hints and narrow agent playbooks, while keeping versioned
-  files and pull requests as the source of truth;
+- a localhost human-governance Workbench, file-backed control plane, and narrow
+  Agent/Validator adapters;
+- a resumable loop from intent, candidate, evidence, digest-bound approval, and
+  local preview through incident handling, repair verification, and Harness
+  promotion candidate;
 - explicit public-release and privacy checks.
 
 The example is educational. It contains no production endpoint, secret, customer
@@ -57,6 +60,12 @@ npm ci
 npm run check:public
 npm run catalog:example
 npm run impact:example
+```
+
+Run the local-only Workbench, which has no publish or upload capability:
+
+```console
+npm run workbench
 ```
 
 After the build, the CLI can inspect another Instance:
@@ -88,13 +97,13 @@ spec:
   validation: []
 ```
 
-## Knowledge authoring and future UI
+## Knowledge authoring and Workbench
 
 YAML files are canonical because they are readable, diffable, versionable, and
 easy for agents to propose without hiding state. JSON Schema provides deterministic
-validation and is also the contract for a future form interface. Markdown catalogs,
-graphs, and forms are derived views; a form submission should create a file patch
-and review request, not a second database.
+validation and is also the contract for the Workbench form interface. Markdown
+catalogs, graphs, and forms are derived views; a form submission creates a file
+proposal and review request, not a second source of truth.
 
 Agents may research and draft candidate assets. Humans remain responsible for
 domain meaning, risk acceptance, exceptions, and publication. The intended model
@@ -104,6 +113,8 @@ is **human-governed, unattended execution**, not unowned automation.
 
 ```text
 packages/core/                       domain-neutral library, CLI, and schemas
+packages/factory/                    governed local reference engine and adapters
+packages/workbench/                  localhost human governance interface
 examples/broker-digital-channel/     sanitized, reusable COGA Instance
 docs/                                cross-cutting architecture decisions
 scripts/                             privacy and public-boundary gates

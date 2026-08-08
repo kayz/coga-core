@@ -1,0 +1,125 @@
+schemaVersion: coga.dev/release/v0.1
+target:
+  id: instance.broker.digital.customer.channel
+  version: 0.1.0
+packages:
+  - id: broker.digital.channel.domain
+    version: 0.1.0
+  - id: wechat.miniprogram.platform
+    version: 0.1.0
+  - id: frontend.client.engineering
+    version: 0.1.0
+  - id: example.broker.organization
+    version: 0.1.0
+  - id: client.application.operations
+    version: 0.1.0
+resources:
+  - id: broker.digital.channel.domain
+    version: 0.1.0
+    kind: HarnessPackage
+    path: packages/domain/package.yaml
+    digest: sha256:f9be13d5ed7298bfb9fe9fa999ecc9bc3e5347faed9a026f3d44ff1079511e18
+    lifecycle: approved
+    visibility: public
+  - id: wechat.miniprogram.platform
+    version: 0.1.0
+    kind: HarnessPackage
+    path: packages/platform-wechat-mini-program/package.yaml
+    digest: sha256:afad204bac7b6b88bee8fd720f1c396b3465048ecf435e2f4b9a1bfaab74a1d9
+    lifecycle: approved
+    visibility: public
+  - id: frontend.client.engineering
+    version: 0.1.0
+    kind: HarnessPackage
+    path: packages/engineering-frontend/package.yaml
+    digest: sha256:e563380566843d1d09e8064ed321b203191f6766beb32fe243508d84181fe2d7
+    lifecycle: approved
+    visibility: public
+  - id: example.broker.organization
+    version: 0.1.0
+    kind: HarnessPackage
+    path: packages/organization-example/package.yaml
+    digest: sha256:7ce9d3fbb22275c63d1fb751a836e6b15bc177363157542163182de83dc9ef3b
+    lifecycle: approved
+    visibility: public
+  - id: client.application.operations
+    version: 0.1.0
+    kind: HarnessPackage
+    path: packages/operations-client/package.yaml
+    digest: sha256:3303adf348653c11dd6c7dee2c6f48500f5e64fbccbcf4c81b5f58c90abb1c67
+    lifecycle: approved
+    visibility: public
+  - id: broker.channel.entitlement.authority
+    version: 0.1.0
+    kind: DomainArtifact
+    path: packages/domain/artifacts/entitlement-authority.yaml
+    digest: sha256:69b945e2248969ef51ef78a3ab55bf0b720e3c7227d2f97d377763fa08b5eee8
+    lifecycle: published
+    visibility: public
+  - id: frontend.client.verification.evidence
+    version: 0.1.0
+    kind: DomainArtifact
+    path: packages/engineering-frontend/artifacts/verification-evidence.yaml
+    digest: sha256:53c8258e251983d309de694b10964e00e4c2d9ca8df3fad407c8c3a9d7b66371
+    lifecycle: published
+    visibility: public
+  - id: contract.example.customer.context
+    version: 0.1.0
+    kind: Contract
+    path: contracts/customer-context.schema.json
+    digest: sha256:c14e2f8a7129ffe86fa1119d6e1bcf750146efdd0872c1b1e137648b19ceedd6
+    lifecycle: approved
+    visibility: public
+  - id: contract.example.frontend.candidate.evidence
+    version: 0.1.0
+    kind: Contract
+    path: contracts/frontend-candidate-evidence.schema.json
+    digest: sha256:095051d39433e33c00e0c7c41ad5bd9a586276406717d68bc07ea162324499c2
+    lifecycle: approved
+    visibility: public
+  - id: broker.channel.scenario.identity.and.entitlement
+    version: 0.1.0
+    kind: DomainArtifact
+    path: packages/domain/artifacts/scenario-identity-and-entitlement.yaml
+    digest: sha256:58a72a515d52ba0e962e8ff2d5bd8deb75f43f980fea8c1e21ba6fcb76422310
+    lifecycle: approved
+    visibility: public
+  - id: frontend.client.scenario.contract.and.state
+    version: 0.1.0
+    kind: DomainArtifact
+    path: packages/engineering-frontend/artifacts/scenario-contract-and-state.yaml
+    digest: sha256:d80c9c34529eaa63f00bf4b7a49d29d66ca0bce59cbac721b5ecf62951a4aa0e
+    lifecycle: approved
+    visibility: public
+  - id: client.operations.scenario.release
+    version: 0.1.0
+    kind: DomainArtifact
+    path: packages/operations-client/artifacts/scenario-release.yaml
+    digest: sha256:2a4300e0f4d6f503f996bee7b26bf791de2250c4772a129523d8f53b927dfe35
+    lifecycle: approved
+    visibility: public
+  - id: client.operations.scenario.incident
+    version: 0.1.0
+    kind: DomainArtifact
+    path: packages/operations-client/artifacts/scenario-incident.yaml
+    digest: sha256:264646496bda467e3b78af8131f67b992730ad6d31e1f156ae06f14a48cda214
+    lifecycle: approved
+    visibility: public
+  - id: prompt.broker.channel.asset.evaluator
+    version: 1.0.0
+    kind: AgentPrompt
+    path: factory/prompts/asset-evaluator.v1.md
+    digest: sha256:dc8680cea1a28deaebd4fc0ce8d47074ba785dc03da64ddfd87d8b70420fdd78
+    lifecycle: approved
+    visibility: public
+provenance:
+  - source: https://owasp.org/www-project-application-security-verification-standard/
+    digest: sha256:9249f6a0d491d5c2d44dd21c112b9ae4444fd4ccdfc1be6a1ee1c3315cf2659c
+    visibility: public
+  - source: https://pages.nist.gov/800-63-4/
+    digest: sha256:102c19a24725bdc9f6440090b829cc873b61f99bf38182b8c72b2558fa24bbb4
+    visibility: public
+evidenceDigests:
+  - sha256:e8b4efc331961e4f79c2351239f97a96ec69ef46d13e6a5318d9813bc7af915c
+  - sha256:a0c74fee0d99ef8f4a25714a093f67cf52df6bb07ea6e01aac9603bd95f2f9f5
+releaseDigest: sha256:5b5760de14e1002d4560a361c0d767f5cbffbf170191a8a1a4ca4bc2ec7f7a74

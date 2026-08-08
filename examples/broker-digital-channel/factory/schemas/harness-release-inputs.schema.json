@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coga:factory:harness-release-inputs:0.1.0",
+  "title": "Harness release inputs",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "schemaVersion": {
+      "const": "coga.dev/factory/v0.1"
+    },
+    "kind": {
+      "const": "HarnessReleaseInputs"
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target",
+        "packages",
+        "sourcePolicy",
+        "closurePolicy",
+        "materials"
+      ],
+      "properties": {
+        "target": {
+          "$ref": "#/$defs/exactRef"
+        },
+        "packages": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/exactRef"
+          }
+        },
+        "sourcePolicy": {
+          "$ref": "#/$defs/path"
+        },
+        "closurePolicy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "digestAlgorithm",
+            "requireDigestForEveryMaterial",
+            "resolvePackageArtifacts",
+            "resolveContractRefs",
+            "resolveScenarioAndRunbookRefs",
+            "rejectUnresolvedReferences",
+            "rejectDirectPublishedMutation",
+            "transitiveVisibility",
+            "evidenceRequired",
+            "humanApprovalRequired"
+          ],
+          "properties": {
+            "digestAlgorithm": {
+              "const": "sha256"
+            },
+            "requireDigestForEveryMaterial": {
+              "const": true
+            },
+            "resolvePackageArtifacts": {
+              "const": true
+            },
+            "resolveContractRefs": {
+              "const": true
+            },
+            "resolveScenarioAndRunbookRefs": {
+              "const": true
+            },
+            "rejectUnresolvedReferences": {
+              "const": true
+            },
+            "rejectDirectPublishedMutation": {
+              "const": true
+            },
+            "transitiveVisibility": {
+              "const": "public"
+            },
+            "evidenceRequired": {
+              "const": true
+            },
+            "humanApprovalRequired": {
+              "const": true
+            }
+          }
+        },
+        "materials": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "packages",
+            "artifacts",
+            "contracts",
+            "scenarios",
+            "prompts",
+            "sources",
+            "evaluations",
+            "approvals"
+          ],
+          "properties": {
+            "packages": {
+              "$ref": "#/$defs/materials"
+            },
+            "artifacts": {
+              "$ref": "#/$defs/materials"
+            },
+            "contracts": {
+              "$ref": "#/$defs/materials"
+            },
+            "scenarios": {
+              "$ref": "#/$defs/materials"
+            },
+            "prompts": {
+              "$ref": "#/$defs/materials"
+            },
+            "sources": {
+              "$ref": "#/$defs/materials"
+            },
+            "evaluations": {
+              "$ref": "#/$defs/materials"
+            },
+            "approvals": {
+              "$ref": "#/$defs/materials"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z]:)(?![/\\\\]).+$"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "version"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "$ref": "#/$defs/semver"
+        }
+      }
+    },
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "version": {
+          "$ref": "#/$defs/semver"
+        }
+      }
+    },
+    "material": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "kind",
+        "path",
+        "digest",
+        "lifecycle",
+        "visibility"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "version": {
+          "$ref": "#/$defs/semver"
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "lifecycle": {
+          "enum": ["draft", "candidate", "approved", "published", "deprecated"]
+        },
+        "visibility": {
+          "const": "public"
+        }
+      }
+    },
+    "materials": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/material"
+      }
+    }
+  }
+}

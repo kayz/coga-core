@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://coga.dev/schemas/application-recipe.v0.1.json",
+  "title": "COGA application recipe",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "schemaVersion": { "const": "coga.dev/factory/v0.1" },
+    "kind": { "const": "ApplicationRecipe" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "version"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
+        }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deliveryTarget",
+        "templateRoot",
+        "parameters",
+        "harnessDependencies",
+        "outputs",
+        "validators"
+      ],
+      "properties": {
+        "deliveryTarget": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "templateRoot": { "$ref": "#/$defs/relativePath" },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "pattern", "required"],
+            "properties": {
+              "name": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*$" },
+              "pattern": { "type": "string", "minLength": 1, "maxLength": 256 },
+              "required": { "type": "boolean" },
+              "default": { "type": "string", "maxLength": 512 }
+            }
+          }
+        },
+        "harnessDependencies": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/exactRef" }
+        },
+        "outputs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/relativePath" }
+        },
+        "validators": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/exactRef" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+$"
+    },
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$" },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
+        }
+      }
+    }
+  }
+}

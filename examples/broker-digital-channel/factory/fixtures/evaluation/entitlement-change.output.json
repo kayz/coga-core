@@ -1,0 +1,22 @@
+{
+  "summary": "The clarification narrows client behavior to denial-first presentation while preserving trusted backend authority.",
+  "changeClasses": ["scope-narrowed", "failure-behavior-changed"],
+  "risks": [
+    {
+      "severity": "high",
+      "description": "Clients could hide a legitimate capability when authoritative evidence is delayed or malformed.",
+      "mitigation": "Exercise stale, unavailable, malformed, negative, and recovered decisions in both consumers and keep a reversible release path."
+    }
+  ],
+  "questions": [
+    "Does each consumer distinguish unavailable evidence from a current negative decision without implying backend authorization?"
+  ],
+  "recommendedScenarios": [
+    "broker.channel.scenario.identity.and.entitlement",
+    "frontend.client.scenario.contract.and.state",
+    "client.operations.scenario.release",
+    "client.operations.scenario.incident"
+  ],
+  "recommendation": "ready",
+  "confidence": 0.86
+}

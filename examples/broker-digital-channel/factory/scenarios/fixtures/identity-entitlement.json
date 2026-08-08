@@ -1,0 +1,48 @@
+{
+  "cases": [
+    {
+      "name": "current positive backend decision",
+      "input": {
+        "authenticated": true,
+        "entitlementDecision": "allow",
+        "entitlementFresh": true
+      },
+      "expected": "allowed"
+    },
+    {
+      "name": "missing decision",
+      "input": {
+        "authenticated": true,
+        "entitlementFresh": true
+      },
+      "expected": "denied"
+    },
+    {
+      "name": "stale positive decision",
+      "input": {
+        "authenticated": true,
+        "entitlementDecision": "allow",
+        "entitlementFresh": false
+      },
+      "expected": "denied"
+    },
+    {
+      "name": "negative decision",
+      "input": {
+        "authenticated": true,
+        "entitlementDecision": "deny",
+        "entitlementFresh": true
+      },
+      "expected": "denied"
+    },
+    {
+      "name": "unauthenticated client",
+      "input": {
+        "authenticated": false,
+        "entitlementDecision": "allow",
+        "entitlementFresh": true
+      },
+      "expected": "denied"
+    }
+  ]
+}

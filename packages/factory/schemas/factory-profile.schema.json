@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://coga.dev/schemas/factory-profile.v0.1.json",
+  "title": "COGA factory profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "schemaVersion": { "const": "coga.dev/factory/v0.1" },
+    "kind": { "const": "FactoryProfile" },
+    "metadata": { "$ref": "#/$defs/metadata" },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workspaceRoot",
+        "instanceManifest",
+        "stateDirectory",
+        "candidateDirectory",
+        "adapters",
+        "policies"
+      ],
+      "properties": {
+        "workspaceRoot": { "enum": [".", ".."] },
+        "instanceManifest": { "$ref": "#/$defs/relativePath" },
+        "stateDirectory": { "$ref": "#/$defs/relativePath" },
+        "candidateDirectory": { "$ref": "#/$defs/relativePath" },
+        "applicationBindings": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/relativePath" }
+        },
+        "evaluationProfiles": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/relativePath" }
+        },
+        "recipes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/relativePath" }
+        },
+        "adapters": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/adapter" }
+        },
+        "policies": { "$ref": "#/$defs/policies" },
+        "sourceAllowlist": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "format": "uri", "maxLength": 2048 }
+        },
+        "workbench": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "host": { "const": "127.0.0.1" },
+            "port": { "type": "integer", "minimum": 1024, "maximum": 65535 },
+            "locale": { "enum": ["zh-CN", "en"] }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "version"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
+        }
+      }
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+$"
+    },
+    "adapterRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "version"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "agent",
+            "tool",
+            "workspace",
+            "validator",
+            "policy",
+            "observation",
+            "preview"
+          ]
+        },
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$" },
+        "version": { "$ref": "#/$defs/metadata/properties/version" }
+      }
+    },
+    "adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "runtime", "actions"],
+      "properties": {
+        "ref": { "$ref": "#/$defs/adapterRef" },
+        "runtime": { "enum": ["builtin", "process", "deepseek"] },
+        "actions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$"
+          }
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "cwd": { "$ref": "#/$defs/relativePath" },
+            "executable": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "args": {
+              "type": "array",
+              "maxItems": 32,
+              "items": { "type": "string", "maxLength": 512 }
+            },
+            "timeoutMs": {
+              "type": "integer",
+              "minimum": 100,
+              "maximum": 600000
+            },
+            "outputLimitBytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 10485760
+            },
+            "envAllowlist": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }
+            },
+            "baseUrl": { "type": "string", "format": "uri", "maxLength": 2048 },
+            "model": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "secretRef": {
+              "type": "string",
+              "pattern": "^env://[A-Z][A-Z0-9_]*$"
+            },
+            "maxTokens": { "type": "integer", "minimum": 128, "maximum": 8192 },
+            "allowRestrictedInput": { "const": false }
+          }
+        }
+      }
+    },
+    "policies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maxAutonomousRisk",
+        "promotionRequiresHuman",
+        "releaseRequiresHuman",
+        "separationOfDuties",
+        "publishedMutation"
+      ],
+      "properties": {
+        "maxAutonomousRisk": { "enum": ["low", "medium"] },
+        "promotionRequiresHuman": { "const": true },
+        "releaseRequiresHuman": { "const": true },
+        "separationOfDuties": { "const": true },
+        "publishedMutation": { "const": "deny" },
+        "requiredRoles": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$"
+            }
+          }
+        }
+      }
+    }
+  }
+}

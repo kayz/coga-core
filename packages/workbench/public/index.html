@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#132c3a" />
+    <title>COGA Workbench · 领域标定台</title>
+    <link rel="stylesheet" href="/styles.css?v=0.1.0" />
+  </head>
+  <body>
+    <a class="skip-link" href="#workspace">跳到工作区</a>
+    <header class="masthead">
+      <div class="brand" aria-label="COGA Workbench">
+        <span class="brand__mark" aria-hidden="true">C·O·G·A</span>
+        <span class="brand__name">领域标定台</span>
+      </div>
+      <div class="masthead__context">
+        <span class="utility-label">CONTROL PLANE / LOCAL</span>
+        <strong id="profile-title">正在连接本地控制面</strong>
+      </div>
+      <div class="masthead__status">
+        <span class="status-lamp" id="connection-lamp" aria-hidden="true"></span>
+        <span id="connection-label">连接中</span>
+        <button class="quiet-button" id="refresh-button" type="button">刷新事实源</button>
+      </div>
+    </header>
+
+    <div class="bench-shell">
+      <aside class="control-rail" aria-label="工厂闭环">
+        <div class="control-rail__heading">
+          <span class="utility-label">CHANGE SPINE</span>
+          <h1>一次变化的<br />治理轨迹</h1>
+          <p>文件是事实源；界面负责让判断可见。</p>
+        </div>
+        <nav aria-label="治理阶段">
+          <ol class="spine" id="workflow-spine">
+            <li class="spine__station is-current" data-panel="intent" data-stage="intent">
+              <button type="button"><span>意图</span><small>来源与边界</small></button>
+            </li>
+            <li class="spine__station" data-panel="candidate" data-stage="candidate">
+              <button type="button"><span>候选</span><small>Diff 与影响</small></button>
+            </li>
+            <li class="spine__station" data-panel="evidence" data-stage="evidence">
+              <button type="button"><span>证据</span><small>Agent 与验证器</small></button>
+            </li>
+            <li class="spine__station" data-panel="decision" data-stage="decision">
+              <button type="button"><span>决策</span><small>摘要绑定审批</small></button>
+            </li>
+            <li class="spine__station" data-panel="runtime" data-stage="runtime">
+              <button type="button"><span>运行</span><small>事故与升格</small></button>
+            </li>
+            <li class="spine__station" data-panel="audit" data-stage="audit">
+              <button type="button"><span>审计</span><small>完整性时间线</small></button>
+            </li>
+          </ol>
+        </nav>
+        <div class="rail-boundary">
+          <span class="utility-label">HARD BOUNDARY</span>
+          <strong>生产发布能力不存在</strong>
+          <p>本工作台最多形成候选与本地预览决策。</p>
+        </div>
+      </aside>
+
+      <main id="workspace" class="workspace" tabindex="-1">
+        <section class="overview" aria-labelledby="overview-title">
+          <div>
+            <span class="section-kicker">GOVERNED FACTORY REFERENCE</span>
+            <h2 id="overview-title">把一次产品变化，<br />标定成可复用的领域能力。</h2>
+          </div>
+          <dl class="bench-readout" aria-label="控制面读数">
+            <div><dt>Harness 包</dt><dd id="package-count">—</dd></div>
+            <div><dt>领域资产</dt><dd id="artifact-count">—</dd></div>
+            <div><dt>Application</dt><dd id="application-count">—</dd></div>
+            <div><dt>活动任务</dt><dd id="task-count">—</dd></div>
+          </dl>
+        </section>
+
+        <section class="active-strip" aria-label="当前控制状态">
+          <div>
+            <span class="utility-label">ACTIVE TASK</span>
+            <strong id="active-task-label">尚未创建任务</strong>
+          </div>
+          <div>
+            <span class="utility-label">RUN STATE</span>
+            <strong id="active-run-state">—</strong>
+          </div>
+          <div>
+            <span class="utility-label">MODEL ADAPTER</span>
+            <strong id="model-state">离线评估可用</strong>
+          </div>
+          <div>
+            <span class="utility-label">AUDIT CHAIN</span>
+            <strong id="audit-state">待验证</strong>
+          </div>
+        </section>
+
+        <section class="work-panel is-visible" id="panel-intent" data-panel="intent" aria-labelledby="intent-title">
+          <div class="panel-heading">
+            <div><span class="panel-index">I</span><span class="utility-label">INTENT INTAKE</span></div>
+            <h2 id="intent-title">先声明什么值得改变，以及什么绝不能被顺带改变。</h2>
+            <p>这张表生成版本化 Task Contract 与候选记录，不直接写入已发布 Harness。</p>
+          </div>
+          <div class="panel-grid panel-grid--form">
+            <form id="intent-form" class="governance-form">
+              <fieldset>
+                <legend>目标与风险</legend>
+                <label class="field field--wide">
+                  <span>本次变化要解决什么？</span>
+                  <textarea id="intent-goal" required rows="3">明确渠道身份上下文在后端授权快照过期时的拒绝优先行为。</textarea>
+                  <small>写结果，不写“让 Agent 看看”之类的过程描述。</small>
+                </label>
+                <label class="field">
+                  <span>任务类型</span>
+                  <select id="intent-mode">
+                    <option value="calibrate">领域标定</option>
+                    <option value="build">Application 构建</option>
+                    <option value="repair">事故修复</option>
+                    <option value="upgrade">Harness 升级</option>
+                    <option value="operate">运行操作</option>
+                    <option value="release-harness">Harness 发布计划</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>风险级别</span>
+                  <select id="intent-risk">
+                    <option value="high">高：影响授权或领域语义</option>
+                    <option value="medium">中：影响行为但可逆</option>
+                    <option value="low">低：局部且确定</option>
+                    <option value="critical">关键：不可逆或生产发布</option>
+                  </select>
+                </label>
+                <label class="field field--wide">
+                  <span>验收条件（每行一条）</span>
+                  <textarea id="intent-acceptance" required rows="4">无有效后端授权快照时默认拒绝受限能力
+影响报告包含小程序和 H5 两个消费者
+身份、权益拒绝与事故场景全部重新验证</textarea>
+                </label>
+                <label class="field field--wide">
+                  <span>非目标（每行一条）</span>
+                  <textarea id="intent-non-goals" rows="3">不改变后端授权权威边界
+不接入真实券商接口
+不包含 FICANT 能力</textarea>
+                </label>
+              </fieldset>
+
+              <fieldset>
+                <legend>权威来源</legend>
+                <label class="field field--wide">
+                  <span>来源 URI</span>
+                  <input id="source-uri" type="url" required value="https://pages.nist.gov/800-63-4/" />
+                </label>
+                <label class="field">
+                  <span>来源类型</span>
+                  <select id="source-type">
+                    <option value="standard">公开标准</option>
+                    <option value="document">权威文档</option>
+                    <option value="expert">专家判断</option>
+                    <option value="system">系统事实</option>
+                    <option value="observation">运行观察</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>可见性</span>
+                  <select id="source-visibility">
+                    <option value="public">公开</option>
+                    <option value="internal">内部</option>
+                    <option value="restricted">受限</option>
+                  </select>
+                </label>
+                <label class="field field--wide">
+                  <span>为什么它有权威性？</span>
+                  <input id="source-authority" required value="数字身份边界的公开标准来源" />
+                </label>
+                <label class="field field--wide">
+                  <span>受控摘录</span>
+                  <textarea id="source-excerpt" required rows="4">平台会话标识不能替代由可信后端确认的客户身份与当前授权证据。</textarea>
+                  <small>远程模型只接收此摘录与摘要；受限材料默认禁止发送。</small>
+                </label>
+              </fieldset>
+
+              <fieldset>
+                <legend>候选资产</legend>
+                <label class="field field--wide">
+                  <span>Artifact ID</span>
+                  <input id="candidate-artifact-id" required value="broker.channel.identity.context" />
+                </label>
+                <label class="field field--wide">
+                  <span>变更前（JSON）</span>
+                  <textarea id="candidate-before" class="code-input" required rows="8">{
+  "metadata": { "id": "broker.channel.identity.context", "version": "0.1.0", "lifecycle": "published" },
+  "spec": { "statement": "A platform identifier proves only its platform session." }
+}</textarea>
+                </label>
+                <label class="field field--wide">
+                  <span>候选版本（JSON）</span>
+                  <textarea id="candidate-after" class="code-input" required rows="9">{
+  "metadata": { "id": "broker.channel.identity.context", "version": "0.2.0", "lifecycle": "candidate" },
+  "spec": { "statement": "A platform identifier proves only its platform session. Restricted capabilities default to deny whenever the trusted backend authorization snapshot is missing, expired, or ambiguous." }
+}</textarea>
+                </label>
+              </fieldset>
+              <div class="form-actions">
+                <button class="primary-button" type="submit">创建候选任务</button>
+                <span>提交后可刷新或重启；控制记录由本地文件恢复。</span>
+              </div>
+            </form>
+
+            <aside class="fact-drawer" aria-labelledby="queue-title">
+              <div class="drawer-heading">
+                <span class="utility-label">WORK QUEUE</span>
+                <h3 id="queue-title">候选队列</h3>
+              </div>
+              <div id="task-queue" class="task-queue empty-state">
+                <strong>尚无候选</strong>
+                <p>用左侧表单创建第一条治理轨迹。</p>
+              </div>
+              <div class="boundary-note">
+                <strong>职责边界</strong>
+                <p>人类给出目标与风险接受；Agent 研究和评估；确定性系统执行门禁。</p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="work-panel" id="panel-candidate" data-panel="candidate" aria-labelledby="candidate-title">
+          <div class="panel-heading">
+            <div><span class="panel-index">II</span><span class="utility-label">CANDIDATE REVIEW</span></div>
+            <h2 id="candidate-title">把“改了几行”转换成“领域语义和消费者发生了什么”。</h2>
+          </div>
+          <div class="candidate-layout">
+            <article class="instrument-card instrument-card--wide">
+              <header><span class="utility-label">STRUCTURAL DIFF</span><strong id="diff-summary">选择一个任务</strong></header>
+              <div id="semantic-diff" class="diff-table empty-state">
+                <p>创建或选择候选后显示字段级变化。</p>
+              </div>
+            </article>
+            <article class="instrument-card">
+              <header><span class="utility-label">PROVENANCE</span><strong>权威来源</strong></header>
+              <div id="provenance-list" class="source-list empty-state"><p>暂无来源。</p></div>
+            </article>
+            <article class="instrument-card">
+              <header>
+                <span class="utility-label">TRANSITIVE IMPACT</span>
+                <button class="quiet-button" id="impact-button" type="button">计算影响</button>
+              </header>
+              <div id="impact-graph" class="impact-graph empty-state"><p>影响路径尚未计算。</p></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="work-panel" id="panel-evidence" data-panel="evidence" aria-labelledby="evidence-title">
+          <div class="panel-heading">
+            <div><span class="panel-index">III</span><span class="utility-label">EVIDENCE BAY</span></div>
+            <h2 id="evidence-title">模型提出判断；真实命令和摘要证明候选是否站得住。</h2>
+          </div>
+          <div class="evidence-actions">
+            <button class="secondary-button" id="offline-assess-button" type="button">运行离线确定性评估</button>
+            <button class="secondary-button" id="deepseek-assess-button" type="button">运行 DeepSeek 资产评估</button>
+            <button class="primary-button" id="validator-button" type="button">执行白名单验证器</button>
+          </div>
+          <div class="evidence-grid">
+            <article class="instrument-card instrument-card--model">
+              <header><span class="utility-label">AGENT OPINION / NOT APPROVAL</span><strong>语义评估</strong></header>
+              <div id="model-evidence" class="empty-state"><p>尚未运行评估。</p></div>
+            </article>
+            <article class="instrument-card">
+              <header><span class="utility-label">DETERMINISTIC CLAIMS</span><strong>验证结果</strong></header>
+              <div id="validator-evidence" class="claim-list empty-state"><p>尚无命令证据。</p></div>
+            </article>
+            <article class="instrument-card">
+              <header><span class="utility-label">DIGEST BINDING</span><strong>证据摘要</strong></header>
+              <div id="digest-board" class="digest-board empty-state"><p>完成评估后显示。</p></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="work-panel" id="panel-decision" data-panel="decision" aria-labelledby="decision-title">
+          <div class="panel-heading">
+            <div><span class="panel-index">IV</span><span class="utility-label">HUMAN GATE</span></div>
+            <h2 id="decision-title">批准的是一组精确摘要，而不是一句“看起来没问题”。</h2>
+          </div>
+          <div class="decision-layout">
+            <form id="approval-form" class="approval-console">
+              <div class="decision-seal" aria-hidden="true"><span>H</span><small>HUMAN</small></div>
+              <div>
+                <span class="utility-label">SEPARATION OF DUTIES</span>
+                <h3>候选审批</h3>
+                <p>候选、证据或影响摘要发生变化后，旧批准自动失效。</p>
+              </div>
+              <label class="field">
+                <span>审批人 ID</span>
+                <input id="approval-actor" required value="human.domain.steward" />
+              </label>
+              <label class="field">
+                <span>审批角色</span>
+                <select id="approval-role"><option value="domain-steward">领域负责人</option><option value="risk-owner">风险负责人</option></select>
+              </label>
+              <label class="field field--wide">
+                <span>判断理由</span>
+                <textarea id="approval-reason" required rows="4">已核对权威来源、语义变化、传递影响和全部验证证据；同意进入本地预览，不代表生产发布批准。</textarea>
+              </label>
+              <div class="form-actions">
+                <button class="primary-button" type="submit">批准候选</button>
+                <button class="danger-button" id="reject-button" type="button">拒绝候选</button>
+              </div>
+            </form>
+            <aside class="preview-console">
+              <span class="utility-label">LOCAL PREVIEW DECISION</span>
+              <h3>本地预览</h3>
+              <p>只有摘要绑定审批完成后才能进入。微信侧仍使用游客 AppID，不存在上传方法。</p>
+              <button class="secondary-button" id="preview-button" type="button">生成本地预览决策</button>
+              <div id="preview-result" class="preview-result"><span>RELEASE</span><strong>BLOCKED BY DESIGN</strong></div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="work-panel" id="panel-runtime" data-panel="runtime" aria-labelledby="runtime-title">
+          <div class="panel-heading">
+            <div><span class="panel-index">V</span><span class="utility-label">RUNTIME RETURN LOOP</span></div>
+            <h2 id="runtime-title">运行观察先属于 Application；经验必须经过升格，才能进入共享 Harness。</h2>
+          </div>
+          <div class="runtime-grid">
+            <form id="observation-form" class="instrument-card governance-form governance-form--compact">
+              <header><span class="utility-label">CLOUDEVENTS 1.0</span><strong>导入本地观察</strong></header>
+              <label class="field field--wide"><span>Observation JSON</span><textarea id="observation-json" class="code-input" rows="15"></textarea></label>
+              <button class="quiet-button" id="load-private-observation-button" type="button" disabled>载入私有 Application 事故 Fixture</button>
+              <button class="secondary-button" type="submit">接收应用观察</button>
+            </form>
+            <form id="incident-form" class="instrument-card governance-form governance-form--compact">
+              <header><span class="utility-label">INCIDENT</span><strong>开启事故</strong></header>
+              <label class="field"><span>Incident ID</span><input id="incident-id" value="incident.local.preview.error" /></label>
+              <label class="field field--wide"><span>Observation Store ID</span><input id="incident-observation-id" /></label>
+              <label class="field"><span>Runbook ID</span><input id="incident-runbook" value="client.operations.incident.triage" /></label>
+              <button class="secondary-button" type="submit">按 Runbook 开启</button>
+              <button class="quiet-button" id="verify-incident-button" type="button">登记恢复与回归证据</button>
+              <button class="primary-button" id="close-incident-button" type="button">验证并关闭事故</button>
+              <div id="incident-result" class="mini-log">事故严重级别必须由人类判断。</div>
+            </form>
+            <form id="promotion-form" class="instrument-card governance-form governance-form--compact">
+              <header><span class="utility-label">PROMOTION</span><strong>提交共享候选</strong></header>
+              <label class="field"><span>Promotion ID</span><input id="promotion-id" value="promotion.authorization.snapshot.denial" /></label>
+              <label class="field field--wide"><span>权威来源</span><input id="promotion-source" value="https://pages.nist.gov/800-63-4/" /></label>
+              <label class="field field--wide"><span>独立 Scenario</span><input id="promotion-scenario" value="broker.channel.scenario.data.denial" /></label>
+              <button class="primary-button" type="submit">生成 candidate（不发布）</button>
+              <div id="promotion-result" class="mini-log">单一 Application 观察若无权威来源，将被阻断。</div>
+            </form>
+          </div>
+        </section>
+
+        <section class="work-panel" id="panel-audit" data-panel="audit" aria-labelledby="audit-title">
+          <div class="panel-heading">
+            <div><span class="panel-index">VI</span><span class="utility-label">TAMPER-EVIDENT JOURNAL</span></div>
+            <h2 id="audit-title">每次判断都有 Actor、顺序与前向摘要。</h2>
+          </div>
+          <div class="audit-layout">
+            <div id="audit-timeline" class="audit-timeline empty-state"><p>尚无审计事件。</p></div>
+            <aside class="instrument-card">
+              <header><span class="utility-label">COMPOUNDING SIGNAL</span><strong>变化历史</strong></header>
+              <div id="change-metrics" class="metric-list empty-state"><p>完成第一个候选后开始积累。</p></div>
+            </aside>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <script type="module" src="/app.js?v=0.1.0"></script>
+  </body>
+</html>

@@ -1,0 +1,56 @@
+schemaVersion: coga.dev/factory/v0.1
+kind: AgentEvaluationProfile
+metadata:
+  id: evaluation.broker.channel.asset
+  title: Broker channel candidate asset evaluator
+  version: 0.1.0
+spec:
+  adapterRef:
+    kind: agent
+    id: agent.deepseek.asset.evaluator
+    version: 0.1.0
+  providerBinding:
+    provider: deepseek
+    model: deepseek-v4-pro
+    runtimeOverride:
+      allowed: true
+      requireRecordedProviderAndModel: true
+    secretRef: env://DEEPSEEK_API_KEY
+  prompt:
+    path: examples/broker-digital-channel/factory/prompts/asset-evaluator.v1.md
+    version: 1.0.0
+    digestRequired: true
+  inputPolicy:
+    sourcePolicy: examples/broker-digital-channel/factory/policies/public-source-policy.yaml
+    acceptedMaterials:
+      - candidate
+      - semantic-diff
+      - source-excerpts
+      - scenario-index
+    sourceExcerptsOnly: true
+    sourceDigestsRequired: true
+    defaultClassification: public
+    restrictedInput: deny
+  output:
+    schema: packages/factory/schemas/asset-assessment.schema.json
+    requiredFields:
+      - summary
+      - changeClasses
+      - risks
+      - questions
+      - recommendedScenarios
+      - recommendation
+      - confidence
+  authority:
+    mayRecommend: true
+    mayCreateCandidateEvidence: true
+    mayApprove: false
+    mayPublish: false
+    selfApproval: deny
+  evidenceBinding:
+    kind: EvidenceBundle
+    schemaVersion: coga.dev/control/v0.1
+    disposition: candidate
+    recordPromptDigest: true
+    recordOutputDigest: true
+    retainRawReasoning: false

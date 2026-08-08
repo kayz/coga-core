@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coga:contract:example:sanitized-observation:0.1.0",
+  "title": "Sanitized client observation payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["category", "state", "clientOutcome", "containsPersonalData"],
+  "properties": {
+    "category": {
+      "type": "string",
+      "enum": ["entitlement-evidence", "frontend-state", "release-health"]
+    },
+    "state": {
+      "type": "string",
+      "enum": ["unavailable", "stale", "malformed", "negative", "recovered"]
+    },
+    "clientOutcome": {
+      "type": "string",
+      "enum": [
+        "capability-hidden",
+        "explicit-error",
+        "rollback-started",
+        "recovered"
+      ]
+    },
+    "containsPersonalData": {
+      "const": false
+    }
+  }
+}

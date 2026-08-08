@@ -54,6 +54,8 @@ spec:
       - id: client.operations.release.rollback
         version: 0.1.0
   choices:
+    factoryRecipe: recipe.broker.channel.h5@0.1.0
+    materializationCandidate: candidate.application.cedar.insight.h5@0.1.0
     criticalJourneys:
       - application.cedar.journey.read.market.context
       - application.cedar.journey.request.support

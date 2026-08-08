@@ -50,7 +50,9 @@ Application 的一次经验不会自动成为领域知识。只有在去除产�
 
 正式资产使用 YAML/JSON 文件保存，以获得版本、Diff、审查、回退、CI 验证和 Application 精确锁定能力。表单、对话与 Agent 是安全操作这些文件的入口，而不是第二份事实来源。
 
-本目录的 `ui/` 提供 JSON Schema 表单合同和展示提示，没有实现 UI。未来 Workbench 可以据此读取和生成相同的 `DomainArtifact` candidate，再通过 PR 和验证流程发布。
+本目录的 `ui/` 提供由 COGA Workbench 直接消费的 JSON Schema 表单合同和展示提示。共享 Workbench 实现在 Instance 之外；这里的版本化 descriptor 仍是事实来源，Workbench 只能生成 candidate patch，不能绕过验证和人工审批直接发布。
+
+`factory/` 增加一个可执行纵切：Instance 自有的评估 prompt、公开来源策略、风险与审批阈值，DeepSeek 评估 profile、确定性的 Application recipe、场景 oracle、运行 Observation/Incident/PromotionProposal fixture，以及 Harness release 闭包输入。模型只形成候选证据，密钥仅由运行环境绑定。
 
 ## Agent 辅助流程
 
@@ -68,7 +70,8 @@ Agent 可以起草、检查和解释，但不能创造缺失的法律或业务�
 1. [`docs/bounded-context.md`](docs/bounded-context.md)
 2. [`instance.yaml`](instance.yaml)
 3. 两个 [`applications/`](applications/) manifest
-4. [`docs/knowledge-governance.md`](docs/knowledge-governance.md)
-5. [`docs/representation-and-form-readiness.md`](docs/representation-and-form-readiness.md)
+4. [`factory/README.md`](factory/README.md)
+5. [`docs/knowledge-governance.md`](docs/knowledge-governance.md)
+6. [`docs/representation-and-form-readiness.md`](docs/representation-and-form-readiness.md)
 
 `0.1.0` 是演示资源合同，不是任何机构可直接采用的生产合规基线。公开法规、标准和平台文档只提供来源追踪；真实适用性仍需负责该组织的专业人员判断。

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "coga.dev/factory/v0.1",
+  "kind": "GeneratedApplicationLock",
+  "metadata": {
+    "id": "{{applicationId}}",
+    "title": "{{applicationTitle}}",
+    "version": "0.1.0"
+  },
+  "spec": {
+    "deliveryTarget": "web-h5",
+    "harnessDependencies": [
+      {
+        "id": "broker.digital.channel.domain",
+        "version": "0.1.0"
+      },
+      {
+        "id": "frontend.client.engineering",
+        "version": "0.1.0"
+      },
+      {
+        "id": "example.broker.organization",
+        "version": "0.1.0"
+      },
+      {
+        "id": "client.application.operations",
+        "version": "0.1.0"
+      }
+    ],
+    "choices": {
+      "navigationModel": "{{navigationModel}}",
+      "contentPresentation": "{{contentPresentation}}",
+      "recoveryPresentation": "{{recoveryPresentation}}"
+    }
+  }
+}

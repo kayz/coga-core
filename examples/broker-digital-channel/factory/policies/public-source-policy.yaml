@@ -1,0 +1,33 @@
+schemaVersion: coga.dev/factory/v0.1
+kind: SourcePolicy
+metadata:
+  id: policy.broker.channel.public.sources
+  title: Public source and model-input policy
+  version: 0.1.0
+spec:
+  defaultDecision: deny
+  allowedClassification:
+    - public
+  allowedPrefixes:
+    - https://pages.nist.gov/800-63-4/
+    - https://owasp.org/www-project-application-security-verification-standard/
+    - https://www.w3.org/TR/WCAG22/
+    - https://cucumber.io/docs/gherkin/reference/
+    - https://developers.weixin.qq.com/miniprogram/dev/framework/
+    - https://sre.google/workbook/incident-response/
+  excerptRequirements:
+    locatorRequired: true
+    capturedAtRequired: true
+    sha256Required: true
+    paraphrasePreferred: true
+    rawDocumentRetention: forbidden
+  modelInput:
+    suppliedExcerptsOnly: true
+    arbitraryBrowsing: forbidden
+    restrictedInputDefault: deny
+    credentials: forbidden
+    personalData: forbidden
+  publication:
+    transitiveVisibilityRequired: public
+    unresolvedSource: deny
+    missingDigest: deny

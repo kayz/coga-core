@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "coga.dev/factory/v0.1",
+  "kind": "GeneratedApplicationLock",
+  "metadata": {
+    "id": "application.cedar.insight.h5",
+    "title": "Cedar Market Context H5",
+    "version": "0.1.0"
+  },
+  "spec": {
+    "deliveryTarget": "web-h5",
+    "harnessDependencies": [
+      {
+        "id": "broker.digital.channel.domain",
+        "version": "0.1.0"
+      },
+      {
+        "id": "frontend.client.engineering",
+        "version": "0.1.0"
+      },
+      {
+        "id": "example.broker.organization",
+        "version": "0.1.0"
+      },
+      {
+        "id": "client.application.operations",
+        "version": "0.1.0"
+      }
+    ],
+    "choices": {
+      "navigationModel": "responsive-document-shell",
+      "contentPresentation": "stale-label-and-source-time-visible",
+      "recoveryPresentation": "explicit-error-with-support-handoff"
+    }
+  }
+}

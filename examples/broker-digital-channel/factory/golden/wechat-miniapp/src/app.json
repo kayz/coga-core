@@ -1,0 +1,6 @@
+{
+  "pages": ["pages/home/index"],
+  "window": {
+    "navigationBarTitleText": "Aster Learning Mini Program"
+  }
+}

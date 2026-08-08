@@ -15,10 +15,15 @@
     "validate:example": "node packages/core/dist/cli.js validate examples/broker-digital-channel/instance.yaml",
     "catalog:example": "node packages/core/dist/cli.js catalog examples/broker-digital-channel/instance.yaml --format markdown",
     "impact:example": "node packages/core/dist/cli.js impact examples/broker-digital-channel/instance.yaml broker.channel.identity.context",
+    "factory:profile": "node packages/factory/dist/cli.js profile validate examples/broker-digital-channel/factory/profile.yaml",
+    "factory:snapshot": "node packages/factory/dist/cli.js snapshot examples/broker-digital-channel/factory/profile.yaml",
+    "workbench": "node packages/workbench/dist/cli.js --profile examples/broker-digital-channel/factory/profile.yaml --binding private/application/factory.binding.yaml",
     "docs:check": "node scripts/check-doc-links.mjs",
     "privacy:check": "node scripts/privacy-check.mjs",
     "boundary:check": "node scripts/public-boundary-check.mjs",
-    "check:public": "npm run format:check && npm run typecheck && npm run test && npm run build && npm run validate:example && npm run docs:check && npm run privacy:check && npm run boundary:check",
+    "check:factory": "node scripts/check-factory.mjs",
+    "check:deepseek": "node scripts/check-deepseek.mjs",
+    "check:public": "npm run format:check && npm run typecheck && npm run test && npm run build && npm run validate:example && npm run check:factory && npm run docs:check && npm run privacy:check && npm run boundary:check",
     "check:local": "npm run check:public && node scripts/check-private.mjs"
   },
   "engines": {

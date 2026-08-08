@@ -1,0 +1,58 @@
+schemaVersion: coga.dev/factory/v0.1
+kind: ApplicationRecipe
+metadata:
+  id: recipe.broker.channel.wechat.miniapp
+  title: Broker channel native mini-program recipe
+  version: 0.1.0
+spec:
+  deliveryTarget: wechat-miniapp
+  templateRoot: templates/wechat-miniapp
+  parameters:
+    - name: applicationId
+      pattern: ^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$
+      required: true
+    - name: applicationTitle
+      pattern: ^.{1,80}$
+      required: true
+    - name: packageName
+      pattern: ^@[a-z0-9-]+/[a-z0-9-]+$
+      required: true
+    - name: navigationModel
+      pattern: ^[a-z][a-z0-9-]+$
+      required: true
+    - name: contentPresentation
+      pattern: ^[a-z][a-z0-9-]+$
+      required: true
+    - name: recoveryPresentation
+      pattern: ^[a-z][a-z0-9-]+$
+      required: true
+  harnessDependencies:
+    - id: broker.digital.channel.domain
+      version: 0.1.0
+    - id: wechat.miniprogram.platform
+      version: 0.1.0
+    - id: frontend.client.engineering
+      version: 0.1.0
+    - id: example.broker.organization
+      version: 0.1.0
+    - id: client.application.operations
+      version: 0.1.0
+  outputs:
+    - package.json
+    - application-lock.json
+    - src/app.js
+    - src/app.json
+    - src/domain/access.js
+    - src/pages/home/index.js
+    - src/pages/home/index.json
+    - scripts/build.mjs
+    - tests/access.test.js
+  validators:
+    - id: broker.channel.scenario.identity.and.entitlement
+      version: 0.1.0
+    - id: frontend.client.scenario.contract.and.state
+      version: 0.1.0
+    - id: wechat.miniprogram.scenario.delivery
+      version: 0.1.0
+    - id: client.operations.scenario.release
+      version: 0.1.0

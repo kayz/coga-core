@@ -56,6 +56,8 @@ spec:
       - id: client.operations.release.rollback
         version: 0.1.0
   choices:
+    factoryRecipe: recipe.broker.channel.wechat.miniapp@0.1.0
+    materializationCandidate: candidate.application.aster.mini.program@0.1.0
     criticalJourneys:
       - application.aster.journey.open.briefing
       - application.aster.journey.submit.feedback

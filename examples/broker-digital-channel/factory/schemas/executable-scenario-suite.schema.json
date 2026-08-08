@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coga:factory:executable-scenario-suite:0.1.0",
+  "title": "Executable scenario suite",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "schemaVersion": {
+      "const": "coga.dev/factory/v0.1"
+    },
+    "kind": {
+      "const": "ExecutableScenarioSuite"
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["validatorBinding", "scenarios"],
+      "properties": {
+        "validatorBinding": {
+          "$ref": "#/$defs/validatorRef"
+        },
+        "scenarios": {
+          "type": "array",
+          "minItems": 4,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "version", "fixture", "oracle"],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/stableId"
+              },
+              "version": {
+                "$ref": "#/$defs/semver"
+              },
+              "fixture": {
+                "$ref": "#/$defs/path"
+              },
+              "oracle": {
+                "enum": [
+                  "identity-entitlement-denial-first",
+                  "frontend-explicit-state",
+                  "release-rollback",
+                  "incident-promotion"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z]:)(?![/\\\\]).+$"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "version"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "$ref": "#/$defs/semver"
+        }
+      }
+    },
+    "validatorRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "version"],
+      "properties": {
+        "kind": {
+          "const": "validator"
+        },
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "version": {
+          "$ref": "#/$defs/semver"
+        }
+      }
+    }
+  }
+}

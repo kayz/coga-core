@@ -1,0 +1,319 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coga:workbench:factory-change:0.1.0",
+  "title": "Factory change review",
+  "description": "Workbench form contract for a governed candidate-to-release review; submitting this form never publishes an asset.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "intent",
+    "sources",
+    "risk",
+    "evaluation",
+    "approval",
+    "incident",
+    "promotion"
+  ],
+  "properties": {
+    "intent": {
+      "title": "Intent",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["goal", "acceptanceCriteria", "nonGoals"],
+      "properties": {
+        "goal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "acceptanceCriteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "nonGoals": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "sources": {
+      "title": "Controlled sources",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sourceId",
+          "url",
+          "locator",
+          "capturedAt",
+          "digest",
+          "classification"
+        ],
+        "properties": {
+          "sourceId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "locator": {
+            "type": "string",
+            "minLength": 1
+          },
+          "capturedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "digest": {
+            "$ref": "#/$defs/digest"
+          },
+          "classification": {
+            "const": "public"
+          }
+        }
+      }
+    },
+    "risk": {
+      "title": "Risk",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "changeClasses", "affectedLayers"],
+      "properties": {
+        "level": {
+          "enum": ["low", "medium", "high", "critical"]
+        },
+        "changeClasses": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "affectedLayers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "domain",
+              "platform",
+              "engineering",
+              "organization",
+              "operations"
+            ]
+          }
+        }
+      }
+    },
+    "evaluation": {
+      "title": "Advisory evaluation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profileRef",
+        "status",
+        "promptDigest",
+        "evidenceRef",
+        "recommendation",
+        "confidence",
+        "risks",
+        "questions",
+        "recommendedScenarios"
+      ],
+      "properties": {
+        "profileRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": ["pending", "passed", "failed"]
+        },
+        "promptDigest": {
+          "$ref": "#/$defs/digest"
+        },
+        "evidenceRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "recommendation": {
+          "enum": ["ready", "revise", "reject"]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "risks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "recommendedScenarios": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "approval": {
+      "title": "Human approval",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requirements", "decisions", "agentSelfApprovalForbidden"],
+      "properties": {
+        "requirements": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "roles", "minimumApprovals"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "roles": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "minimumApprovals": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["actorKind", "actorId", "decision", "candidateDigest"],
+            "properties": {
+              "actorKind": {
+                "const": "human"
+              },
+              "actorId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "decision": {
+                "enum": ["approve", "reject"]
+              },
+              "candidateDigest": {
+                "$ref": "#/$defs/digest"
+              }
+            }
+          }
+        },
+        "agentSelfApprovalForbidden": {
+          "const": true
+        }
+      }
+    },
+    "incident": {
+      "title": "Incident evidence",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observationRefs", "incidentRef", "sanitized"],
+      "properties": {
+        "observationRefs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "incidentRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sanitized": {
+          "const": true
+        }
+      }
+    },
+    "promotion": {
+      "title": "Promotion proposal",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetPackage",
+        "sourceApplications",
+        "authoritativeSources",
+        "maximumLifecycle",
+        "humanApprovalRequired"
+      ],
+      "properties": {
+        "targetPackage": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceApplications": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "authoritativeSources": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "maximumLifecycle": {
+          "const": "candidate"
+        },
+        "humanApprovalRequired": {
+          "const": true
+        }
+      }
+    }
+  },
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    }
+  },
+  "x-coga-workflow": {
+    "writeMode": "proposal-patch",
+    "publishedMutation": "deny",
+    "promotionRequiresHuman": true,
+    "releaseRequiresHuman": true
+  }
+}

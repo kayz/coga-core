@@ -1,0 +1,54 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: broker.channel.entitlement.authority
+  title: Backend entitlement authority with explicit denial default
+  version: 0.1.1
+  lifecycle: candidate
+  scope: instance
+  visibility: public
+  owners:
+    - example.domain.stewards
+  tags:
+    - entitlement
+    - authorization
+    - deny-by-default
+spec:
+  artifactType: rule
+  summary: >-
+    Client channels display protected capabilities only from a current authoritative
+    backend entitlement decision and otherwise deny presentation by default.
+  statement: >-
+    A client may present an entitled capability only when a trusted backend returns
+    a current positive decision. Missing, stale, malformed, unavailable, or negative
+    decisions result in a non-entitled presentation. The client never grants,
+    expands, caches as authoritative, or infers entitlement.
+  scope: >-
+    Presentation behavior for protected capabilities in broker digital customer
+    channels; backend authorization and transaction enforcement remain external.
+  provenance:
+    - source: https://owasp.org/www-project-application-security-verification-standard/
+      sourceType: standard
+      locator: Access-control verification requirements
+      capturedAt: 2026-08-08T00:00:00Z
+    - source: https://pages.nist.gov/800-63-4/
+      sourceType: standard
+      locator: Identity and authentication assurance guidance
+      capturedAt: 2026-08-08T00:00:00Z
+  relations:
+    - type: depends-on
+      target: broker.channel.identity.context
+    - type: applies-to
+      target: broker.channel.scenario.identity.and.entitlement
+    - type: supersedes
+      target: broker.channel.entitlement.authority
+      version: 0.1.0
+  validation:
+    - type: schema
+      status: pending
+      validator: coga.core.schema
+    - type: scenario
+      status: pending
+      target: broker.channel.scenario.identity.and.entitlement
+      validator: validator.example.factory.scenarios
+  contractRefs: []

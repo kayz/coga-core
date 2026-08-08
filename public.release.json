@@ -18,6 +18,8 @@
     "package-lock.json",
     "package.json",
     "packages/core/",
+    "packages/factory/",
+    "packages/workbench/",
     "public.release.json",
     "scripts/",
     "tsconfig.base.json"

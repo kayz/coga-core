@@ -1,0 +1,13 @@
+{
+  "singleApplicationWithoutAuthority": {
+    "proposal": "promotion.entitlement.single.application@0.1.0",
+    "decision": "deny",
+    "reasonCode": "promotion.insufficient-generalization-evidence"
+  },
+  "multiApplicationWithAuthority": {
+    "proposal": "promotion.entitlement.multi.application@0.1.0",
+    "decision": "candidate",
+    "maximumLifecycle": "candidate",
+    "requiresHumanApproval": true
+  }
+}

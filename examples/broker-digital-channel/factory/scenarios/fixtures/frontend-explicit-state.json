@@ -1,0 +1,29 @@
+{
+  "declaredStates": ["pending", "ready", "empty", "denied", "error"],
+  "cases": [
+    {
+      "input": "pending",
+      "expected": "Checking authoritative context…"
+    },
+    {
+      "input": "ready",
+      "expected": "Current context is available."
+    },
+    {
+      "input": "empty",
+      "expected": "No content is available."
+    },
+    {
+      "input": "denied",
+      "expected": "This capability is not available."
+    },
+    {
+      "input": "error",
+      "expected": "Context could not be loaded. Try again."
+    }
+  ],
+  "unknownState": {
+    "input": "implicit-success",
+    "expectedError": "unknown-state"
+  }
+}

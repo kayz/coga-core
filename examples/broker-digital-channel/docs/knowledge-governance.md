@@ -16,6 +16,8 @@ resource envelope, avoiding a second source of truth.
    relations, and proposed validation. Uncertain claims remain explicit.
 3. **Candidate** — an agent normalizes the proposal, detects duplicates, proposes
    scenarios, and opens a file change for review. It may not publish.
+   The configured DeepSeek evaluator uses only controlled, digest-bound excerpts
+   and emits an advisory `EvidenceBundle`; it cannot approve itself or the asset.
 4. **Review** — a domain owner checks meaning and sources; platform, security,
    compliance, or operations owners join when their layer is affected.
 5. **Validate** — deterministic schema/reference checks run, followed by the
@@ -54,3 +56,10 @@ The concrete roles are in [`../agents/`](../agents/):
 Agents may propose YAML, semantic diffs, test scenarios, and upgrade pull requests.
 They may not invent a missing rule, approve their own proposal, expose private
 material, or bypass a deterministic validation failure.
+
+The executable profile, prompt, source constraints, and risk/approval thresholds
+are under [`../factory/`](../factory/). Provider credentials are runtime-only; the
+Instance stores only the non-secret `env://DEEPSEEK_API_KEY` reference. Runtime
+observations stay application evidence. One application without an authoritative
+source is insufficient for promotion, and a qualified proposal still has lifecycle
+`candidate` until deterministic validation and the required humans approve it.

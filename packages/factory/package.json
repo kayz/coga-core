@@ -1,0 +1,50 @@
+{
+  "name": "@coga/factory",
+  "version": "0.1.0",
+  "description": "Governed local reference engine for COGA control-plane contracts.",
+  "type": "module",
+  "bin": {
+    "coga-factory": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas/*": "./schemas/*"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && vitest run",
+    "prepack": "npm run build"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@coga/core": "0.1.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "yaml": "2.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "coga",
+    "domain-harness",
+    "software-factory",
+    "governance"
+  ]
+}

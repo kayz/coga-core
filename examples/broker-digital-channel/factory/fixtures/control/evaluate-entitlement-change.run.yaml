@@ -1,0 +1,97 @@
+schemaVersion: coga.dev/control/v0.1
+kind: RunRecord
+metadata:
+  id: run.broker.entitlement.change.evaluate
+  title: Completed candidate evaluation and human review fixture
+  version: 0.1.0
+  lifecycle: candidate
+  scope: instance
+  visibility: public
+spec:
+  task:
+    id: task.broker.entitlement.change.evaluate
+    version: 0.1.0
+  idempotencyKey: sha256:c7e1153df133ca65d332ee8531a5d72f45b448135e5a6668577362637e15f626
+  state: succeeded
+  stateReason: Evaluation succeeded; the asset remains a candidate pending a separate release task.
+  taskDigest: sha256:4956c23858c550d19d0d5ca68ab6266cf49712e8708fd8c59a046d10d760169f
+  candidateDigest: sha256:74455b2b82a6acebcae349afab82fa2e34c4c00b048171a7dc283cc72d6bb342
+  evidenceDigest: sha256:e8b4efc331961e4f79c2351239f97a96ec69ef46d13e6a5318d9813bc7af915c
+  impactDigest: sha256:36ccd568dc7b3e8de3c9e4148856f3ae6051f9be2090148fccfde2f42e216ac8
+  requestedBy:
+    kind: human
+    id: actor.example.domain.requester
+    roles:
+      - example.domain.requester
+  steps:
+    - id: prepare-diff
+      state: completed
+      attempts: 1
+    - id: evaluate-candidate
+      state: completed
+      attempts: 1
+    - id: review-impact
+      state: completed
+      attempts: 1
+    - id: validate-structure
+      state: completed
+      attempts: 1
+    - id: validate-scenarios
+      state: completed
+      attempts: 1
+    - id: validate-applications
+      state: completed
+      attempts: 1
+  policyDecisions:
+    - policy:
+        id: example.organization.change.approval
+        version: 0.1.0
+      evaluator:
+        kind: policy
+        id: policy.example.factory.governance
+        version: 0.1.0
+      decision: requireApproval
+      reason: Entitlement-authority changes are high risk and always require separated human approval.
+      taskDigest: sha256:4956c23858c550d19d0d5ca68ab6266cf49712e8708fd8c59a046d10d760169f
+      evaluatedAt: 2026-08-08T00:05:00Z
+      approvalRequirementIds:
+        - high-risk-domain-change
+  approvalDecisions:
+    - requirementId: high-risk-domain-change
+      decision: approve
+      actor:
+        kind: human
+        id: actor.example.domain.owner
+        roles:
+          - example.domain.owner
+      decidedAt: 2026-08-08T00:10:00Z
+      reason: The clarified denial behavior preserves backend authority and has observable scenarios.
+      candidateDigest: sha256:74455b2b82a6acebcae349afab82fa2e34c4c00b048171a7dc283cc72d6bb342
+      taskDigest: sha256:4956c23858c550d19d0d5ca68ab6266cf49712e8708fd8c59a046d10d760169f
+      evidenceDigest: sha256:e8b4efc331961e4f79c2351239f97a96ec69ef46d13e6a5318d9813bc7af915c
+      impactDigest: sha256:36ccd568dc7b3e8de3c9e4148856f3ae6051f9be2090148fccfde2f42e216ac8
+    - requirementId: high-risk-domain-change
+      decision: approve
+      actor:
+        kind: human
+        id: actor.example.risk.reviewer
+        roles:
+          - example.risk.reviewer
+      decidedAt: 2026-08-08T00:12:00Z
+      reason: Failure behavior and rollback reruns are explicit for both consumers.
+      candidateDigest: sha256:74455b2b82a6acebcae349afab82fa2e34c4c00b048171a7dc283cc72d6bb342
+      taskDigest: sha256:4956c23858c550d19d0d5ca68ab6266cf49712e8708fd8c59a046d10d760169f
+      evidenceDigest: sha256:e8b4efc331961e4f79c2351239f97a96ec69ef46d13e6a5318d9813bc7af915c
+      impactDigest: sha256:36ccd568dc7b3e8de3c9e4148856f3ae6051f9be2090148fccfde2f42e216ac8
+  evidence:
+    - id: evidence.broker.entitlement.change.evaluation
+      version: 0.1.0
+      path: examples/broker-digital-channel/factory/fixtures/control/evaluate-entitlement-change.evidence.yaml
+  audit: []
+  auditHead: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  budget:
+    elapsedMs: 42000
+    attempts: 3
+    inputTokens: 1800
+    outputTokens: 520
+    costUsd: 0

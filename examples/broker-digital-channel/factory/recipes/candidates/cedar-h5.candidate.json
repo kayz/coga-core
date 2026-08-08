@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "coga.dev/factory/v0.1",
+  "kind": "ApplicationRecipeCandidate",
+  "metadata": {
+    "id": "candidate.application.cedar.insight.h5",
+    "title": "Cedar H5 materialization candidate",
+    "version": "0.1.0"
+  },
+  "spec": {
+    "recipe": {
+      "id": "recipe.broker.channel.h5",
+      "version": "0.1.0",
+      "path": "examples/broker-digital-channel/factory/recipes/h5.recipe.yaml"
+    },
+    "parameters": {
+      "applicationId": "application.cedar.insight.h5",
+      "applicationTitle": "Cedar Market Context H5",
+      "packageName": "@coga-example/cedar-insight-h5"
+    },
+    "parametersFile": "examples/broker-digital-channel/factory/recipes/candidates/cedar-h5.parameters.json",
+    "choices": {
+      "navigationModel": "responsive-document-shell",
+      "contentPresentation": "stale-label-and-source-time-visible",
+      "recoveryPresentation": "explicit-error-with-support-handoff"
+    },
+    "expectedOutputRoot": "examples/broker-digital-channel/factory/golden/h5"
+  }
+}

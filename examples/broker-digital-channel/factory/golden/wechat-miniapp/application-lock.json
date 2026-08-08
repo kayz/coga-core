@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "coga.dev/factory/v0.1",
+  "kind": "GeneratedApplicationLock",
+  "metadata": {
+    "id": "application.aster.mini.program",
+    "title": "Aster Learning Mini Program",
+    "version": "0.1.0"
+  },
+  "spec": {
+    "deliveryTarget": "wechat-miniapp",
+    "harnessDependencies": [
+      {
+        "id": "broker.digital.channel.domain",
+        "version": "0.1.0"
+      },
+      {
+        "id": "wechat.miniprogram.platform",
+        "version": "0.1.0"
+      },
+      {
+        "id": "frontend.client.engineering",
+        "version": "0.1.0"
+      },
+      {
+        "id": "example.broker.organization",
+        "version": "0.1.0"
+      },
+      {
+        "id": "client.application.operations",
+        "version": "0.1.0"
+      }
+    ],
+    "choices": {
+      "navigationModel": "tabbed-mini-program-shell",
+      "contentPresentation": "source-time-and-disclosure-visible",
+      "recoveryPresentation": "explicit-retry-without-implied-entitlement"
+    }
+  }
+}

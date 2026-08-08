@@ -1,0 +1,28 @@
+schemaVersion: coga.dev/factory/v0.1
+kind: ChangeCandidate
+metadata:
+  id: change.broker.entitlement.deny.by.default
+  title: Clarify denial-first entitlement presentation
+  version: 0.1.0
+spec:
+  before:
+    id: broker.channel.entitlement.authority
+    version: 0.1.0
+    path: examples/broker-digital-channel/factory/changes/entitlement-deny-by-default/before.yaml
+  after:
+    id: broker.channel.entitlement.authority
+    version: 0.1.1
+    path: examples/broker-digital-channel/factory/changes/entitlement-deny-by-default/after.yaml
+  intent: >-
+    Make missing, stale, malformed, unavailable, and negative entitlement decisions
+    visibly non-entitled without moving backend authority into either client.
+  risk: high
+  changeClasses:
+    - scope-narrowed
+    - failure-behavior-changed
+  sourceExcerptSet: examples/broker-digital-channel/factory/fixtures/sources/entitlement-authority.excerpts.json
+  expectedImpact: examples/broker-digital-channel/factory/changes/entitlement-deny-by-default/expected-impact.json
+  publication:
+    directPublishedEdit: forbidden
+    maximumAgentDisposition: candidate
+    humanApprovalRequired: true

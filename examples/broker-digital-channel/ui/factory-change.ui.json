@@ -1,0 +1,74 @@
+{
+  "ui:order": [
+    "intent",
+    "sources",
+    "risk",
+    "evaluation",
+    "approval",
+    "incident",
+    "promotion"
+  ],
+  "intent": {
+    "ui:group": "Intent",
+    "goal": {
+      "ui:widget": "textarea"
+    }
+  },
+  "sources": {
+    "ui:group": "Source",
+    "ui:help": "Workbench supplies controlled excerpts and digests. The evaluator cannot add an authoritative source.",
+    "items": {
+      "classification": {
+        "ui:readonly": true
+      },
+      "digest": {
+        "ui:readonly": true
+      }
+    }
+  },
+  "risk": {
+    "ui:group": "Risk",
+    "level": {
+      "ui:widget": "select"
+    }
+  },
+  "evaluation": {
+    "ui:group": "Evaluation",
+    "ui:help": "DeepSeek provides advisory candidate evidence only; it cannot approve or publish.",
+    "promptDigest": {
+      "ui:readonly": true
+    },
+    "evidenceRef": {
+      "ui:readonly": true
+    },
+    "recommendation": {
+      "ui:readonly": true
+    },
+    "confidence": {
+      "ui:readonly": true
+    }
+  },
+  "approval": {
+    "ui:group": "Approval",
+    "ui:help": "Approval actors must be human and bound to the reviewed candidate, evidence, and impact digests.",
+    "agentSelfApprovalForbidden": {
+      "ui:readonly": true
+    }
+  },
+  "incident": {
+    "ui:group": "Incident",
+    "sanitized": {
+      "ui:readonly": true
+    }
+  },
+  "promotion": {
+    "ui:group": "Promotion",
+    "ui:help": "A qualified observation can create a candidate only. Publication is a separate human-governed release task.",
+    "maximumLifecycle": {
+      "ui:readonly": true
+    },
+    "humanApprovalRequired": {
+      "ui:readonly": true
+    }
+  }
+}

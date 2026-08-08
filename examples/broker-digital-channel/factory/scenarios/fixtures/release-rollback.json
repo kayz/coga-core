@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "name": "healthy candidate",
+      "input": {
+        "requiredChecksPassed": true,
+        "health": "healthy",
+        "rollbackAvailable": true
+      },
+      "expected": "continue"
+    },
+    {
+      "name": "failed required check",
+      "input": {
+        "requiredChecksPassed": false,
+        "health": "healthy",
+        "rollbackAvailable": true
+      },
+      "expected": "rollback"
+    },
+    {
+      "name": "degraded after promotion",
+      "input": {
+        "requiredChecksPassed": true,
+        "health": "degraded",
+        "rollbackAvailable": true
+      },
+      "expected": "rollback"
+    },
+    {
+      "name": "rollback unavailable",
+      "input": {
+        "requiredChecksPassed": true,
+        "health": "degraded",
+        "rollbackAvailable": false
+      },
+      "expected": "block-and-escalate"
+    }
+  ]
+}

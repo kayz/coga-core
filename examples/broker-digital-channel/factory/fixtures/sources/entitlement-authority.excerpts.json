@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "coga.dev/factory/v0.1",
+  "kind": "ControlledSourceExcerptSet",
+  "metadata": {
+    "id": "sources.broker.entitlement.authority",
+    "title": "Controlled public excerpts for entitlement authority",
+    "version": "0.1.0"
+  },
+  "spec": {
+    "classification": "public",
+    "policyRef": "policy.broker.channel.public.sources@0.1.0",
+    "excerpts": [
+      {
+        "sourceId": "source.owasp.asvs.access.control",
+        "url": "https://owasp.org/www-project-application-security-verification-standard/",
+        "locator": "Access-control verification requirements",
+        "capturedAt": "2026-08-08T00:00:00Z",
+        "text": "Authorization decisions are enforced by trusted server-side controls; a client presentation is not the authority.",
+        "digest": "sha256:9249f6a0d491d5c2d44dd21c112b9ae4444fd4ccdfc1be6a1ee1c3315cf2659c"
+      },
+      {
+        "sourceId": "source.nist.digital.identity",
+        "url": "https://pages.nist.gov/800-63-4/",
+        "locator": "Identity and authentication assurance guidance",
+        "capturedAt": "2026-08-08T00:00:00Z",
+        "text": "A client treats identity context as evidence from an authoritative process and does not infer stronger assurance from missing or stale data.",
+        "digest": "sha256:102c19a24725bdc9f6440090b829cc873b61f99bf38182b8c72b2558fa24bbb4"
+      }
+    ]
+  }
+}

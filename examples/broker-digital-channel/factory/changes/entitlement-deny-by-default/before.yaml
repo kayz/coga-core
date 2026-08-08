@@ -1,0 +1,48 @@
+schemaVersion: coga.dev/v0.1
+kind: DomainArtifact
+metadata:
+  id: broker.channel.entitlement.authority
+  title: Backend entitlement authority before clarification
+  version: 0.1.0
+  lifecycle: published
+  scope: instance
+  visibility: public
+  owners:
+    - example.domain.stewards
+  tags:
+    - entitlement
+    - authorization
+spec:
+  artifactType: rule
+  summary: >-
+    Client channels display protected capabilities only from a current authoritative
+    backend entitlement decision.
+  statement: >-
+    A client may present an entitled capability only when a trusted backend returns
+    a current positive decision. The client never grants or expands entitlement.
+  scope: >-
+    Presentation behavior for protected capabilities in broker digital customer
+    channels; backend authorization and transaction enforcement remain external.
+  provenance:
+    - source: https://owasp.org/www-project-application-security-verification-standard/
+      sourceType: standard
+      locator: Access-control verification requirements
+      capturedAt: 2026-08-08T00:00:00Z
+    - source: https://pages.nist.gov/800-63-4/
+      sourceType: standard
+      locator: Identity and authentication assurance guidance
+      capturedAt: 2026-08-08T00:00:00Z
+  relations:
+    - type: depends-on
+      target: broker.channel.identity.context
+    - type: applies-to
+      target: broker.channel.scenario.identity.and.entitlement
+  validation:
+    - type: schema
+      status: passed
+      validator: coga.core.schema
+    - type: scenario
+      status: passed
+      target: broker.channel.scenario.identity.and.entitlement
+      validator: coga.scenario.domain.owner
+  contractRefs: []

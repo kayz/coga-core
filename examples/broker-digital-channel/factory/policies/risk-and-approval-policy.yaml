@@ -1,0 +1,46 @@
+schemaVersion: coga.dev/factory/v0.1
+kind: RiskApprovalPolicy
+metadata:
+  id: policy.broker.channel.risk.and.approval
+  title: Example risk classification and approval policy
+  version: 0.1.0
+spec:
+  publishedMutation: deny
+  promotionAlwaysRequiresHuman: true
+  releaseAlwaysRequiresHuman: true
+  agentApproval: deny
+  selfApproval: deny
+  modelRecommendationIsDecision: false
+  evaluationThresholds:
+    minimumConfidenceForReview: 0.75
+    belowThreshold: revise
+    failedDeterministicClaim: deny
+    unansweredHighRiskQuestion: deny
+  levels:
+    low:
+      minimumApprovals: 1
+      roles:
+        - example.domain.reviewer
+    medium:
+      minimumApprovals: 1
+      roles:
+        - example.domain.owner
+    high:
+      minimumApprovals: 2
+      roles:
+        - example.domain.owner
+        - example.risk.reviewer
+      separationOfDuties: true
+    critical:
+      autonomousExecution: deny
+      minimumApprovals: 2
+      roles:
+        - example.domain.owner
+        - example.risk.owner
+      separationOfDuties: true
+  forceHighRiskWhen:
+    - identity-authority-changes
+    - entitlement-authority-changes
+    - suitability-boundary-changes
+    - personal-data-scope-expands
+    - release-rollback-is-weakened

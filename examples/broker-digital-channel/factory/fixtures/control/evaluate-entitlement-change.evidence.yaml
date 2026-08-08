@@ -1,0 +1,71 @@
+schemaVersion: coga.dev/control/v0.1
+kind: EvidenceBundle
+metadata:
+  id: evidence.broker.entitlement.change.evaluation
+  title: Advisory evaluation evidence for entitlement candidate
+  version: 0.1.0
+  lifecycle: candidate
+  scope: instance
+  visibility: public
+spec:
+  task:
+    id: task.broker.entitlement.change.evaluate
+    version: 0.1.0
+  runId: example-entitlement-evaluation-001
+  producedBy:
+    kind: agent
+    id: agent.deepseek.asset.evaluator
+    roles:
+      - candidate-evaluator
+  disposition: candidate
+  subject:
+    path: examples/broker-digital-channel/factory/changes/entitlement-deny-by-default/after.yaml
+    mediaType: application/yaml
+    digest: sha256:74455b2b82a6acebcae349afab82fa2e34c4c00b048171a7dc283cc72d6bb342
+  materials:
+    - path: examples/broker-digital-channel/factory/changes/entitlement-deny-by-default/before.yaml
+      mediaType: application/yaml
+      digest: sha256:e35c36971a504d6a891944e00c29cbf78cfc10c604d7a462a9f24abda89e8198
+    - path: examples/broker-digital-channel/factory/changes/entitlement-deny-by-default/after.yaml
+      mediaType: application/yaml
+      digest: sha256:74455b2b82a6acebcae349afab82fa2e34c4c00b048171a7dc283cc72d6bb342
+    - path: examples/broker-digital-channel/factory/prompts/asset-evaluator.v1.md
+      mediaType: text/markdown
+      digest: sha256:dc8680cea1a28deaebd4fc0ce8d47074ba785dc03da64ddfd87d8b70420fdd78
+    - path: examples/broker-digital-channel/factory/fixtures/sources/entitlement-authority.excerpts.json
+      mediaType: application/json
+      digest: sha256:97d6b4f889b445fbb765935e77cfafa7c7cd0b45dcdbf4492277a04a298d177b
+    - path: examples/broker-digital-channel/factory/fixtures/evaluation/entitlement-change.output.json
+      mediaType: application/json
+      digest: sha256:06c40808dc8fa14a3d4ad76c06f8fc37fbf94b6b330607f1349399dd9f33f8c2
+  claimResults:
+    - claim: evaluation.output.schema.valid
+      status: passed
+      validator:
+        kind: validator
+        id: validator.example.factory.structure
+        version: 0.1.0
+      materialPaths:
+        - examples/broker-digital-channel/factory/fixtures/evaluation/entitlement-change.output.json
+    - claim: evaluation.sources.allowed
+      status: passed
+      validator:
+        kind: validator
+        id: validator.example.factory.structure
+        version: 0.1.0
+      materialPaths:
+        - examples/broker-digital-channel/factory/fixtures/sources/entitlement-authority.excerpts.json
+    - claim: evaluation.authority.is-advisory
+      status: passed
+      validator:
+        kind: validator
+        id: validator.example.factory.structure
+        version: 0.1.0
+      materialPaths:
+        - examples/broker-digital-channel/factory/evaluation/asset-evaluator.profile.yaml
+  execution:
+    model:
+      provider: deepseek
+      model: deepseek-v4-pro
+      promptDigest: sha256:dc8680cea1a28deaebd4fc0ce8d47074ba785dc03da64ddfd87d8b70420fdd78
+      outputDigest: sha256:06c40808dc8fa14a3d4ad76c06f8fc37fbf94b6b330607f1349399dd9f33f8c2

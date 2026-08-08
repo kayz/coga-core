@@ -1,0 +1,47 @@
+{
+  "changedArtifact": {
+    "id": "broker.channel.entitlement.authority",
+    "fromVersion": "0.1.0",
+    "toVersion": "0.1.1"
+  },
+  "changeClasses": ["scope-narrowed", "failure-behavior-changed"],
+  "affectedPackages": [
+    {
+      "id": "broker.digital.channel.domain",
+      "version": "0.1.0",
+      "path": "artifact-owner"
+    }
+  ],
+  "affectedApplications": [
+    {
+      "id": "application.aster.mini.program",
+      "version": "0.1.0",
+      "impactPath": [
+        "broker.channel.entitlement.authority@0.1.1",
+        "broker.digital.channel.domain@0.1.0",
+        "application.aster.mini.program@0.1.0"
+      ]
+    },
+    {
+      "id": "application.cedar.insight.h5",
+      "version": "0.1.0",
+      "impactPath": [
+        "broker.channel.entitlement.authority@0.1.1",
+        "broker.digital.channel.domain@0.1.0",
+        "application.cedar.insight.h5@0.1.0"
+      ]
+    }
+  ],
+  "rerunScenarios": [
+    "broker.channel.scenario.identity.and.entitlement@0.1.0",
+    "frontend.client.scenario.contract.and.state@0.1.0",
+    "client.operations.scenario.incident@0.1.0",
+    "client.operations.scenario.release@0.1.0"
+  ],
+  "rerunRunbooks": [
+    "client.operations.incident.triage@0.1.0",
+    "client.operations.release.rollback@0.1.0"
+  ],
+  "automaticUpgrade": false,
+  "requiredDecision": "human-review"
+}

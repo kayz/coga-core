@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "coga.dev/factory/v0.1",
+  "kind": "ApplicationRecipeCandidate",
+  "metadata": {
+    "id": "candidate.application.aster.mini.program",
+    "title": "Aster mini-program materialization candidate",
+    "version": "0.1.0"
+  },
+  "spec": {
+    "recipe": {
+      "id": "recipe.broker.channel.wechat.miniapp",
+      "version": "0.1.0",
+      "path": "examples/broker-digital-channel/factory/recipes/wechat-miniapp.recipe.yaml"
+    },
+    "parameters": {
+      "applicationId": "application.aster.mini.program",
+      "applicationTitle": "Aster Learning Mini Program",
+      "packageName": "@coga-example/aster-mini-program"
+    },
+    "parametersFile": "examples/broker-digital-channel/factory/recipes/candidates/aster-miniapp.parameters.json",
+    "choices": {
+      "navigationModel": "tabbed-mini-program-shell",
+      "contentPresentation": "source-time-and-disclosure-visible",
+      "recoveryPresentation": "explicit-retry-without-implied-entitlement"
+    },
+    "expectedOutputRoot": "examples/broker-digital-channel/factory/golden/wechat-miniapp"
+  }
+}

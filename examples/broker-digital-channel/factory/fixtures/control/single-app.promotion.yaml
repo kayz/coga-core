@@ -1,0 +1,31 @@
+schemaVersion: coga.dev/control/v0.1
+kind: PromotionProposal
+metadata:
+  id: promotion.entitlement.single.application
+  title: Single-application observation promotion attempt
+  version: 0.1.0
+  lifecycle: candidate
+  scope: instance
+  visibility: public
+spec:
+  proposedBy:
+    kind: agent
+    id: agent.example.incident.curator
+    roles:
+      - candidate-curator
+  observations:
+    - id: observation.aster.entitlement.unavailable
+      version: 0.1.0
+  sourceApplications:
+    - id: application.aster.mini.program
+      version: 0.1.0
+  authoritativeSources: []
+  targetPackage:
+    id: broker.digital.channel.domain
+    version: 0.1.0
+  proposedArtifactType: rule
+  generalization: Treat unavailable entitlement evidence as non-entitled presentation.
+  scenarioRefs:
+    - id: broker.channel.scenario.identity.and.entitlement
+      version: 0.1.0
+  candidateDigest: sha256:74455b2b82a6acebcae349afab82fa2e34c4c00b048171a7dc283cc72d6bb342

@@ -14,3 +14,4 @@ export {
   canTransitionLifecycle,
   checkLifecycleTransition,
 } from "./lifecycle.js";
+export * from "./control/index.js";

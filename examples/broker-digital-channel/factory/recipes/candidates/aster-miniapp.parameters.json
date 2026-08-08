@@ -1,0 +1,8 @@
+{
+  "applicationId": "application.aster.mini.program",
+  "applicationTitle": "Aster Learning Mini Program",
+  "packageName": "@coga-example/aster-mini-program",
+  "navigationModel": "tabbed-mini-program-shell",
+  "contentPresentation": "source-time-and-disclosure-visible",
+  "recoveryPresentation": "explicit-retry-without-implied-entitlement"
+}

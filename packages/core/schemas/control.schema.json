@@ -1,0 +1,904 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://coga.dev/schemas/control/v0.1/control.schema.json",
+  "title": "COGA Control Plane 0.1",
+  "description": "Domain-neutral task, evidence, decision, audit, feedback, and promotion contracts.",
+  "$defs": {
+    "digest": {
+      "title": "SHA-256 digest",
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "actorRef": {
+      "title": "Actor reference",
+      "description": "A human, agent, or system identity and the roles it is acting under.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "roles"],
+      "properties": {
+        "kind": { "enum": ["human", "agent", "system"] },
+        "id": {
+          "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/stableId"
+        },
+        "roles": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "humanActorRef": {
+      "allOf": [
+        { "$ref": "#/$defs/actorRef" },
+        { "type": "object", "properties": { "kind": { "const": "human" } } }
+      ]
+    },
+    "adapterRef": {
+      "title": "Exact adapter reference",
+      "description": "An exact kind, stable ID, and SemVer binding resolved by the adapter registry.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "version"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "agent",
+            "tool",
+            "workspace",
+            "validator",
+            "policy",
+            "observation",
+            "preview"
+          ]
+        },
+        "id": {
+          "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/stableId"
+        },
+        "version": {
+          "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/semver"
+        }
+      }
+    },
+    "workspaceAdapterRef": {
+      "title": "Workspace adapter reference",
+      "allOf": [
+        { "$ref": "#/$defs/adapterRef" },
+        { "type": "object", "properties": { "kind": { "const": "workspace" } } }
+      ]
+    },
+    "validatorAdapterRef": {
+      "title": "Validator adapter reference",
+      "allOf": [
+        { "$ref": "#/$defs/adapterRef" },
+        { "type": "object", "properties": { "kind": { "const": "validator" } } }
+      ]
+    },
+    "policyAdapterRef": {
+      "title": "Policy adapter reference",
+      "allOf": [
+        { "$ref": "#/$defs/adapterRef" },
+        { "type": "object", "properties": { "kind": { "const": "policy" } } }
+      ]
+    },
+    "material": {
+      "title": "Hash-addressed material",
+      "description": "A file-backed subject or evidence material whose bytes are bound by SHA-256.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "mediaType", "digest"],
+      "properties": {
+        "path": {
+          "title": "Material path",
+          "type": "string",
+          "minLength": 1,
+          "x-coga-ui": { "control": "file" }
+        },
+        "mediaType": { "type": "string", "minLength": 1 },
+        "digest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "modelMetadata": {
+      "title": "Safe model invocation metadata",
+      "description": "Contains identifiers, usage, and digests only; credentials, reasoning, and raw prompts are forbidden.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "model", "promptDigest", "outputDigest"],
+      "properties": {
+        "provider": { "type": "string", "minLength": 1 },
+        "model": { "type": "string", "minLength": 1 },
+        "responseId": { "type": "string", "minLength": 1 },
+        "usage": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "inputTokens": { "type": "integer", "minimum": 0 },
+            "outputTokens": { "type": "integer", "minimum": 0 },
+            "costUsd": { "type": "number", "minimum": 0 }
+          }
+        },
+        "promptDigest": { "$ref": "#/$defs/digest" },
+        "outputDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "policyDecision": {
+      "title": "Policy decision",
+      "description": "A policy adapter result bound to the exact Task Contract digest.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy",
+        "evaluator",
+        "decision",
+        "reason",
+        "taskDigest",
+        "evaluatedAt",
+        "approvalRequirementIds"
+      ],
+      "properties": {
+        "policy": {
+          "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+        },
+        "evaluator": { "$ref": "#/$defs/policyAdapterRef" },
+        "decision": { "enum": ["allow", "deny", "requireApproval"] },
+        "reason": { "type": "string", "minLength": 1 },
+        "taskDigest": { "$ref": "#/$defs/digest" },
+        "evaluatedAt": { "type": "string", "format": "date-time" },
+        "approvalRequirementIds": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "decision": { "const": "requireApproval" } },
+            "required": ["decision"]
+          },
+          "then": {
+            "properties": {
+              "approvalRequirementIds": { "type": "array", "minItems": 1 }
+            }
+          },
+          "else": {
+            "properties": {
+              "approvalRequirementIds": { "type": "array", "maxItems": 0 }
+            }
+          }
+        }
+      ]
+    },
+    "approvalDecision": {
+      "title": "Human approval decision bound to reviewed digests",
+      "description": "A human-only approval or rejection bound to task, candidate, evidence, and impact digests.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirementId",
+        "decision",
+        "actor",
+        "decidedAt",
+        "reason",
+        "candidateDigest",
+        "taskDigest",
+        "evidenceDigest",
+        "impactDigest"
+      ],
+      "properties": {
+        "requirementId": { "type": "string", "minLength": 1 },
+        "decision": { "enum": ["approve", "reject"] },
+        "actor": { "$ref": "#/$defs/humanActorRef" },
+        "decidedAt": { "type": "string", "format": "date-time" },
+        "reason": { "type": "string", "minLength": 1 },
+        "candidateDigest": { "$ref": "#/$defs/digest" },
+        "taskDigest": { "$ref": "#/$defs/digest" },
+        "evidenceDigest": { "$ref": "#/$defs/digest" },
+        "impactDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "auditEvent": {
+      "title": "Hash-chained audit event",
+      "description": "An append-only event with a canonical payload digest and previous-event hash.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "occurredAt",
+        "actor",
+        "type",
+        "payload",
+        "payloadDigest",
+        "previousHash",
+        "hash"
+      ],
+      "properties": {
+        "sequence": { "type": "integer", "minimum": 0 },
+        "occurredAt": { "type": "string", "format": "date-time" },
+        "actor": { "$ref": "#/$defs/actorRef" },
+        "type": { "type": "string", "minLength": 1 },
+        "payload": { "type": "object" },
+        "payloadDigest": { "$ref": "#/$defs/digest" },
+        "previousHash": { "$ref": "#/$defs/digest" },
+        "hash": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "resourceMetadata": {
+      "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/metadata"
+    },
+    "taskContract": {
+      "title": "Task Contract",
+      "description": "Frozen intent, ordered work, budgets, policies, and approval requirements for one factory task.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "kind", "metadata", "spec"],
+      "properties": {
+        "schemaVersion": { "const": "coga.dev/control/v0.1" },
+        "kind": { "const": "TaskContract" },
+        "metadata": { "$ref": "#/$defs/resourceMetadata" },
+        "spec": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "risk",
+            "requestedBy",
+            "instance",
+            "intent",
+            "workspace",
+            "steps",
+            "policies",
+            "approvals",
+            "budget"
+          ],
+          "properties": {
+            "mode": {
+              "title": "Task mode",
+              "enum": [
+                "calibrate",
+                "build",
+                "repair",
+                "upgrade",
+                "operate",
+                "release-harness"
+              ],
+              "default": "build",
+              "x-coga-ui": { "control": "select" }
+            },
+            "risk": {
+              "title": "Risk",
+              "enum": ["low", "medium", "high", "critical"],
+              "default": "medium",
+              "x-coga-ui": { "control": "select" }
+            },
+            "requestedBy": { "$ref": "#/$defs/actorRef" },
+            "instance": {
+              "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+            },
+            "application": {
+              "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+            },
+            "intent": {
+              "title": "Intent",
+              "description": "Human-readable objective and acceptance boundary; it is not an executable prompt.",
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["goal", "acceptanceCriteria", "nonGoals", "sources"],
+              "properties": {
+                "goal": {
+                  "title": "Goal",
+                  "type": "string",
+                  "minLength": 1,
+                  "x-coga-ui": { "control": "textarea" }
+                },
+                "acceptanceCriteria": {
+                  "title": "Acceptance criteria",
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "type": "string", "minLength": 1 },
+                  "x-coga-ui": { "control": "list" }
+                },
+                "nonGoals": {
+                  "title": "Non-goals",
+                  "type": "array",
+                  "items": { "type": "string", "minLength": 1 },
+                  "default": [],
+                  "x-coga-ui": { "control": "list" }
+                },
+                "sources": {
+                  "title": "Sources",
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "type": "string", "minLength": 1 },
+                  "x-coga-ui": { "control": "list" }
+                }
+              }
+            },
+            "workspace": { "$ref": "#/$defs/workspaceAdapterRef" },
+            "steps": {
+              "title": "Ordered steps",
+              "description": "Steps execute in array order and are resumed by stable step ID.",
+              "type": "array",
+              "minItems": 1,
+              "x-coga-ui": { "control": "repeater" },
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "phase",
+                  "adapter",
+                  "action",
+                  "input",
+                  "validators",
+                  "requiredClaims",
+                  "maxAttempts"
+                ],
+                "properties": {
+                  "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+                  "phase": {
+                    "enum": [
+                      "preflight",
+                      "execute",
+                      "validate",
+                      "preview",
+                      "release",
+                      "operate",
+                      "finalize"
+                    ]
+                  },
+                  "adapter": { "$ref": "#/$defs/adapterRef" },
+                  "action": { "type": "string", "minLength": 1 },
+                  "input": { "type": "object" },
+                  "validators": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/validatorAdapterRef" }
+                  },
+                  "requiredClaims": {
+                    "type": "array",
+                    "items": { "type": "string", "minLength": 1 },
+                    "uniqueItems": true
+                  },
+                  "maxAttempts": { "type": "integer", "minimum": 1 }
+                }
+              }
+            },
+            "policies": {
+              "title": "Policy checks",
+              "type": "array",
+              "default": [],
+              "x-coga-ui": { "control": "repeater" },
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["policy", "evaluator"],
+                "properties": {
+                  "policy": {
+                    "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+                  },
+                  "evaluator": { "$ref": "#/$defs/policyAdapterRef" }
+                }
+              }
+            },
+            "approvals": {
+              "title": "Approval requirements",
+              "type": "array",
+              "default": [],
+              "x-coga-ui": { "control": "repeater" },
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "phase",
+                  "roles",
+                  "minimumApprovals",
+                  "separationOfDuties"
+                ],
+                "properties": {
+                  "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+                  "phase": {
+                    "enum": ["preflight", "post-validation", "release"]
+                  },
+                  "roles": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "type": "string", "minLength": 1 },
+                    "uniqueItems": true
+                  },
+                  "minimumApprovals": { "type": "integer", "minimum": 1 },
+                  "separationOfDuties": { "type": "boolean", "default": true }
+                }
+              }
+            },
+            "budget": {
+              "title": "Execution budget",
+              "description": "Hard limits enforced by the deterministic engine.",
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["maxDurationMs", "maxAttempts"],
+              "properties": {
+                "maxDurationMs": { "type": "integer", "minimum": 1 },
+                "maxAttempts": { "type": "integer", "minimum": 1 },
+                "maxTokens": { "type": "integer", "minimum": 0 },
+                "maxCostUsd": { "type": "number", "minimum": 0 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "evidenceBundle": {
+      "title": "Evidence Bundle",
+      "description": "Candidate-only, hash-addressed evidence with claim and execution metadata.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "kind", "metadata", "spec"],
+      "properties": {
+        "schemaVersion": { "const": "coga.dev/control/v0.1" },
+        "kind": { "const": "EvidenceBundle" },
+        "metadata": { "$ref": "#/$defs/resourceMetadata" },
+        "spec": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "task",
+            "runId",
+            "producedBy",
+            "disposition",
+            "subject",
+            "materials",
+            "claimResults",
+            "execution"
+          ],
+          "properties": {
+            "task": {
+              "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+            },
+            "runId": { "type": "string", "minLength": 1 },
+            "producedBy": { "$ref": "#/$defs/actorRef" },
+            "disposition": {
+              "title": "Disposition",
+              "const": "candidate",
+              "default": "candidate"
+            },
+            "subject": { "$ref": "#/$defs/material" },
+            "materials": {
+              "title": "Materials",
+              "type": "array",
+              "items": { "$ref": "#/$defs/material" },
+              "uniqueItems": true,
+              "default": [],
+              "x-coga-ui": { "control": "repeater" }
+            },
+            "claimResults": {
+              "title": "Claim results",
+              "type": "array",
+              "minItems": 1,
+              "x-coga-ui": { "control": "repeater" },
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["claim", "status", "validator", "materialPaths"],
+                "properties": {
+                  "claim": { "type": "string", "minLength": 1 },
+                  "status": { "enum": ["passed", "failed"] },
+                  "validator": { "$ref": "#/$defs/validatorAdapterRef" },
+                  "materialPaths": {
+                    "type": "array",
+                    "items": { "type": "string", "minLength": 1 }
+                  },
+                  "message": { "type": "string" }
+                }
+              }
+            },
+            "execution": {
+              "type": "object",
+              "additionalProperties": false,
+              "minProperties": 1,
+              "properties": {
+                "validator": { "$ref": "#/$defs/validatorAdapterRef" },
+                "command": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["executable", "args", "exitCode"],
+                  "properties": {
+                    "executable": { "type": "string", "minLength": 1 },
+                    "args": { "type": "array", "items": { "type": "string" } },
+                    "exitCode": { "type": "integer" },
+                    "stdoutDigest": { "$ref": "#/$defs/digest" },
+                    "stderrDigest": { "$ref": "#/$defs/digest" }
+                  }
+                },
+                "model": { "$ref": "#/$defs/modelMetadata" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "runRecord": {
+      "title": "Run Record",
+      "description": "Checkpointable execution state with digest-bound decisions and an anchored audit trail.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "kind", "metadata", "spec"],
+      "properties": {
+        "schemaVersion": { "const": "coga.dev/control/v0.1" },
+        "kind": { "const": "RunRecord" },
+        "metadata": { "$ref": "#/$defs/resourceMetadata" },
+        "spec": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "task",
+            "idempotencyKey",
+            "state",
+            "taskDigest",
+            "candidateDigest",
+            "evidenceDigest",
+            "impactDigest",
+            "requestedBy",
+            "steps",
+            "policyDecisions",
+            "approvalDecisions",
+            "evidence",
+            "audit",
+            "auditHead",
+            "budget"
+          ],
+          "properties": {
+            "task": {
+              "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+            },
+            "idempotencyKey": { "$ref": "#/$defs/digest" },
+            "state": {
+              "enum": [
+                "created",
+                "preflight",
+                "executing",
+                "validating",
+                "awaitingApproval",
+                "succeeded",
+                "denied",
+                "rejected",
+                "failed",
+                "cancelled"
+              ]
+            },
+            "stateReason": { "type": "string" },
+            "taskDigest": { "$ref": "#/$defs/digest" },
+            "candidateDigest": { "$ref": "#/$defs/digest" },
+            "evidenceDigest": { "$ref": "#/$defs/digest" },
+            "impactDigest": { "$ref": "#/$defs/digest" },
+            "requestedBy": { "$ref": "#/$defs/actorRef" },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "state", "attempts"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "state": {
+                    "enum": ["pending", "running", "completed", "failed"]
+                  },
+                  "attempts": { "type": "integer", "minimum": 0 },
+                  "outputDigest": { "$ref": "#/$defs/digest" },
+                  "claimDigest": { "$ref": "#/$defs/digest" },
+                  "checkpoint": { "type": "object" }
+                }
+              }
+            },
+            "policyDecisions": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/policyDecision" }
+            },
+            "approvalDecisions": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/approvalDecision" }
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/locatedRef"
+              }
+            },
+            "audit": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/auditEvent" }
+            },
+            "auditHead": { "$ref": "#/$defs/digest" },
+            "budget": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "elapsedMs",
+                "attempts",
+                "inputTokens",
+                "outputTokens",
+                "costUsd"
+              ],
+              "properties": {
+                "elapsedMs": { "type": "integer", "minimum": 0 },
+                "attempts": { "type": "integer", "minimum": 0 },
+                "inputTokens": { "type": "integer", "minimum": 0 },
+                "outputTokens": { "type": "integer", "minimum": 0 },
+                "costUsd": { "type": "number", "minimum": 0 }
+              }
+            },
+            "heartbeatAt": { "type": "string", "format": "date-time" },
+            "checkpoint": { "type": "object" },
+            "cancellation": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["requestedBy", "reason", "requestedAt"],
+              "properties": {
+                "requestedBy": { "$ref": "#/$defs/actorRef" },
+                "reason": { "type": "string", "minLength": 1 },
+                "requestedAt": { "type": "string", "format": "date-time" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "observation": {
+      "title": "Observation",
+      "description": "A classified, retained CloudEvents 1.0 observation bound to a schema and application.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "kind", "metadata", "spec"],
+      "properties": {
+        "schemaVersion": { "const": "coga.dev/control/v0.1" },
+        "kind": { "const": "Observation" },
+        "metadata": { "$ref": "#/$defs/resourceMetadata" },
+        "spec": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "cloudEvent",
+            "classification",
+            "retention",
+            "schemaRef",
+            "application"
+          ],
+          "properties": {
+            "cloudEvent": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "specversion",
+                "id",
+                "source",
+                "type",
+                "time",
+                "datacontenttype",
+                "dataschema",
+                "data"
+              ],
+              "properties": {
+                "specversion": { "const": "1.0" },
+                "id": { "type": "string", "minLength": 1 },
+                "source": { "type": "string", "format": "uri-reference" },
+                "type": { "type": "string", "minLength": 1 },
+                "subject": { "type": "string" },
+                "time": { "type": "string", "format": "date-time" },
+                "datacontenttype": { "type": "string", "minLength": 1 },
+                "dataschema": { "type": "string", "format": "uri-reference" },
+                "data": {}
+              }
+            },
+            "classification": {
+              "title": "Classification",
+              "enum": ["public", "internal", "restricted"],
+              "default": "internal",
+              "x-coga-ui": { "control": "select" }
+            },
+            "retention": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["class"],
+              "properties": {
+                "class": {
+                  "title": "Retention class",
+                  "enum": ["ephemeral", "operational", "record"],
+                  "default": "operational",
+                  "x-coga-ui": { "control": "select" }
+                },
+                "retainUntil": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-coga-ui": { "control": "datetime" }
+                }
+              }
+            },
+            "schemaRef": {
+              "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+            },
+            "application": {
+              "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+            }
+          }
+        }
+      }
+    },
+    "incident": {
+      "title": "Incident",
+      "description": "An operational incident whose closure requires evidence beyond deployment alone.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "kind", "metadata", "spec"],
+      "properties": {
+        "schemaVersion": { "const": "coga.dev/control/v0.1" },
+        "kind": { "const": "Incident" },
+        "metadata": { "$ref": "#/$defs/resourceMetadata" },
+        "spec": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["application", "status", "summary", "observations"],
+          "properties": {
+            "application": {
+              "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+            },
+            "status": {
+              "title": "Status",
+              "enum": ["open", "mitigated", "resolved", "closed"],
+              "default": "open",
+              "x-coga-ui": { "control": "select" }
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1,
+              "x-coga-ui": { "control": "textarea" }
+            },
+            "observations": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+              }
+            },
+            "closure": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "cause",
+                "resolution",
+                "verification",
+                "closedBy",
+                "closedAt"
+              ],
+              "properties": {
+                "cause": { "type": "string", "minLength": 1 },
+                "resolution": { "type": "string", "minLength": 1 },
+                "verification": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["type", "evidence"],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "deploy",
+                          "reproduction",
+                          "monitoring",
+                          "customer-confirmation",
+                          "rollback"
+                        ]
+                      },
+                      "evidence": {
+                        "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+                      }
+                    }
+                  }
+                },
+                "closedBy": { "$ref": "#/$defs/humanActorRef" },
+                "closedAt": { "type": "string", "format": "date-time" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "promotionProposal": {
+      "title": "Promotion Proposal",
+      "description": "A candidate-only proposal to generalize application observations into Harness knowledge.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "kind", "metadata", "spec"],
+      "properties": {
+        "schemaVersion": { "const": "coga.dev/control/v0.1" },
+        "kind": { "const": "PromotionProposal" },
+        "metadata": {
+          "allOf": [
+            { "$ref": "#/$defs/resourceMetadata" },
+            {
+              "type": "object",
+              "properties": {
+                "lifecycle": { "const": "candidate", "default": "candidate" }
+              }
+            }
+          ]
+        },
+        "spec": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "proposedBy",
+            "observations",
+            "sourceApplications",
+            "authoritativeSources",
+            "targetPackage",
+            "proposedArtifactType",
+            "generalization",
+            "scenarioRefs",
+            "candidateDigest"
+          ],
+          "properties": {
+            "proposedBy": { "$ref": "#/$defs/actorRef" },
+            "observations": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+              }
+            },
+            "sourceApplications": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+              }
+            },
+            "authoritativeSources": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 },
+              "uniqueItems": true
+            },
+            "targetPackage": {
+              "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+            },
+            "proposedArtifactType": {
+              "title": "Artifact type",
+              "enum": [
+                "concept",
+                "rule",
+                "capability",
+                "scenario",
+                "policy",
+                "runbook"
+              ],
+              "x-coga-ui": { "control": "select" }
+            },
+            "generalization": {
+              "title": "Generalization",
+              "type": "string",
+              "minLength": 1,
+              "x-coga-ui": { "control": "textarea" }
+            },
+            "scenarioRefs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+              }
+            },
+            "candidateDigest": { "$ref": "#/$defs/digest" }
+          }
+        }
+      }
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/$defs/taskContract" },
+    { "$ref": "#/$defs/evidenceBundle" },
+    { "$ref": "#/$defs/runRecord" },
+    { "$ref": "#/$defs/observation" },
+    { "$ref": "#/$defs/incident" },
+    { "$ref": "#/$defs/promotionProposal" }
+  ]
+}

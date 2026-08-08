@@ -1,0 +1,147 @@
+schemaVersion: coga.dev/control/v0.1
+kind: TaskContract
+metadata:
+  id: task.broker.entitlement.change.evaluate
+  title: Evaluate the entitlement denial-first candidate
+  version: 0.1.0
+  lifecycle: candidate
+  scope: instance
+  visibility: public
+spec:
+  mode: calibrate
+  risk: high
+  requestedBy:
+    kind: human
+    id: actor.example.domain.requester
+    roles:
+      - example.domain.requester
+  instance:
+    id: instance.broker.digital.customer.channel
+    version: 0.1.0
+  intent:
+    goal: Evaluate a sanitized entitlement-authority clarification as a shared candidate.
+    acceptanceCriteria:
+      - Evaluation output conforms to the Instance-owned schema.
+      - Source excerpts are public, allowlisted, and digest-bound.
+      - Both registered applications and required reruns are named.
+      - No agent decision is treated as approval or publication.
+    nonGoals:
+      - Change a published artifact directly.
+      - Call a production service or deploy an application.
+      - Interpret an organization-specific legal or compliance obligation.
+    sources:
+      - examples/broker-digital-channel/factory/fixtures/sources/entitlement-authority.excerpts.json
+  workspace:
+    kind: workspace
+    id: adapter.example.versioned.files
+    version: 0.1.0
+  steps:
+    - id: prepare-diff
+      phase: execute
+      adapter:
+        kind: workspace
+        id: adapter.example.versioned.files
+        version: 0.1.0
+      action: semantic.diff
+      input:
+        change: examples/broker-digital-channel/factory/changes/entitlement-deny-by-default/change.yaml
+      validators:
+        - kind: validator
+          id: validator.example.factory.structure
+          version: 0.1.0
+      requiredClaims:
+        - candidate.lifecycle.is-candidate
+        - source.input.is-public
+      maxAttempts: 1
+    - id: evaluate-candidate
+      phase: execute
+      adapter:
+        kind: agent
+        id: agent.deepseek.asset.evaluator
+        version: 0.1.0
+      action: assess-asset
+      input:
+        profile: examples/broker-digital-channel/factory/evaluation/asset-evaluator.profile.yaml
+        candidate: examples/broker-digital-channel/factory/changes/entitlement-deny-by-default/after.yaml
+      validators:
+        - kind: validator
+          id: validator.example.factory.structure
+          version: 0.1.0
+      requiredClaims:
+        - evaluation.output.schema.valid
+        - evaluation.sources.allowed
+        - evaluation.authority.is-advisory
+      maxAttempts: 2
+    - id: review-impact
+      phase: preview
+      adapter:
+        kind: preview
+        id: preview.example.workbench
+        version: 0.1.0
+      action: impact.review
+      input:
+        expectedImpact: examples/broker-digital-channel/factory/changes/entitlement-deny-by-default/expected-impact.json
+      validators:
+        - kind: validator
+          id: validator.example.factory.applications
+          version: 0.1.0
+      requiredClaims:
+        - impact.includes.all.registered.applications
+      maxAttempts: 1
+    - id: validate-structure
+      phase: validate
+      adapter:
+        kind: validator
+        id: validator.example.factory.structure
+        version: 0.1.0
+      action: validate
+      input: {}
+      validators: []
+      requiredClaims:
+        - validator.validator.example.factory.structure
+      maxAttempts: 1
+    - id: validate-scenarios
+      phase: validate
+      adapter:
+        kind: validator
+        id: validator.example.factory.scenarios
+        version: 0.1.0
+      action: validate
+      input: {}
+      validators: []
+      requiredClaims:
+        - validator.validator.example.factory.scenarios
+      maxAttempts: 1
+    - id: validate-applications
+      phase: validate
+      adapter:
+        kind: validator
+        id: validator.example.factory.applications
+        version: 0.1.0
+      action: validate
+      input: {}
+      validators: []
+      requiredClaims:
+        - validator.validator.example.factory.applications
+      maxAttempts: 1
+  policies:
+    - policy:
+        id: example.organization.change.approval
+        version: 0.1.0
+      evaluator:
+        kind: policy
+        id: policy.example.factory.governance
+        version: 0.1.0
+  approvals:
+    - id: high-risk-domain-change
+      phase: post-validation
+      roles:
+        - example.domain.owner
+        - example.risk.reviewer
+      minimumApprovals: 2
+      separationOfDuties: true
+  budget:
+    maxDurationMs: 180000
+    maxAttempts: 4
+    maxTokens: 4096
+    maxCostUsd: 1

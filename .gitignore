@@ -6,6 +6,8 @@ coverage/
 # Local-only applications and source material must never enter the public repo.
 /private/
 /.local/
+**/.coga/
+**/.coga-state/
 
 .env
 .env.*

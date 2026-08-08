@@ -1,0 +1,54 @@
+schemaVersion: coga.dev/factory/v0.1
+kind: ApplicationRecipe
+metadata:
+  id: recipe.broker.channel.h5
+  title: Broker channel mobile H5 recipe
+  version: 0.1.0
+spec:
+  deliveryTarget: web-h5
+  templateRoot: templates/h5
+  parameters:
+    - name: applicationId
+      pattern: ^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$
+      required: true
+    - name: applicationTitle
+      pattern: ^.{1,80}$
+      required: true
+    - name: packageName
+      pattern: ^@[a-z0-9-]+/[a-z0-9-]+$
+      required: true
+    - name: navigationModel
+      pattern: ^[a-z][a-z0-9-]+$
+      required: true
+    - name: contentPresentation
+      pattern: ^[a-z][a-z0-9-]+$
+      required: true
+    - name: recoveryPresentation
+      pattern: ^[a-z][a-z0-9-]+$
+      required: true
+  harnessDependencies:
+    - id: broker.digital.channel.domain
+      version: 0.1.0
+    - id: frontend.client.engineering
+      version: 0.1.0
+    - id: example.broker.organization
+      version: 0.1.0
+    - id: client.application.operations
+      version: 0.1.0
+  outputs:
+    - package.json
+    - application-lock.json
+    - src/index.html
+    - src/app.mjs
+    - src/state.mjs
+    - scripts/build.mjs
+    - tests/state.test.mjs
+  validators:
+    - id: broker.channel.scenario.identity.and.entitlement
+      version: 0.1.0
+    - id: frontend.client.scenario.contract.and.state
+      version: 0.1.0
+    - id: frontend.client.scenario.accessibility
+      version: 0.1.0
+    - id: client.operations.scenario.incident
+      version: 0.1.0

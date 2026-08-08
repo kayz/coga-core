@@ -1,6 +1,6 @@
 # COGA Core
 
-[English](README.md) · [完整愿景](VISION.zh-CN.md) · [公开示例](examples/broker-digital-channel/README.md) · [更新记录](CHANGELOG.md)
+[English](README.md) · [完整愿景](VISION.zh-CN.md) · [可执行工厂参考](docs/factory-reference.md) · [公开示例](examples/broker-digital-channel/README.md) · [更新记录](CHANGELOG.md)
 
 COGA Core 是一个开源、与领域无关的契约层，用来支撑“人类治理、Agent 执行”的软件工厂。它希望团队能够先**标定一个有界领域**，把可持续积累的知识打包为 Domain Harness，再用它持续生产和演进多个 Application。
 
@@ -28,7 +28,8 @@ COGA Core                         COGA Instance                       Applicatio
 - 结构和语义校验，包括引用完整性与发布规则；
 - Markdown/JSON 目录与确定性的反向影响分析；
 - 一个脱敏的[券商数字客户渠道示例](examples/broker-digital-channel/README.md)，包含五层 Harness 和两个虚构消费应用；
-- 面向未来表单的 Schema 提示与窄职责 Agent 操作手册；
+- localhost 人类治理工作台、文件型控制面和窄职责 Agent/Validator Adapter；
+- 从意图、候选、证据、摘要绑定审批和本地预览，到事故、修复验证与 Harness 候选升格的可恢复闭环；
 - 显式公开白名单、隐私和边界检查。
 
 这个实例只用于说明结构，不包含生产地址、密钥、客户数据、私有接口契约或某家机构的合规基线。
@@ -42,6 +43,12 @@ npm ci
 npm run check:public
 npm run catalog:example
 npm run impact:example
+```
+
+运行人机工作台（只监听本机，不提供发布或上传能力）：
+
+```console
+npm run workbench
 ```
 
 构建后可以用 CLI 检查其他 Instance：
@@ -83,6 +90,8 @@ Agent 可以研究、识别和起草候选资产；人类仍负责领域语义�
 
 ```text
 packages/core/                       与领域无关的库、CLI 和 Schema
+packages/factory/                    受治理的本地参考引擎与 Adapter
+packages/workbench/                  localhost 人类治理工作台
 examples/broker-digital-channel/     脱敏且可复用的 COGA Instance
 docs/                                跨层架构决策
 scripts/                             隐私与公开边界门禁

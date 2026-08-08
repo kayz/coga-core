@@ -1,0 +1,20 @@
+schemaVersion: coga.dev/control/v0.1
+kind: Incident
+metadata:
+  id: incident.aster.entitlement.evidence
+  title: Sanitized entitlement evidence incident
+  version: 0.1.0
+  lifecycle: candidate
+  scope: application
+  visibility: public
+spec:
+  application:
+    id: application.aster.mini.program
+    version: 0.1.0
+  status: mitigated
+  summary: >-
+    A sanitized client observation recorded unavailable entitlement evidence; the
+    client hid the protected capability and exposed no customer identifier.
+  observations:
+    - id: observation.aster.entitlement.unavailable
+      version: 0.1.0

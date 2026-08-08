@@ -1,0 +1,8 @@
+{
+  "applicationId": "application.cedar.insight.h5",
+  "applicationTitle": "Cedar Market Context H5",
+  "packageName": "@coga-example/cedar-insight-h5",
+  "navigationModel": "responsive-document-shell",
+  "contentPresentation": "stale-label-and-source-time-visible",
+  "recoveryPresentation": "explicit-error-with-support-handoff"
+}

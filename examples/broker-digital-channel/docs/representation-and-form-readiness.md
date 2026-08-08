@@ -22,19 +22,27 @@ Different knowledge retains its native representation:
 This keeps knowledge close to the best tool for its semantics rather than inventing
 one universal DSL.
 
-## Form-ready, without a UI
+## Workbench-consumed descriptors
 
 [`../ui/artifact-candidate.form.schema.json`](../ui/artifact-candidate.form.schema.json)
 defines the editable resource. [`../ui/artifact-candidate.ui.json`](../ui/artifact-candidate.ui.json)
 adds ordering, widgets, and review help without changing the stored artifact.
+[`../ui/factory-change.form.schema.json`](../ui/factory-change.form.schema.json)
+and [`../ui/factory-change.ui.json`](../ui/factory-change.ui.json) add the Intent,
+Source, Risk, Evaluation, Approval, Incident, and Promotion review surface used by
+the shared COGA Workbench.
 
-A future workbench should:
+The Workbench consumes these descriptors to:
 
 1. Load these schemas and an existing YAML artifact.
 2. Show source links, semantic relations, validation scenarios, and package impact.
 3. Serialize a candidate resource to a branch or patch.
 4. Run deterministic checks and show semantic diff plus affected applications.
 5. Require human approval before the published registry changes.
+
+The UI is not forked into this Instance. The shared Workbench renders these
+Instance-owned descriptors and invokes Core/Factory contracts. A submission remains
+a candidate patch, and a model recommendation remains advisory evidence.
 
 It must not introduce a database-only representation. An optional index may cache
 relations for search, but the versioned files remain recoverable authority.

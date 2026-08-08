@@ -1,0 +1,122 @@
+schemaVersion: coga.dev/factory/v0.1
+kind: FactoryProfile
+metadata:
+  id: factory.broker.digital.channel
+  title: Broker digital channel executable factory profile
+  version: 0.1.0
+spec:
+  workspaceRoot: ..
+  instanceManifest: instance.yaml
+  stateDirectory: factory/.coga/state
+  candidateDirectory: factory/.coga/candidates
+  applicationBindings:
+    - applications/aster-mini-program/application.yaml
+    - applications/cedar-insight-h5/application.yaml
+  evaluationProfiles:
+    - factory/evaluation/asset-evaluator.profile.yaml
+  recipes:
+    - factory/recipes/wechat-miniapp.recipe.yaml
+    - factory/recipes/h5.recipe.yaml
+  adapters:
+    - ref:
+        kind: workspace
+        id: adapter.example.versioned.files
+        version: 0.1.0
+      runtime: builtin
+      actions:
+        - candidate.patch
+        - semantic.diff
+    - ref:
+        kind: agent
+        id: agent.deepseek.asset.evaluator
+        version: 0.1.0
+      runtime: deepseek
+      actions:
+        - assess-asset
+      config:
+        timeoutMs: 120000
+        outputLimitBytes: 262144
+        baseUrl: https://api.deepseek.com/
+        model: deepseek-v4-pro
+        secretRef: env://DEEPSEEK_API_KEY
+        maxTokens: 4096
+        allowRestrictedInput: false
+    - ref:
+        kind: validator
+        id: validator.example.factory.structure
+        version: 0.1.0
+      runtime: process
+      actions:
+        - validate
+      config:
+        cwd: .
+        executable: node
+        args:
+          - factory/scripts/validate-factory.mjs
+        timeoutMs: 120000
+        outputLimitBytes: 1048576
+        envAllowlist: []
+    - ref:
+        kind: validator
+        id: validator.example.factory.scenarios
+        version: 0.1.0
+      runtime: process
+      actions:
+        - validate
+      config:
+        cwd: .
+        executable: node
+        args:
+          - factory/scripts/run-scenarios.mjs
+        timeoutMs: 120000
+        outputLimitBytes: 1048576
+        envAllowlist: []
+    - ref:
+        kind: validator
+        id: validator.example.factory.applications
+        version: 0.1.0
+      runtime: process
+      actions:
+        - validate
+      config:
+        cwd: .
+        executable: node
+        args:
+          - factory/scripts/validate-applications.mjs
+        timeoutMs: 120000
+        outputLimitBytes: 1048576
+        envAllowlist: []
+    - ref:
+        kind: policy
+        id: policy.example.factory.governance
+        version: 0.1.0
+      runtime: builtin
+      actions:
+        - source-evaluate
+        - risk-evaluate
+        - promotion-evaluate
+  policies:
+    maxAutonomousRisk: low
+    promotionRequiresHuman: true
+    releaseRequiresHuman: true
+    separationOfDuties: true
+    publishedMutation: deny
+    requiredRoles:
+      candidate:
+        - example.domain.reviewer
+      high-risk:
+        - example.domain.owner
+        - example.risk.reviewer
+      release:
+        - example.release.owner
+  sourceAllowlist:
+    - https://pages.nist.gov/800-63-4/
+    - https://owasp.org/www-project-application-security-verification-standard/
+    - https://www.w3.org/TR/WCAG22/
+    - https://cucumber.io/docs/gherkin/reference/
+    - https://developers.weixin.qq.com/miniprogram/dev/framework/
+    - https://sre.google/workbook/incident-response/
+  workbench:
+    host: 127.0.0.1
+    port: 4310
+    locale: zh-CN

@@ -1,0 +1,28 @@
+schemaVersion: coga.dev/factory/v0.1
+kind: ExecutableScenarioSuite
+metadata:
+  id: scenarios.broker.channel.factory.slice
+  title: Executable factory vertical-slice scenarios
+  version: 0.1.0
+spec:
+  validatorBinding:
+    kind: validator
+    id: validator.example.factory.scenarios
+    version: 0.1.0
+  scenarios:
+    - id: broker.channel.scenario.identity.and.entitlement
+      version: 0.1.0
+      fixture: examples/broker-digital-channel/factory/scenarios/fixtures/identity-entitlement.json
+      oracle: identity-entitlement-denial-first
+    - id: frontend.client.scenario.contract.and.state
+      version: 0.1.0
+      fixture: examples/broker-digital-channel/factory/scenarios/fixtures/frontend-explicit-state.json
+      oracle: frontend-explicit-state
+    - id: client.operations.scenario.release
+      version: 0.1.0
+      fixture: examples/broker-digital-channel/factory/scenarios/fixtures/release-rollback.json
+      oracle: release-rollback
+    - id: client.operations.scenario.incident
+      version: 0.1.0
+      fixture: examples/broker-digital-channel/factory/fixtures/control/expected-promotion-decisions.json
+      oracle: incident-promotion

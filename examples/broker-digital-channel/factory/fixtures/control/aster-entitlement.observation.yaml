@@ -1,0 +1,34 @@
+schemaVersion: coga.dev/control/v0.1
+kind: Observation
+metadata:
+  id: observation.aster.entitlement.unavailable
+  title: Sanitized mini-program entitlement observation
+  version: 0.1.0
+  lifecycle: candidate
+  scope: application
+  visibility: public
+spec:
+  cloudEvent:
+    specversion: "1.0"
+    id: example-observation-aster-001
+    source: urn:coga:example:application:aster
+    type: coga.example.entitlement.unavailable
+    subject: journey.open.briefing
+    time: 2026-08-08T01:00:00Z
+    datacontenttype: application/json
+    dataschema: urn:coga:schema:sanitized-observation:0.1.0
+    data:
+      category: entitlement-evidence
+      state: unavailable
+      clientOutcome: capability-hidden
+      containsPersonalData: false
+  classification: public
+  retention:
+    class: operational
+    retainUntil: 2026-09-07T01:00:00Z
+  schemaRef:
+    id: contract.example.sanitized.observation
+    version: 0.1.0
+  application:
+    id: application.aster.mini.program
+    version: 0.1.0

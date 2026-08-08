@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coga:factory:application-recipe-candidate:0.1.0",
+  "title": "Application recipe candidate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "schemaVersion": {
+      "const": "coga.dev/factory/v0.1"
+    },
+    "kind": {
+      "const": "ApplicationRecipeCandidate"
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recipe",
+        "parameters",
+        "parametersFile",
+        "choices",
+        "expectedOutputRoot"
+      ],
+      "properties": {
+        "recipe": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/exactRef"
+            },
+            {
+              "type": "object",
+              "required": ["path"],
+              "properties": {
+                "path": {
+                  "$ref": "#/$defs/path"
+                }
+              }
+            }
+          ]
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["applicationId", "applicationTitle", "packageName"],
+          "properties": {
+            "applicationId": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+            },
+            "applicationTitle": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "packageName": {
+              "type": "string",
+              "pattern": "^@[a-z0-9-]+/[a-z0-9-]+$"
+            }
+          }
+        },
+        "parametersFile": {
+          "$ref": "#/$defs/path"
+        },
+        "choices": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "expectedOutputRoot": {
+          "$ref": "#/$defs/path"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "version"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "$ref": "#/$defs/semver"
+        }
+      }
+    },
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+        },
+        "version": {
+          "$ref": "#/$defs/semver"
+        },
+        "path": {
+          "$ref": "#/$defs/path"
+        }
+      }
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z]:)(?![/\\\\]).+$"
+    }
+  }
+}

@@ -20,10 +20,14 @@ systems as authoritative.
   organization, and client-operations harness packages.
 - [`applications/`](applications/): two entirely fictitious consumers, one WeChat
   mini-program and one mobile H5 application.
+- [`factory/`](factory/): an executable candidate-to-evidence slice, Instance-owned
+  evaluation and governance profiles, deterministic application recipes, scenario
+  oracles, and release-closure inputs.
 - [`docs/`](docs/): human-readable boundaries, representation decisions, and the
   governed knowledge lifecycle.
-- [`ui/`](ui/): a JSON Schema form contract and presentation hints. They prepare a
-  future workbench without implementing one.
+- [`ui/`](ui/): JSON Schema form contracts and presentation hints consumed by the
+  COGA Workbench. The versioned descriptors remain the source of truth; the shared
+  Workbench implementation lives outside this Instance.
 - [`agents/`](agents/): narrow instructions for candidate curation, validation, and
   impact analysis.
 
@@ -33,7 +37,8 @@ systems as authoritative.
 2. Inspect [`instance.yaml`](instance.yaml) and one package manifest.
 3. Compare the two application manifests to see what is reusable and what remains
    application-owned.
-4. Read [`docs/knowledge-governance.md`](docs/knowledge-governance.md) before
+4. Run the factory checks documented in [`factory/README.md`](factory/README.md).
+5. Read [`docs/knowledge-governance.md`](docs/knowledge-governance.md) before
    proposing a shared rule.
 
 ## Status and safety
