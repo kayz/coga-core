@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run build --workspaces --if-present && npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "format:check": "prettier --check \"**/*.{cjs,js,json,md,mjs,ts,yaml,yml}\" --ignore-path .gitignore",
     "validate:example": "node packages/core/dist/cli.js validate examples/broker-digital-channel/instance.yaml",
