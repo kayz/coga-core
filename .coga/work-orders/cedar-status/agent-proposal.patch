@@ -1,42 +1,23 @@
 diff --git a/examples/broker-digital-channel/applications/cedar-insight-h5/src/app.mjs b/examples/broker-digital-channel/applications/cedar-insight-h5/src/app.mjs
 --- a/examples/broker-digital-channel/applications/cedar-insight-h5/src/app.mjs
 +++ b/examples/broker-digital-channel/applications/cedar-insight-h5/src/app.mjs
-@@ -1,10 +1,15 @@
- import { createViewModel } from "./domain.mjs";
- 
+@@ -2,0 +3,3 @@
 +export function statusMessage(model) {
 +  return `Access state: ${model.accessLabel}. Source: ${model.sourceLabel}.`;
 +}
-+
- export function renderPage(document, context, now = new Date()) {
-   const model = createViewModel(context, now);
-   document.querySelector("[data-heading]").textContent = model.heading;
-   document.querySelector("[data-source]").textContent = model.sourceLabel;
-   document.querySelector("[data-access]").textContent = model.accessLabel;
+@@ -7,0 +11 @@ export function renderPage(document, context, now = new Date()) {
 +  document.querySelector("[data-status]").textContent = statusMessage(model);
-   const support = document.querySelector("[data-support]");
-   support.hidden = !model.canRequestSupport;
-   return model;
 diff --git a/examples/broker-digital-channel/applications/cedar-insight-h5/src/index.html b/examples/broker-digital-channel/applications/cedar-insight-h5/src/index.html
 --- a/examples/broker-digital-channel/applications/cedar-insight-h5/src/index.html
 +++ b/examples/broker-digital-channel/applications/cedar-insight-h5/src/index.html
-@@ -13,6 +13,9 @@
-       <h1 data-heading>Cedar market context</h1>
-       <p data-access>Customer context unavailable</p>
-     </header>
+@@ -15,0 +16,3 @@
 +    <p class="status-strip" role="status" aria-live="polite" data-status>
 +      Access state: Customer context unavailable. Source: Fictitious broker learning feed.
 +    </p>
-     <main id="content">
-       <article>
-         <h2>Market learning brief</h2>
 diff --git a/examples/broker-digital-channel/applications/cedar-insight-h5/src/styles.css b/examples/broker-digital-channel/applications/cedar-insight-h5/src/styles.css
 --- a/examples/broker-digital-channel/applications/cedar-insight-h5/src/styles.css
 +++ b/examples/broker-digital-channel/applications/cedar-insight-h5/src/styles.css
-@@ -18,6 +18,15 @@ header {
-   padding-block: 4rem 2rem;
- }
- 
+@@ -19,0 +20,8 @@ header {
 +.status-strip {
 +  width: min(68rem, calc(100% - 2rem));
 +  box-sizing: border-box;
@@ -45,32 +26,15 @@ diff --git a/examples/broker-digital-channel/applications/cedar-insight-h5/src/s
 +  color: #ffffff;
 +  background: #193f75;
 +}
-+
- main {
-   display: grid;
-   gap: 1.5rem;
 diff --git a/examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs b/examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs
 --- a/examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs
 +++ b/examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs
-@@ -1,6 +1,7 @@
- import assert from "node:assert/strict";
- import test from "node:test";
- import { createViewModel, customerAccessState } from "../src/domain.mjs";
+@@ -3,0 +4 @@
 +import { statusMessage } from "../src/app.mjs";
- 
- const now = new Date("2026-08-12T00:00:00.000Z");
- 
-@@ -15,6 +16,13 @@ test("defaults to a public summary without inventing customer authority", () => {
-   });
- });
- 
+@@ -16,0 +18,6 @@ test("defaults to a public summary without inventing customer authority", () => {
 +test("announces access state and source as text", () => {
 +  assert.equal(
 +    statusMessage(createViewModel({ authenticated: false }, now)),
 +    "Access state: Public summary. Source: Fictitious broker learning feed.",
 +  );
 +});
-+
- test("accepts only an unexpired authoritative customer context", () => {
-   const context = {
-     subjectRef: "opaque-subject",

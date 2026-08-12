@@ -36,7 +36,7 @@ spec:
     adapter: coga.agent.patch/v1
     patch:
       path: .coga/work-orders/cedar-status/agent-proposal.patch
-      digest: sha256:b2b3294ce9ed8e17ac72b8127b808e142acb36dbf0c04d7922905aa544a5f44d
+      digest: sha256:5da6696c2256c2d3a3f670a00d41f1c0bc2f108bf9d863d6aaafbfba0823dea0
   delivery:
     adapter: github.draft-pr/v1
     repository: kayz/coga-core
