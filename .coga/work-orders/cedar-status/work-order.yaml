@@ -1,0 +1,51 @@
+schemaVersion: coga.dev/factory/v0.1
+kind: WorkOrder
+metadata:
+  id: example.cedar.live-status
+  title: Add a textual live status region to the Cedar H5 shell
+  requestedBy: human:kayz
+  createdAt: 2026-08-12T17:00:00+08:00
+spec:
+  repository:
+    baseCommit: work-order-commit
+    remote: origin
+    baseBranch: codex/factory-cell-mvp
+  instance:
+    manifest: examples/broker-digital-channel/instance.yaml
+    profile: public
+  change:
+    artifact:
+      id: web.h5.responsive.shell
+      version: 0.2.0
+    patch:
+      path: .coga/work-orders/cedar-status/domain-change.patch
+      digest: sha256:9db56d5a27b9b5ab14b9732c220ac103121e5b76e3d16fe3545623bfc8adf69f
+    allowedPaths:
+      - examples/broker-digital-channel/packages/platform-web-h5/artifacts/responsive-shell.yaml
+  targets:
+    - application:
+        id: application.cedar.insight.h5
+        version: 0.2.0
+      factoryDefinition: examples/broker-digital-channel/applications/cedar-insight-h5/factory/application.factory.yaml
+  governance:
+    requiredPolicies:
+      - id: example.organization.change.approval
+        version: 0.2.0
+    approvals: []
+  proposal:
+    adapter: coga.agent.patch/v1
+    patch:
+      path: .coga/work-orders/cedar-status/agent-proposal.patch
+      digest: sha256:b2b3294ce9ed8e17ac72b8127b808e142acb36dbf0c04d7922905aa544a5f44d
+  delivery:
+    adapter: github.draft-pr/v1
+    repository: kayz/coga-core
+    branch: codex/factory-cell-demo
+    title: "Factory demo: enforce Cedar live status evidence"
+    body:
+      This Draft PR is generated from the governed responsive-shell change. It updates
+      the real Cedar H5 reference Application, runs COGA closure plus sandboxed tests and
+      build, and commits a content-addressed Evidence Bundle. Human policy approval is
+      intentionally still pending.
+    commitMessage: "feat(example): announce Cedar access state"
+    draft: true

@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://coga.dev/schemas/factory/v0.1/work-order.schema.json",
+  "title": "COGA Factory Work Order",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "metadata", "spec"],
+  "$defs": {
+    "exactReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+        }
+      }
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "pattern": "^(?![A-Za-z]:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    },
+    "fileReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "digest"],
+      "properties": {
+        "path": { "$ref": "#/$defs/relativePath" },
+        "digest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy", "approver", "approvedAt", "evidence"],
+      "properties": {
+        "policy": { "$ref": "#/$defs/exactReference" },
+        "approver": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "approvedAt": { "type": "string", "format": "date-time" },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": { "$ref": "#/$defs/fileReference" }
+        }
+      }
+    }
+  },
+  "properties": {
+    "schemaVersion": { "const": "coga.dev/factory/v0.1" },
+    "kind": { "const": "WorkOrder" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "requestedBy", "createdAt"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9.-]{2,127}$"
+        },
+        "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "requestedBy": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "instance",
+        "change",
+        "targets",
+        "governance",
+        "proposal",
+        "delivery"
+      ],
+      "properties": {
+        "repository": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["baseCommit", "remote", "baseBranch"],
+          "properties": {
+            "baseCommit": {
+              "oneOf": [
+                { "const": "work-order-commit" },
+                { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+              ]
+            },
+            "remote": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,100}$"
+            },
+            "baseBranch": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]{0,199}$"
+            }
+          }
+        },
+        "instance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["manifest", "profile"],
+          "properties": {
+            "manifest": { "$ref": "#/$defs/relativePath" },
+            "profile": { "enum": ["local", "public"] }
+          }
+        },
+        "change": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["artifact", "patch", "allowedPaths"],
+          "properties": {
+            "artifact": { "$ref": "#/$defs/exactReference" },
+            "patch": { "$ref": "#/$defs/fileReference" },
+            "allowedPaths": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 50,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/relativePath" }
+            }
+          }
+        },
+        "targets": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["application", "factoryDefinition"],
+            "properties": {
+              "application": { "$ref": "#/$defs/exactReference" },
+              "factoryDefinition": { "$ref": "#/$defs/relativePath" }
+            }
+          }
+        },
+        "governance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["requiredPolicies", "approvals"],
+          "properties": {
+            "requiredPolicies": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 20,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/exactReference" }
+            },
+            "approvals": {
+              "type": "array",
+              "maxItems": 20,
+              "items": { "$ref": "#/$defs/approval" }
+            }
+          }
+        },
+        "proposal": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["adapter", "patch"],
+          "properties": {
+            "adapter": { "const": "coga.agent.patch/v1" },
+            "patch": { "$ref": "#/$defs/fileReference" }
+          }
+        },
+        "delivery": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "adapter",
+            "repository",
+            "branch",
+            "title",
+            "body",
+            "commitMessage",
+            "draft"
+          ],
+          "properties": {
+            "adapter": { "const": "github.draft-pr/v1" },
+            "repository": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+            },
+            "branch": {
+              "type": "string",
+              "pattern": "^codex/[A-Za-z0-9][A-Za-z0-9._/-]{0,180}$"
+            },
+            "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+            "body": { "type": "string", "minLength": 1, "maxLength": 20000 },
+            "commitMessage": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "draft": { "const": true }
+          }
+        }
+      }
+    }
+  }
+}

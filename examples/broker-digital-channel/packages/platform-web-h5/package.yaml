@@ -1,0 +1,28 @@
+schemaVersion: coga.dev/v0.2
+kind: HarnessPackage
+metadata:
+  id: web.h5.platform
+  title: Web H5 Platform
+  version: 0.2.0
+  lifecycle: candidate
+  scope: instance
+  visibility: public
+  owners:
+    - example.platform.web
+  tags:
+    - web
+    - h5
+  attestations: []
+spec:
+  layer: platform
+  description: Browser delivery constraints for a responsive, progressively enhanced H5 client.
+  dependencies:
+    - id: frontend.client.engineering
+      version: 0.2.0
+  artifacts:
+    - id: web.h5.responsive.shell
+      version: 0.2.0
+      path: artifacts/responsive-shell.yaml
+    - id: web.h5.scenario.responsive.shell
+      version: 0.2.0
+      path: artifacts/scenario-responsive-shell.yaml

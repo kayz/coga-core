@@ -1,0 +1,108 @@
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+import { describe, expect, it } from "vitest";
+import {
+  createEvidenceBundle,
+  evidenceDigest,
+  verifyEvidenceBundle,
+} from "../src/evidence.js";
+import { loadApplicationFactory, loadWorkOrder } from "../src/schema.js";
+import type { ExecutionPlan, WorkOrder } from "../src/types.js";
+import { canonicalJson } from "../src/utils.js";
+
+const repositoryRoot = resolve(import.meta.dirname, "../../..");
+const workOrderPath = resolve(
+  repositoryRoot,
+  ".coga/work-orders/cedar-status/work-order.yaml",
+);
+const definitionPath = resolve(
+  repositoryRoot,
+  "examples/broker-digital-channel/applications/cedar-insight-h5/factory/application.factory.yaml",
+);
+
+describe("Factory schemas", () => {
+  it("loads the governed example Work Order and typed Application definition", () => {
+    expect(loadWorkOrder(workOrderPath).metadata.id).toBe(
+      "example.cedar.live-status",
+    );
+    expect(
+      loadApplicationFactory(definitionPath).spec.verification,
+    ).toHaveLength(2);
+  });
+
+  it("rejects injected commands and escaping paths", () => {
+    const directory = mkdtempSync(join(tmpdir(), "coga-factory-schema-"));
+    const valid = loadWorkOrder(workOrderPath) as WorkOrder & {
+      spec: WorkOrder["spec"] & { shell?: string };
+    };
+    valid.spec.shell = "rm -rf /";
+    const injected = join(directory, "injected.json");
+    writeFileSync(injected, JSON.stringify(valid));
+    expect(() => loadWorkOrder(injected)).toThrow(
+      /unsupported|additional|Invalid Work Order/iu,
+    );
+
+    delete valid.spec.shell;
+    valid.spec.proposal.patch.path = "../outside.patch";
+    const escaping = join(directory, "escaping.json");
+    writeFileSync(escaping, JSON.stringify(valid));
+    expect(() => loadWorkOrder(escaping)).toThrow(/Invalid Work Order/iu);
+  });
+});
+
+describe("Evidence Bundle", () => {
+  it("is content-addressed and rejects payload tampering", () => {
+    const directory = mkdtempSync(join(tmpdir(), "coga-factory-evidence-"));
+    const workOrder = loadWorkOrder(workOrderPath);
+    const plan = {
+      schemaVersion: workOrder.schemaVersion,
+      kind: "ExecutionPlan",
+      workOrder: {
+        id: workOrder.metadata.id,
+        digest:
+          "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        path: ".coga/work-orders/cedar-status/work-order.yaml",
+      },
+      baseCommit: "1".repeat(40),
+      instanceManifest: workOrder.spec.instance.manifest,
+      change: workOrder.spec.change.artifact,
+      impact: {
+        artifact: workOrder.spec.change.artifact,
+        found: true,
+        packages: [],
+        affectedApplications: [],
+      },
+      targets: [],
+      steps: [],
+      planDigest:
+        "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    } satisfies ExecutionPlan;
+    const bundle = createEvidenceBundle({
+      workOrder,
+      plan,
+      subjectTree: "2".repeat(40),
+      changedFiles: [
+        {
+          path: "example.txt",
+          digest:
+            "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+          bytes: 7,
+        },
+      ],
+      receipts: [],
+      generatedAt: "2026-08-12T09:00:00.000Z",
+    });
+    expect(bundle.metadata.bundleDigest).toBe(evidenceDigest(bundle));
+    const path = join(directory, "bundle.json");
+    writeFileSync(path, canonicalJson(bundle));
+    expect(verifyEvidenceBundle(path).metadata.bundleDigest).toBe(
+      bundle.metadata.bundleDigest,
+    );
+
+    const tampered = JSON.parse(readFileSync(path, "utf8")) as typeof bundle;
+    tampered.subject.baseCommit = "4".repeat(40);
+    writeFileSync(path, canonicalJson(tampered));
+    expect(() => verifyEvidenceBundle(path)).toThrow(/digest mismatch/iu);
+  });
+});

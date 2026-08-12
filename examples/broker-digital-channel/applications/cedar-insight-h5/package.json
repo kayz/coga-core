@@ -1,0 +1,10 @@
+{
+  "name": "@coga/example-cedar-h5",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "build": "node scripts/build.mjs"
+  }
+}

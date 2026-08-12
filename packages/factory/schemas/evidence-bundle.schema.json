@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://coga.dev/schemas/factory/v0.1/evidence-bundle.schema.json",
+  "title": "COGA Factory Evidence Bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "kind",
+    "metadata",
+    "subject",
+    "governance",
+    "impact",
+    "steps"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "coga.dev/factory/v0.1" },
+    "kind": { "const": "EvidenceBundle" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workOrderId", "generatedAt", "bundleDigest"],
+      "properties": {
+        "workOrderId": { "type": "string", "minLength": 1 },
+        "generatedAt": { "type": "string", "format": "date-time" },
+        "bundleDigest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "subject": { "type": "object" },
+    "governance": { "type": "object" },
+    "impact": { "type": "object" },
+    "steps": { "type": "array" }
+  }
+}
