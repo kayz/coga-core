@@ -78,7 +78,8 @@ jobs:
             fail "Unable to read files for pull request #$pr_number."
           test "$(jq 'length' <<<"$files_json")" -eq "$changed_files" || \
             fail "Pull request file list is incomplete."
-          jq -e 'all(.[].filename; test("^[^\\u0000-\\u001f\\u007f\\\\]+$"))' \
+          jq -e 'all(.[].filename; length > 0) and
+            all(.[].filename | explode[]; . >= 32 and . != 92 and . != 127)' \
             <<<"$files_json" >/dev/null || fail "Pull request contains an unsafe path."
           evidence_count="$(jq '[.[].filename | select(test("^\\.coga/evidence/[0-9a-f]{64}\\.json$"))] | unique | length' <<<"$files_json")"
           if [[ "$evidence_count" == "0" ]]; then
