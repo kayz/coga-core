@@ -17,7 +17,7 @@ describe("Factory remote evidence workflow", () => {
         {
           if: string;
           permissions: Record<string, string>;
-          steps: Array<{ uses?: string; run?: string }>;
+          steps: Array<{ if?: string; uses?: string; run?: string }>;
         }
       >;
     };
@@ -28,7 +28,9 @@ describe("Factory remote evidence workflow", () => {
     expect(job.if).toContain("workflow_run.conclusion == 'success'");
     expect(job.if).toContain("head_repository.full_name == github.repository");
     expect(job.permissions).toEqual({
+      actions: "read",
       contents: "read",
+      "pull-requests": "read",
       "id-token": "write",
       attestations: "write",
       "artifact-metadata": "write",
@@ -39,11 +41,17 @@ describe("Factory remote evidence workflow", () => {
     expect(job.steps.at(-1)?.uses).toBe(
       "actions/attest@c32b4b8b198b65d0bd9d63490e847ff7b53989d4",
     );
+    expect(job.steps.at(-1)?.if).toBe(
+      "steps.prepare.outputs.candidate == 'true'",
+    );
     const script = job.steps.find((step) => step.run)?.run ?? "";
     expect(script).toContain(".draft");
     expect(script).toContain(".head.sha");
     expect(script).toContain(".coga/evidence/");
     expect(script).toContain("subject.proposalReceiptDigest");
+    expect(script).toContain("candidate=false");
+    expect(script).toContain("has no Factory Evidence Bundle");
+    expect(script).toContain("Unable to read triggering workflow run");
     expect(script).not.toMatch(/\bnpm\b|\bnode\b|git checkout|git clone/iu);
   });
 });

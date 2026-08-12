@@ -56,10 +56,12 @@ repository mounts, no capabilities, no-new-privileges, a non-root user, and
 bounded CPU, memory, processes, output, and time. Test doubles are explicitly
 labeled and cannot masquerade as Docker evidence.
 
-The default-branch `factory-evidence-attestation` workflow reacts only after a
-successful `public-checks` PR run from the same repository. It performs no
-checkout and executes no repository code; it binds one content-addressed Evidence
-Bundle to the exact open Draft PR head and creates a GitHub artifact attestation.
+The default-branch `factory-evidence-attestation` workflow examines only a
+successful `public-checks` PR run from the same repository. Ordinary PRs without
+a Factory Evidence Bundle exit without attestation. When exactly one Bundle is
+present, the workflow performs no checkout and executes no repository code; it
+binds the content-addressed Bundle to the exact open Draft PR head and creates a
+GitHub artifact attestation.
 The local collector independently verifies that attestation, the configured check
 set, the exact remote Proposal Receipt, and an authorized `APPROVED` review for
 every Policy. It also re-downloads the governed domain and proposal Patches and

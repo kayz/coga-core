@@ -25,7 +25,10 @@ Versioning; `0.y.z` remains initial development.
   never merge or deploy.
 - Add a least-privilege `workflow_run` attestation job that checks out and
   executes no repository code, accepts only a successful same-repository Draft
-  PR, and attests its exact content-addressed Evidence Bundle.
+  PR, and attests its exact content-addressed Evidence Bundle. Its token grants
+  only the explicit read scopes needed for Actions, PR metadata/files and
+  contents plus the attestation write scopes; ordinary PRs without a Bundle are
+  skipped with a diagnostic notice.
 - Add negative and recovery tests for proposal/input tampering, ignored and
   unbound source context, partial fan-out and failed-target retry, missing remote
   checks/approvals, undeclared or Patch-external PR files, raw binary evidence
