@@ -19,6 +19,7 @@
     "privacy:check": "node scripts/privacy-check.mjs",
     "boundary:check": "node scripts/public-boundary-check.mjs",
     "gates:test": "node --test scripts/tests/public-candidate.test.mjs",
+    "package:consumer-test": "node --test scripts/tests/package-consumer.test.mjs",
     "release:test": "node --test scripts/tests/release-*.test.mjs",
     "release:generate": "node scripts/release/generate.mjs",
     "release:verify": "node scripts/release/verify.mjs",

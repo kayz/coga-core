@@ -34,6 +34,9 @@ Versioning; `0.y.z` remains initial development.
   attestation and draft-candidate workflow. Final immutable publication and npm
   publication remain intentionally gated; `@coga/core` has not yet received its
   separately authorized first publish.
+- Add an empty-project tarball consumer test for the installed ESM API, CLI, and
+  schema exports, with a Linux pull-request matrix on Node.js 20.20.2, 22.22.1,
+  and 24.18.0.
 
 ## 0.1.0 — 2026-08-08
 
