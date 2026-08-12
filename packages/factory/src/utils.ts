@@ -7,6 +7,10 @@ import type { ProcessResult, Sha256Digest } from "./types.js";
 const SHA256_PATTERN = /^sha256:[0-9a-f]{64}$/;
 const MAX_CANONICAL_BYTES = 1024 * 1024;
 
+export function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
 export function sha256(value: string | Buffer): Sha256Digest {
   return `sha256:${createHash("sha256").update(value).digest("hex")}`;
 }
@@ -16,7 +20,7 @@ function normalizeCanonical(value: unknown): unknown {
   if (value && typeof value === "object") {
     return Object.fromEntries(
       Object.entries(value as Record<string, unknown>)
-        .sort(([left], [right]) => left.localeCompare(right))
+        .sort(([left], [right]) => compareText(left, right))
         .map(([key, child]) => [key, normalizeCanonical(child)]),
     );
   }
@@ -39,6 +43,7 @@ export function normalizeRelativePath(value: string, label = "path"): string {
     value.length === 0 ||
     value.includes("\0") ||
     value.includes("\\") ||
+    /[\u0000-\u001f\u007f]/u.test(value) ||
     isAbsolute(value) ||
     /^[A-Za-z]:/.test(value)
   ) {
@@ -47,7 +52,11 @@ export function normalizeRelativePath(value: string, label = "path"): string {
   const segments = value.split("/");
   if (
     segments.some(
-      (segment) => segment.length === 0 || segment === "." || segment === "..",
+      (segment) =>
+        segment.length === 0 ||
+        segment === "." ||
+        segment === ".." ||
+        segment.trim() !== segment,
     )
   ) {
     throw new Error(`${label} contains an empty, current, or parent segment.`);

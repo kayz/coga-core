@@ -49,6 +49,40 @@ dockerTest(
         { encoding: "utf8" },
       ),
     ).toContain("announces access state");
+    const evidence = JSON.parse(
+      execFileSync(
+        "git",
+        [
+          "-C",
+          repository,
+          "show",
+          `${result.resultCommit}:${result.evidencePath}`,
+        ],
+        { encoding: "utf8" },
+      ),
+    ) as {
+      steps: Array<{
+        adapter: { id: string };
+        sandbox?: {
+          isolation: string;
+          network: string;
+          rootFilesystem: string;
+          repositoryMount: string;
+        };
+      }>;
+    };
+    const sandboxed = evidence.steps.filter((entry) =>
+      entry.adapter.id.startsWith("coga.node."),
+    );
+    expect(sandboxed).toHaveLength(2);
+    for (const receipt of sandboxed) {
+      expect(receipt.sandbox).toMatchObject({
+        isolation: "docker",
+        network: "none",
+        rootFilesystem: "read-only",
+        repositoryMount: "read-only",
+      });
+    }
   },
   240_000,
 );

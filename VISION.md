@@ -123,9 +123,9 @@ assets, whose full dependency and provenance closure is also public, may enter a
 open distribution. Private applications are never used as an implicit source for
 public artifacts.
 
-## What 0.1 must prove
+## What 0.2 proves
 
-Version 0.1 is intentionally small but end-to-end. It must prove that:
+Version 0.2 remains intentionally small, but now proves that:
 
 1. Core can validate and catalog versioned Harness assets.
 2. A bounded example Instance can express domain, platform, engineering,
@@ -135,6 +135,14 @@ Version 0.1 is intentionally small but end-to-end. It must prove that:
 5. A real local-only Application can consume the same contracts without leaking
    private material into the public distribution.
 6. The final public candidate is reproducible, self-tested, and safe to clone.
+7. One governed, exact Artifact change can be mapped to all affected Applications,
+   applied through bounded patches, verified in a registered isolated adapter,
+   recorded as content-addressed evidence, and delivered no further than a Draft
+   PR without human approval.
+
+The first Factory Cell accepts an externally prepared Agent patch; reproducible
+model/context/tool execution and remote CI evidence ingestion remain the next
+iteration, not hidden claims of 0.2.
 
 ## What COGA is not
 

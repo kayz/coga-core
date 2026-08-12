@@ -17,7 +17,12 @@ import type {
   SandboxRunner,
   Sha256Digest,
 } from "./types.js";
-import { normalizeRelativePath, resolveWithin, sha256 } from "./utils.js";
+import {
+  compareText,
+  normalizeRelativePath,
+  resolveWithin,
+  sha256,
+} from "./utils.js";
 
 export const ADAPTER_MANIFESTS: Readonly<Record<string, AdapterManifest>> = {
   "coga.domain.patch/v1": {
@@ -169,7 +174,7 @@ function collectOutput(root: string): EvidenceFile[] {
     const current = stack.pop();
     if (!current) break;
     for (const entry of readdirSync(current, { withFileTypes: true }).sort(
-      (left, right) => left.name.localeCompare(right.name),
+      (left, right) => compareText(left.name, right.name),
     )) {
       const path = resolve(current, entry.name);
       const info = lstatSync(path);
@@ -194,7 +199,7 @@ function collectOutput(root: string): EvidenceFile[] {
       });
     }
   }
-  return files.sort((left, right) => left.path.localeCompare(right.path));
+  return files.sort((left, right) => compareText(left.path, right.path));
 }
 
 export function runCoreValidation(
@@ -305,6 +310,7 @@ export async function runNodeVerification(parameters: {
         : `Build completed with ${outputFiles?.length ?? 0} output files in an isolated output mount.`,
       outputFiles,
     );
+    resultReceipt.sandbox = parameters.sandbox.evidence(parameters.image);
     if (result.exitCode !== 0) {
       throw new AdapterFailure(
         `${adapter.adapter} failed: ${(result.stderr || result.stdout).slice(0, 1000)}`,

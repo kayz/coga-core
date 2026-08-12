@@ -20,6 +20,9 @@ systems as authoritative.
   organization, and client-operations harness packages.
 - [`applications/`](applications/): two entirely fictitious consumers, one WeChat
   mini-program and one mobile H5 application.
+- [`applications/cedar-insight-h5/`](applications/cedar-insight-h5/): a real,
+  dependency-free implementation of the fictitious Cedar manifest, including its
+  Application Factory definition, tests, and static build.
 - [`docs/`](docs/): human-readable boundaries, representation decisions, and the
   governed knowledge lifecycle.
 - [`ui/`](ui/): a JSON Schema form contract and presentation hints. They prepare a
@@ -35,6 +38,8 @@ systems as authoritative.
    application-owned.
 4. Read [`docs/knowledge-governance.md`](docs/knowledge-governance.md) before
    proposing a shared rule.
+5. Inspect the digest-bound Factory example under
+   [`.coga/work-orders/cedar-status/`](../../.coga/work-orders/cedar-status/).
 
 ## Status and safety
 

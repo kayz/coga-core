@@ -13,6 +13,11 @@ policy, and operating knowledge; Core validates their contracts and graph closur
 and an exact artifact version can be traced through package and artifact edges to
 direct, transitive, and older-pin application consumers.
 
+The repository also contains one deliberately narrow Factory Cell. It turns a
+digest-bound Work Order for an exact Artifact version into a tested Application
+commit and, when explicitly requested, a GitHub Draft PR. This proves one real
+production path without turning Core resource files into executable instructions.
+
 ## The boundary
 
 ```text
@@ -36,6 +41,9 @@ governance decisions.
 ## Included in 0.2
 
 - [`@coga/core`](packages/core/README.md), a TypeScript library and `coga` CLI;
+- [`@coga/factory`](packages/factory/README.md), versioned Work Order,
+  Application Factory, adapter-receipt, recovery-state, and Evidence Bundle
+  contracts plus the `coga-factory` CLI;
 - JSON Schema 2020-12 contracts for four resource kinds;
 - bounded canonical loading, JSON Schema validation, exact resource-graph closure,
   contract identity/content validation, lifecycle and governance-record checks,
@@ -46,7 +54,11 @@ governance decisions.
   direct, transitive, and older-pin application consumers;
 - a sanitized
   [Broker Digital Customer Channel example](examples/broker-digital-channel/README.md)
-  with five Harness layers and two fictitious consuming applications;
+  with five Harness layers, two fictitious consuming manifests, and one real,
+  dependency-free Cedar H5 reference Application used by the Factory Cell;
+- exact impact-to-target planning, bounded Git patches, a digest-pinned and
+  network-disabled Docker test/build sandbox, content-addressed evidence, and
+  idempotent Draft-PR delivery;
 - form-ready schema hints and narrow agent playbooks, while keeping versioned
   files and pull requests as the source of truth;
 - explicit public-release and privacy checks;
@@ -67,14 +79,26 @@ npm ci
 npm run check:public
 npm run catalog:example
 npm run impact:example
+npm run factory:e2e
+```
+
+`factory:e2e` needs Docker and uses the exact image digest recorded by the
+Factory. The included Work Order contains a digest-bound external Agent proposal;
+0.2 verifies and executes that patch but does not yet invoke a model to create it.
+To inspect the registered adapter surface after building:
+
+```console
+node packages/factory/dist/cli.js adapters
+node packages/factory/dist/cli.js run .coga/work-orders/cedar-status/work-order.yaml --delivery local
 ```
 
 Release-payload generation is a separate, stricter lane pinned to Node.js
 24.18.0 and npm 11.16.0. On that exact toolchain, run `npm run release:test`;
 ordinary public checks remain supported on Node.js 22+.
-`npm run package:consumer-test` builds a fresh tarball, installs it into an empty
-project, and exercises the public ESM API, CLI, and exported schemas. Pull request
-CI repeats that consumer test on Node.js 20.20.2, 22.22.1, and 24.18.0.
+`npm run package:consumer-test` builds fresh Core and Factory tarballs, installs
+both into an empty project, and exercises their public ESM APIs, CLIs, and exported
+schemas. Pull request CI repeats that consumer test on Node.js 20.20.2, 22.22.1,
+and 24.18.0.
 
 After the build, the CLI can inspect another Instance:
 
@@ -123,6 +147,8 @@ is **human-governed, unattended execution**, not unowned automation.
 
 ```text
 packages/core/                       domain-neutral library, CLI, and schemas
+packages/factory/                    governed Factory Cell controller and protocols
+.coga/work-orders/                   reviewable, digest-bound example work orders
 examples/broker-digital-channel/     sanitized, reusable COGA Instance
 docs/                                cross-cutting architecture decisions
 scripts/                             privacy and public-boundary gates
@@ -140,7 +166,9 @@ release allowlist and ignored by Git. See [CONTRIBUTING.md](CONTRIBUTING.md) and
 envelope. Exact Harness, artifact, policy, and contract versions are required;
 backward compatibility is not promised before 1.0. Core verifies declarations and
 recorded evidence but does not execute scenarios, tests, reviews, or arbitrary
-commands. The project is licensed under Apache License 2.0. The private local
+commands. The separate Factory package runs only registered adapters behind a
+bounded Work Order and never merges, publishes, or deploys. The project is licensed
+under Apache License 2.0. The private local
 Application now has executable conformance evidence, while DevTools/device
 acceptance remains manual. Release tooling prepares attestable GitHub assets but
 does not publish to npm; the currently unclaimed `@coga/core` package requires a

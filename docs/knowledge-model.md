@@ -130,6 +130,21 @@ reviews, or approval decisions. Those results must be produced by a trusted
 external workflow; the `release` profile verifies the resulting records and exact
 Policy attestations without rerunning them.
 
+The separate `@coga/factory` package is one such bounded workflow, not part of
+Core resource evaluation. Its `coga.dev/factory/v0.1` Work Order is an execution
+request bound to an exact Git base, Artifact version, patch digests, impact targets,
+and governance Policies. Application Factory definitions select only registered
+adapters and repository-relative paths; they do not accept commands. The resulting
+Evidence Bundle binds the plan, subject tree, changed files, receipts, sandbox
+facts, and the exact partition of approved versus pending Policies. It remains a
+record of execution, not proof that an approver was authorized or that domain
+meaning was correct.
+
+The current Agent adapter consumes a pre-authored digest-bound patch. Model choice,
+prompt/context assembly, tool traces, and proposal evaluation are not represented
+yet, so 0.2 does not claim reproducible Agent generation. This is the next protocol
+boundary to define before introducing an autonomous proposal step.
+
 [Open Policy Agent](https://www.openpolicyagent.org/docs/policy-language) is a
 mature policy-as-code system and may later enforce factory authorization or release
 gates that must be evaluated in several runtimes. COGA 0.2 does not add a general

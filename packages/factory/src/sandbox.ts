@@ -1,18 +1,43 @@
 import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
-import type { ProcessResult, SandboxRequest, SandboxRunner } from "./types.js";
-import { runChecked, runProcess, sanitizeIdentifier } from "./utils.js";
+import type {
+  ProcessResult,
+  SandboxEvidence,
+  SandboxRequest,
+  SandboxRunner,
+} from "./types.js";
+import {
+  compareText,
+  runChecked,
+  runProcess,
+  sanitizeIdentifier,
+} from "./utils.js";
 
 const IMAGE_PATTERN = /^[a-z0-9][a-z0-9./_-]*@sha256:[0-9a-f]{64}$/;
 const ENV_NAME_PATTERN = /^[A-Z][A-Z0-9_]{0,100}$/;
 
 export class DockerSandbox implements SandboxRunner {
-  async run(request: SandboxRequest): Promise<ProcessResult> {
-    if (!IMAGE_PATTERN.test(request.image)) {
+  evidence(image: string): SandboxEvidence {
+    if (!IMAGE_PATTERN.test(image)) {
       throw new Error(
         "Factory sandbox image must be pinned by an exact sha256 digest.",
       );
     }
+    return {
+      runner: { id: "coga.docker.sandbox", version: "1" },
+      image,
+      isolation: "docker",
+      network: "none",
+      rootFilesystem: "read-only",
+      repositoryMount: "read-only",
+      credentialAccess: "none",
+      user: "1000:1000",
+      limits: { pids: 64, memoryBytes: 512 * 1024 * 1024, cpus: 1 },
+    };
+  }
+
+  async run(request: SandboxRequest): Promise<ProcessResult> {
+    this.evidence(request.image);
     const name = `coga-factory-${sanitizeIdentifier(request.name)}`;
     await runChecked(
       "docker",
@@ -66,7 +91,7 @@ export class DockerSandbox implements SandboxRunner {
       );
     }
     for (const [key, value] of Object.entries(request.env ?? {}).sort(
-      ([left], [right]) => left.localeCompare(right),
+      ([left], [right]) => compareText(left, right),
     )) {
       if (!ENV_NAME_PATTERN.test(key) || value.includes("\0")) {
         throw new Error(`Unsafe sandbox environment entry '${key}'.`);

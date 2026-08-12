@@ -18,7 +18,12 @@ import { deliverGitHubDraft } from "./github.js";
 import { createExecutionPlan } from "./planner.js";
 import { DockerSandbox } from "./sandbox.js";
 import { loadWorkOrder } from "./schema.js";
-import { loadRunState, runStatePath, saveRunState } from "./state.js";
+import {
+  assertRunStateIntegrity,
+  loadRunState,
+  runStatePath,
+  saveRunState,
+} from "./state.js";
 import type {
   AdapterReceipt,
   ExecutionPlanStep,
@@ -162,18 +167,6 @@ export class FactoryController {
       workOrderDigest,
     );
     let state = loadRunState(statePath);
-    if (state?.result && state.status === "completed") return state.result;
-    if (state && state.workOrderDigest !== workOrderDigest) {
-      throw new Error(
-        "Persisted Factory state does not match the Work Order digest.",
-      );
-    }
-    if (state && state.baseCommit !== baseCommit) {
-      throw new Error(
-        "Persisted Factory state does not match the exact base commit.",
-      );
-    }
-
     const workspaceRoot = resolve(
       this.options.workspaceRoot ??
         resolve(
@@ -185,15 +178,23 @@ export class FactoryController {
           ),
         ),
     );
-    const workspace =
-      state?.workspacePath ??
-      resolve(
-        workspaceRoot,
-        `${sanitizeIdentifier(workOrder.metadata.id)}-${workOrderDigest.slice("sha256:".length, "sha256:".length + 12)}`,
-      );
+    const workspace = resolve(
+      workspaceRoot,
+      `${sanitizeIdentifier(workOrder.metadata.id)}-${workOrderDigest.slice("sha256:".length, "sha256:".length + 12)}`,
+    );
+    if (state) {
+      assertRunStateIntegrity(state, {
+        workOrderId: workOrder.metadata.id,
+        workOrderDigest,
+        baseCommit,
+        workspacePath: workspace,
+        branch: workOrder.spec.delivery.branch,
+      });
+      if (state.result && state.status === "completed") return state.result;
+    }
     await repository.createWorktree(
       workspace,
-      baseCommit,
+      state?.resultCommit ?? baseCommit,
       workOrder.spec.delivery.branch,
     );
     const workspaceWorkOrderPath = resolveWithin(

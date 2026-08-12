@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync } from "node:fs";
 import { dirname, relative, resolve } from "node:path";
 import type { EvidenceFile, FileReference } from "./types.js";
 import {
@@ -35,7 +35,7 @@ function patchPaths(source: string): string[] {
       throw new Error("Patch rename and copy operations are not supported.");
     }
     if (
-      /^(?:deleted file mode|new file mode 120000|new file mode 160000)/u.test(
+      /^(?:deleted file mode|(?:new file mode|new mode|old mode) (?:120000|160000))/u.test(
         line,
       )
     ) {
@@ -143,18 +143,30 @@ export class GitRepository {
   ): Promise<void> {
     if (!BRANCH_PATTERN.test(branch))
       throw new Error(`Unsafe factory branch '${branch}'.`);
+    if (!COMMIT_PATTERN.test(commit))
+      throw new Error("Factory worktree commit is malformed.");
+    await this.git(["cat-file", "-e", `${commit}^{commit}`]);
     if (existsSync(path)) {
-      const actual = await runProcess("git", ["rev-parse", "HEAD^{commit}"], {
-        cwd: path,
-        timeoutMs: 30_000,
-      });
-      if (actual.exitCode === 0) return;
-      throw new Error(
-        `Existing factory workspace '${path}' is not a Git worktree.`,
-      );
+      const [actualCommit, actualBranch, actualRoot, actualCommon, rootCommon] =
+        await Promise.all([
+          this.git(["rev-parse", "HEAD^{commit}"], path),
+          this.git(["branch", "--show-current"], path),
+          this.git(["rev-parse", "--show-toplevel"], path),
+          this.git(["rev-parse", "--git-common-dir"], path),
+          this.git(["rev-parse", "--git-common-dir"], this.root),
+        ]);
+      if (
+        actualCommit !== commit ||
+        actualBranch !== branch ||
+        resolve(actualRoot) !== resolve(path) ||
+        resolve(path, actualCommon) !== resolve(this.root, rootCommon)
+      ) {
+        throw new Error(
+          `Existing factory workspace '${path}' does not match commit ${commit}, branch '${branch}', and repository '${this.root}'.`,
+        );
+      }
+      return;
     }
-    mkdirSync(dirname(path), { recursive: true });
-    await this.git(["worktree", "add", "--detach", path, commit]);
     const existing = await runProcess(
       "git",
       ["show-ref", "--verify", `refs/heads/${branch}`],
@@ -165,7 +177,17 @@ export class GitRepository {
         `Factory branch '${branch}' already exists; refusing to overwrite it.`,
       );
     }
-    await this.git(["switch", "-c", branch], path);
+    mkdirSync(dirname(path), { recursive: true });
+    await this.git(["worktree", "add", "--detach", path, commit]);
+    try {
+      await this.git(["switch", "-c", branch], path);
+    } catch (error) {
+      await runProcess("git", ["worktree", "remove", "--force", path], {
+        cwd: this.root,
+        timeoutMs: 30_000,
+      });
+      throw error;
+    }
   }
 
   async applyPatch(
@@ -186,7 +208,10 @@ export class GitRepository {
           `${label} attempts to change disallowed path '${path}'.`,
         );
       }
-      resolveWithin(workspace, path, `${label} target`);
+      const target = resolveWithin(workspace, path, `${label} target`);
+      if (existsSync(target) && lstatSync(target).isSymbolicLink()) {
+        throw new Error(`${label} cannot modify symbolic link '${path}'.`);
+      }
     }
 
     const check = await runProcess(

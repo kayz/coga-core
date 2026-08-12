@@ -169,8 +169,25 @@ export interface AdapterReceipt {
   exitCode: number;
   stdoutDigest: Sha256Digest;
   stderrDigest: Sha256Digest;
+  sandbox?: SandboxEvidence;
   outputFiles?: EvidenceFile[];
   detail?: string;
+}
+
+export interface SandboxEvidence {
+  runner: ExactReference;
+  image: string;
+  isolation: "docker" | "test-double";
+  network: "none";
+  rootFilesystem: "read-only" | "simulated";
+  repositoryMount: "read-only" | "simulated";
+  credentialAccess: "none";
+  user: string;
+  limits: {
+    pids: number;
+    memoryBytes: number;
+    cpus: number;
+  };
 }
 
 export interface EvidenceFile {
@@ -284,5 +301,6 @@ export interface SandboxRequest {
 }
 
 export interface SandboxRunner {
+  evidence(image: string): SandboxEvidence;
   run(request: SandboxRequest): Promise<ProcessResult>;
 }

@@ -50,7 +50,7 @@ describe("bounded Patch adapter", () => {
     ).resolves.toMatchObject({ alreadyApplied: true, paths: ["allowed.txt"] });
   });
 
-  it("rejects disallowed, escaping, symlink, and deletion patches", async () => {
+  it("rejects disallowed, escaping, symlink, mode-conversion, and deletion patches", async () => {
     const repository = await GitRepository.open(root);
     const cases = [
       {
@@ -67,6 +67,11 @@ describe("bounded Patch adapter", () => {
         name: "symlink",
         source:
           "diff --git a/link b/link\nnew file mode 120000\n--- /dev/null\n+++ b/link\n@@ -0,0 +1 @@\n+outside\n",
+      },
+      {
+        name: "symlink-conversion",
+        source:
+          "diff --git a/allowed.txt b/allowed.txt\nold mode 100644\nnew mode 120000\n--- a/allowed.txt\n+++ b/allowed.txt\n@@ -1 +1 @@\n-before\n+outside\n",
       },
       {
         name: "delete",

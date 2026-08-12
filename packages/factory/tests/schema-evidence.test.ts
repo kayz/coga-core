@@ -71,7 +71,32 @@ describe("Evidence Bundle", () => {
         artifact: workOrder.spec.change.artifact,
         found: true,
         packages: [],
-        affectedApplications: [],
+        affectedApplications: [
+          {
+            id: "application.cedar.insight.h5",
+            title: "Cedar Insight H5",
+            version: "0.2.0",
+            path: "examples/broker-digital-channel/applications/cedar-insight-h5/application.yaml",
+            reasons: [
+              {
+                type: "direct",
+                path: [
+                  {
+                    ...workOrder.spec.change.artifact,
+                    kind: "artifact",
+                  },
+                  {
+                    id: "application.cedar.insight.h5",
+                    version: "0.2.0",
+                    kind: "application",
+                  },
+                ],
+              },
+            ],
+            rerunScenarios: [],
+            rerunRunbooks: [],
+          },
+        ],
       },
       targets: [],
       steps: [],
@@ -90,7 +115,20 @@ describe("Evidence Bundle", () => {
           bytes: 7,
         },
       ],
-      receipts: [],
+      receipts: [
+        {
+          stepId: "change.apply",
+          adapter: { id: "coga.domain.patch", version: "1" },
+          status: "passed",
+          startedAt: "2026-08-12T08:59:58.000Z",
+          finishedAt: "2026-08-12T08:59:59.000Z",
+          exitCode: 0,
+          stdoutDigest:
+            "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+          stderrDigest:
+            "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+        },
+      ],
       generatedAt: "2026-08-12T09:00:00.000Z",
     });
     expect(bundle.metadata.bundleDigest).toBe(evidenceDigest(bundle));
@@ -104,5 +142,25 @@ describe("Evidence Bundle", () => {
     tampered.subject.baseCommit = "4".repeat(40);
     writeFileSync(path, canonicalJson(tampered));
     expect(() => verifyEvidenceBundle(path)).toThrow(/digest mismatch/iu);
+
+    const structurallyInvalid = structuredClone(bundle) as typeof bundle;
+    structurallyInvalid.steps = [
+      { unexpected: true },
+    ] as unknown as typeof structurallyInvalid.steps;
+    structurallyInvalid.metadata.bundleDigest =
+      evidenceDigest(structurallyInvalid);
+    writeFileSync(path, canonicalJson(structurallyInvalid));
+    expect(() => verifyEvidenceBundle(path)).toThrow(
+      /Invalid Evidence Bundle/iu,
+    );
+
+    const semanticallyInvalid = structuredClone(bundle);
+    semanticallyInvalid.governance.pendingPolicies = [];
+    semanticallyInvalid.metadata.bundleDigest =
+      evidenceDigest(semanticallyInvalid);
+    writeFileSync(path, canonicalJson(semanticallyInvalid));
+    expect(() => verifyEvidenceBundle(path)).toThrow(
+      /exactly partition requiredPolicies/iu,
+    );
   });
 });

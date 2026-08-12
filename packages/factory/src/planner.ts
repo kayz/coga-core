@@ -16,6 +16,7 @@ import type {
 } from "./types.js";
 import {
   canonicalJson,
+  compareText,
   normalizeRelativePath,
   resolveWithin,
   sha256,
@@ -302,7 +303,7 @@ export function createExecutionPlan(
       };
     })
     .sort((left, right) =>
-      exactKey(left.application).localeCompare(exactKey(right.application)),
+      compareText(exactKey(left.application), exactKey(right.application)),
     );
 
   const workOrderDigest = sha256(canonicalJson(workOrder));
