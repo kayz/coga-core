@@ -27,11 +27,11 @@
     "directory": "packages/factory"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "npm run build --workspace @coga/core && tsc -p tsconfig.json",
     "test": "npm run build && vitest run",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "npm run build --workspace @coga/core && tsc -p tsconfig.json --noEmit",
     "test:e2e": "npm run build && vitest run tests/factory-e2e.test.ts",
-    "prepack": "npm run build --workspace @coga/core && npm run build"
+    "prepack": "npm run build"
   },
   "engines": {
     "node": ">=20"
