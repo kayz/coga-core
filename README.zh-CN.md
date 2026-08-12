@@ -1,10 +1,10 @@
 # COGA Core
 
-[English](README.md) · [完整愿景](VISION.zh-CN.md) · [公开示例](examples/broker-digital-channel/README.md) · [更新记录](CHANGELOG.md)
+[English](README.md) · [完整愿景](VISION.zh-CN.md) · [设计审计](设计方案及差异.md) · [本次调整](本次项目调整.md) · [公开示例](examples/broker-digital-channel/README.md) · [更新记录](CHANGELOG.md)
 
 COGA Core 是一个开源、与领域无关的契约层，用来支撑“人类治理、Agent 执行”的软件工厂。它希望团队能够先**标定一个有界领域**，把可持续积累的知识打包为 Domain Harness，再用它持续生产和演进多个 Application。
 
-0.1 版本刻意保持小而完整：它证明人类可读、受版本控制的文件可以承载领域规则、平台约束、工程实践、组织策略和运维知识；Core 可以校验、编目这些知识；一项资产变化也可以确定性地追踪到消费它的 Application。
+0.1 版本刻意保持小而完整：它证明人类可读、受版本控制的文件可以承载领域规则、平台约束、工程实践、组织策略和运维知识；Core 可以校验、编目它们的 0.1 结构；一项资产也可以追踪到直接锁定其所属 Harness Package 的 Application。
 
 ## 三层边界
 
@@ -25,8 +25,8 @@ COGA Core                         COGA Instance                       Applicatio
 
 - [`@coga/core`](packages/core/README.md)：TypeScript 库与 `coga` CLI；
 - 四类资源的 JSON Schema 2020-12 契约；
-- 结构和语义校验，包括引用完整性与发布规则；
-- Markdown/JSON 目录与确定性的反向影响分析；
+- Schema 校验，以及身份、精确依赖、引用、发布最低条件、已声明可见性边和疑似明文秘密等选定的跨资源检查；
+- Markdown/JSON 目录，以及从资产到精确锁定其所属 Harness Package 的 Application 的直接反向影响分析；
 - 一个脱敏的[券商数字客户渠道示例](examples/broker-digital-channel/README.md)，包含五层 Harness 和两个虚构消费应用；
 - 面向未来表单的 Schema 提示与窄职责 Agent 操作手册；
 - 显式公开白名单、隐私和边界检查。
@@ -71,6 +71,7 @@ spec:
   provenance: []
   relations: []
   validation: []
+  contractRefs: []
 ```
 
 ## 文件、表单与 Agent
@@ -86,10 +87,12 @@ packages/core/                       与领域无关的库、CLI 和 Schema
 examples/broker-digital-channel/     脱敏且可复用的 COGA Instance
 docs/                                跨层架构决策
 scripts/                             隐私与公开边界门禁
+设计方案及差异.md                    经审计的当前/目标设计边界
+本次项目调整.md                      本轮对齐范围与验证记录
 ```
 
 私有 Application 与来源资料明确排除在公开白名单之外，并由 Git 忽略。提出资产前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 和 [SECURITY.md](SECURITY.md)。
 
 ## 状态
 
-`0.1.0` 属于初始开发契约。Harness 依赖必须精确锁定；1.0 之前不承诺向后兼容。项目采用 Apache License 2.0。
+`0.1.0` 属于初始开发契约。Harness 依赖必须精确锁定；1.0 之前不承诺向后兼容。项目采用 Apache License 2.0。Core 0.1 不会装载并校验被引用的契约文件，不会执行 Scenario 或审批，也不会计算传递影响；准确边界与分期方案见[设计审计](设计方案及差异.md)。

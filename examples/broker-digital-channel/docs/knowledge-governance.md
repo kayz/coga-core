@@ -18,8 +18,9 @@ resource envelope, avoiding a second source of truth.
    scenarios, and opens a file change for review. It may not publish.
 4. **Review** — a domain owner checks meaning and sources; platform, security,
    compliance, or operations owners join when their layer is affected.
-5. **Validate** — deterministic schema/reference checks run, followed by the
-   referenced scenarios. Agent commentary is supporting evidence, never the gate.
+5. **Validate** — Core 0.1 runs its Schema and selected reference checks. Trusted
+   external runners execute referenced scenarios, contracts, and ordinary tests
+   where available. Agent commentary is supporting evidence, never the gate.
 6. **Approve** — the responsible human accepts the semantic diff and blast radius.
 7. **Publish** — the package receives a SemVer update, applications continue on
    their exact locks, and impact analysis proposes opt-in upgrade changes.
@@ -27,6 +28,11 @@ resource envelope, avoiding a second source of truth.
    not mutate published knowledge automatically.
 
 ## Promotion rules
+
+The following list is the target governance acceptance policy. Core 0.1 enforces
+only resource Schema, selected reference/visibility checks, and the presence of at
+least one provenance record for a published artifact; the remaining items require
+external command evidence and human review.
 
 An artifact may move to `published` only when all of the following are true:
 
@@ -48,8 +54,10 @@ one exists, and does not silently rewrite an application's dependency lock.
 The concrete roles are in [`../agents/`](../agents/):
 
 - The **curator** extracts and normalizes candidates.
-- The **validator** checks structure, references, provenance, and scenario coverage.
-- The **impact analyst** calculates consumers and explains upgrade risk.
+- The **validator** combines Core's structural/reference output with separately
+  labeled provenance, scenario, sanitization, and human-review evidence.
+- The **impact analyst** uses Core's direct-consumer output and separately derives
+  transitive consumers and upgrade risk with reproducible paths.
 
 Agents may propose YAML, semantic diffs, test scenarios, and upgrade pull requests.
 They may not invent a missing rule, approve their own proposal, expose private
