@@ -4,7 +4,7 @@ import type {
   ValidationProfile,
 } from "@coga/core";
 
-export const FACTORY_SCHEMA_VERSION = "coga.dev/factory/v0.2" as const;
+export const FACTORY_SCHEMA_VERSION = "coga.dev/factory/v0.3" as const;
 export const PATCH_NORMALIZATION_VERSION =
   "coga.patch.normalization/v1" as const;
 
@@ -93,9 +93,14 @@ export interface WorkOrder {
       };
     };
     delivery: {
-      adapter: "github.draft-pr/v2";
+      adapter: "github.app-draft-pr/v3";
       repository: string;
       draft: true;
+      identity: {
+        kind: "github-app";
+        appSlug: string;
+        tokenEnvironment: "COGA_FACTORY_GITHUB_TOKEN";
+      };
     };
   };
 }
@@ -338,6 +343,7 @@ export interface FactoryTargetRunResult {
     url: string;
     state: string;
     draft: boolean;
+    author: string;
   };
 }
 
@@ -450,6 +456,7 @@ export interface RemoteEvidence {
     repository: string;
     pullRequest: number;
     pullRequestUrl: string;
+    pullRequestAuthor: string;
     baseCommit: string;
     headCommit: string;
     application: ExactReference;
@@ -500,6 +507,7 @@ export interface GitHubPullRequestSnapshot {
   url: string;
   state: "OPEN" | "CLOSED" | "MERGED";
   isDraft: boolean;
+  author: string;
   baseCommit: string;
   headCommit: string;
   changedFiles: number;

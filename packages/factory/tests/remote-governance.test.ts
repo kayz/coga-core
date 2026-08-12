@@ -8,7 +8,7 @@ import {
   createGovernanceView,
   governanceViewMarkdown,
 } from "../src/governance.js";
-import { collectRemoteEvidence } from "../src/remote.js";
+import { collectRemoteEvidence, githubCliEnvironment } from "../src/remote.js";
 import {
   loadAgentProposalReceipt,
   loadApplicationFactory,
@@ -231,6 +231,7 @@ function snapshot(
     url: "https://github.com/kayz/coga-core/pull/42",
     state: "OPEN",
     isDraft,
+    author: "coga-factory-kayz[bot]",
     baseCommit: base,
     headCommit: head,
     changedFiles: 2,
@@ -263,6 +264,29 @@ function approval(policy: {
 }
 
 describe("remote evidence and governance", () => {
+  it("pins remote evidence commands to github.com without inheriting gh routing or debug state", () => {
+    const environment = githubCliEnvironment({
+      GH_TOKEN: "human-token",
+      GH_HOST: "attacker.invalid",
+      GH_CONFIG_DIR: "/attacker/config",
+      GH_DEBUG: "api",
+      GITHUB_API_URL: "https://attacker.invalid/api",
+      GITHUB_GRAPHQL_URL: "https://attacker.invalid/graphql",
+      PATH: "trusted-path",
+    });
+    expect(environment).toMatchObject({
+      GH_TOKEN: "human-token",
+      GH_HOST: "github.com",
+      GH_PROMPT_DISABLED: "1",
+      GH_NO_UPDATE_NOTIFIER: "1",
+      PATH: "trusted-path",
+    });
+    expect(environment.GH_CONFIG_DIR).toBeUndefined();
+    expect(environment.GH_DEBUG).toBeUndefined();
+    expect(environment.GITHUB_API_URL).toBeUndefined();
+    expect(environment.GITHUB_GRAPHQL_URL).toBeUndefined();
+  });
+
   it("preserves non-UTF-8 bytes returned by a remote command", async () => {
     const result = await runCheckedBinary(
       process.execPath,
@@ -364,6 +388,40 @@ describe("remote evidence and governance", () => {
     expect(result.promoted).toBe(false);
     expect(result.evidence.promotion.eligible).toBe(false);
     expect(result.evidence.promotion.blockers).toHaveLength(2);
+    expect(client.readyCalls).toBe(0);
+  });
+
+  it("rejects a PR that was not created by the declared GitHub App", async () => {
+    const fixture = targetFixture();
+    const root = mkdtempSync(join(tmpdir(), "coga-remote-human-author-"));
+    const client = new FakeGitHubClient({
+      remoteFiles: fixture.remoteFiles,
+      prFiles: fixture.prFiles,
+      checks: checks(
+        fixture.workOrder.spec.governance.promotion.requiredChecks,
+      ),
+      reviews: fixture.workOrder.spec.governance.requiredPolicies.map(approval),
+      snapshots: [
+        {
+          ...snapshot(true),
+          author: "kayz",
+          changedFiles: fixture.prFiles.length,
+        },
+      ],
+    });
+    await expect(
+      collectRemoteEvidence({
+        workOrder: fixture.workOrder,
+        baseCommit,
+        application: fixture.target.application,
+        pullRequest: 42,
+        evidencePath: fixture.bundlePath,
+        outputRoot: root,
+        collectedAt: "2026-08-12T12:02:00.000Z",
+        client,
+      }),
+    ).rejects.toThrow(/author.*declared delivery identity/iu);
+    expect(client.attestationCalls).toBe(0);
     expect(client.readyCalls).toBe(0);
   });
 

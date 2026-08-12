@@ -36,7 +36,7 @@
   "metadata": {
     "createdAt": "2026-08-12T20:15:00+08:00",
     "id": "example.birch.live-status.proposal",
-    "receiptDigest": "sha256:f31f6991dc582ae8d38ed01bd4c661c265581ed464e3ac953f07708cbb014345"
+    "receiptDigest": "sha256:93f93d8a4cc0cbf1ca27eb376bb4f2d6d64b6a361a17bad8a13291937137c384"
   },
   "output": {
     "changedPaths": [
@@ -52,7 +52,7 @@
       "path": ".coga/work-orders/cedar-status/birch-agent-proposal.patch"
     }
   },
-  "schemaVersion": "coga.dev/factory/v0.2",
+  "schemaVersion": "coga.dev/factory/v0.3",
   "subject": {
     "application": {
       "id": "application.birch.insight.h5",
@@ -86,7 +86,7 @@
       },
       {
         "bytes": 1112,
-        "digest": "sha256:00a56d748f9d0f0ba2b7bf3c6267971b43f99ef149681f69d6c16d2799f51a32",
+        "digest": "sha256:07c1e0d195f5b4ffe3a95eacaf6605161eee0587ac66e27a18c63059f296edad",
         "path": "examples/broker-digital-channel/applications/birch-insight-h5/factory/application.factory.yaml"
       },
       {

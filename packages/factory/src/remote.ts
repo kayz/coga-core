@@ -4,6 +4,10 @@ import { dirname, join } from "node:path";
 import type { ExactReference } from "@coga/core";
 import { verifyEvidenceBundle } from "./evidence.js";
 import { inspectPatchPaths } from "./git.js";
+import {
+  assertSeparatedDeliveryIdentity,
+  expectedDeliveryAuthor,
+} from "./identity.js";
 import { normalizeProposalPatch, proposalReceiptDigest } from "./proposal.js";
 import { loadAgentProposalReceipt, loadRemoteEvidence } from "./schema.js";
 import type {
@@ -64,6 +68,7 @@ interface GhPullRequest {
   url: string;
   state: "OPEN" | "CLOSED" | "MERGED";
   isDraft: boolean;
+  author: { login?: string } | null;
   baseRefOid: string;
   headRefOid: string;
   changedFiles: number;
@@ -97,6 +102,34 @@ interface GhPullRequestFile {
   filename: string;
 }
 
+const GITHUB_HOST = "github.com";
+
+export function githubCliEnvironment(
+  environment: NodeJS.ProcessEnv = process.env,
+): NodeJS.ProcessEnv {
+  const cleaned = Object.fromEntries(
+    Object.entries(environment).filter(([key]) => {
+      const normalized = key.toUpperCase();
+      return (
+        !normalized.startsWith("GH_") &&
+        normalized !== "GITHUB_API_URL" &&
+        normalized !== "GITHUB_GRAPHQL_URL"
+      );
+    }),
+  );
+  return {
+    ...cleaned,
+    ...(environment.GH_TOKEN ? { GH_TOKEN: environment.GH_TOKEN } : {}),
+    GH_HOST: GITHUB_HOST,
+    GH_PROMPT_DISABLED: "1",
+    GH_NO_UPDATE_NOTIFIER: "1",
+  };
+}
+
+function repositorySelector(repository: string): string {
+  return `${GITHUB_HOST}/${repository}`;
+}
+
 export class GhEvidenceClient implements GitHubEvidenceClient {
   async pullRequest(
     repository: string,
@@ -109,18 +142,27 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
         "view",
         String(number),
         "--repo",
-        repository,
+        repositorySelector(repository),
         "--json",
-        "number,url,state,isDraft,baseRefOid,headRefOid,changedFiles",
+        "number,url,state,isDraft,author,baseRefOid,headRefOid,changedFiles",
       ],
-      { cwd: process.cwd(), timeoutMs: 60_000, maxOutputBytes: 1024 * 1024 },
+      {
+        cwd: process.cwd(),
+        timeoutMs: 60_000,
+        maxOutputBytes: 1024 * 1024,
+        env: githubCliEnvironment(),
+      },
       "GitHub PR lookup",
     );
     const value = parseJson<GhPullRequest>(result.stdout, "GitHub PR lookup");
     if (
       value.number !== number ||
+      typeof value.url !== "string" ||
+      value.url.toLowerCase() !==
+        `https://github.com/${repository}/pull/${number}`.toLowerCase() ||
       !COMMIT_PATTERN.test(value.baseRefOid) ||
       !COMMIT_PATTERN.test(value.headRefOid) ||
+      !value.author?.login ||
       !Number.isSafeInteger(value.changedFiles) ||
       value.changedFiles < 1 ||
       value.changedFiles > 100
@@ -134,6 +176,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
       url: value.url,
       state: value.state,
       isDraft: value.isDraft,
+      author: value.author.login,
       baseCommit: value.baseRefOid,
       headCommit: value.headRefOid,
       changedFiles: value.changedFiles,
@@ -146,11 +189,17 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
   ): Promise<string[]> {
     const result = await runChecked(
       "gh",
-      ["api", `repos/${repository}/pulls/${number}/files?per_page=100`],
+      [
+        "api",
+        "--hostname",
+        GITHUB_HOST,
+        `repos/${repository}/pulls/${number}/files?per_page=100`,
+      ],
       {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 20 * 1024 * 1024,
+        env: githubCliEnvironment(),
       },
       "GitHub PR file lookup",
     );
@@ -182,6 +231,8 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
       "gh",
       [
         "api",
+        "--hostname",
+        GITHUB_HOST,
         "-H",
         "Accept: application/vnd.github.raw+json",
         `repos/${repository}/contents/${normalized
@@ -193,6 +244,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 20 * 1024 * 1024,
+        env: githubCliEnvironment(),
       },
       "GitHub evidence download",
     );
@@ -209,12 +261,15 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
       "gh",
       [
         "api",
+        "--hostname",
+        GITHUB_HOST,
         `repos/${repository}/commits/${commit}/check-runs?filter=latest&per_page=100`,
       ],
       {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 5 * 1024 * 1024,
+        env: githubCliEnvironment(),
       },
       "GitHub checks lookup",
     );
@@ -248,11 +303,17 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
   ): Promise<GitHubReviewSnapshot[]> {
     const result = await runChecked(
       "gh",
-      ["api", `repos/${repository}/pulls/${number}/reviews?per_page=100`],
+      [
+        "api",
+        "--hostname",
+        GITHUB_HOST,
+        `repos/${repository}/pulls/${number}/reviews?per_page=100`,
+      ],
       {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 5 * 1024 * 1024,
+        env: githubCliEnvironment(),
       },
       "GitHub reviews lookup",
     );
@@ -266,12 +327,15 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
       "gh",
       [
         "api",
+        "--hostname",
+        GITHUB_HOST,
         `repos/${repository}/pulls/${number}/reviews?per_page=100&page=2`,
       ],
       {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 5 * 1024 * 1024,
+        env: githubCliEnvironment(),
       },
       "GitHub review overflow lookup",
     );
@@ -304,11 +368,18 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
   ): Promise<void> {
     await runChecked(
       "gh",
-      ["attestation", "verify", evidencePath, "--repo", repository],
+      [
+        "attestation",
+        "verify",
+        evidencePath,
+        "--repo",
+        repositorySelector(repository),
+      ],
       {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 2 * 1024 * 1024,
+        env: githubCliEnvironment(),
       },
       "GitHub artifact attestation verification",
     );
@@ -317,8 +388,13 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
   async markReady(repository: string, number: number): Promise<void> {
     await runChecked(
       "gh",
-      ["pr", "ready", String(number), "--repo", repository],
-      { cwd: process.cwd(), timeoutMs: 60_000, maxOutputBytes: 1024 * 1024 },
+      ["pr", "ready", String(number), "--repo", repositorySelector(repository)],
+      {
+        cwd: process.cwd(),
+        timeoutMs: 60_000,
+        maxOutputBytes: 1024 * 1024,
+        env: githubCliEnvironment(),
+      },
       "GitHub ready-for-review promotion",
     );
   }
@@ -334,6 +410,7 @@ function approvedPolicies(
       entry.toLowerCase(),
     ),
   );
+  const deliveryAuthor = expectedDeliveryAuthor(workOrder).toLowerCase();
   const approvals: RemotePolicyApproval[] = [];
   const latestByReviewer = new Map<string, GitHubReviewSnapshot>();
   for (const review of [...reviews].sort((left, right) => right.id - left.id)) {
@@ -341,6 +418,7 @@ function approvedPolicies(
     if (
       review.commit === headCommit &&
       authorized.has(reviewer) &&
+      reviewer !== deliveryAuthor &&
       !latestByReviewer.has(reviewer)
     ) {
       latestByReviewer.set(reviewer, review);
@@ -378,6 +456,7 @@ export async function collectRemoteEvidence(parameters: {
   promote?: boolean;
   client?: GitHubEvidenceClient;
 }): Promise<{ path: string; evidence: RemoteEvidence; promoted: boolean }> {
+  assertSeparatedDeliveryIdentity(parameters.workOrder);
   const target = parameters.workOrder.spec.targets.find(
     (entry) => exactKey(entry.application) === exactKey(parameters.application),
   );
@@ -408,6 +487,12 @@ export async function collectRemoteEvidence(parameters: {
   );
   if (pullRequest.state !== "OPEN") {
     throw new Error("Remote evidence can only be collected from an open PR.");
+  }
+  const requiredAuthor = expectedDeliveryAuthor(parameters.workOrder);
+  if (pullRequest.author.toLowerCase() !== requiredAuthor.toLowerCase()) {
+    throw new Error(
+      `Remote PR author '${pullRequest.author}' does not match the declared delivery identity '${requiredAuthor}'.`,
+    );
   }
   if (pullRequest.baseCommit === pullRequest.headCommit) {
     throw new Error("Remote PR head does not contain a candidate change.");
@@ -642,6 +727,7 @@ export async function collectRemoteEvidence(parameters: {
         repository,
         pullRequest: pullRequest.number,
         pullRequestUrl: pullRequest.url,
+        pullRequestAuthor: pullRequest.author,
         baseCommit: pullRequest.baseCommit,
         headCommit: pullRequest.headCommit,
         application: parameters.application,
@@ -691,6 +777,7 @@ export async function collectRemoteEvidence(parameters: {
       if (
         current.state !== "OPEN" ||
         !current.isDraft ||
+        current.author.toLowerCase() !== pullRequest.author.toLowerCase() ||
         current.headCommit !== pullRequest.headCommit ||
         current.baseCommit !== pullRequest.baseCommit ||
         current.changedFiles !== pullRequest.changedFiles
@@ -707,6 +794,8 @@ export async function collectRemoteEvidence(parameters: {
       if (
         promotedSnapshot.state !== "OPEN" ||
         promotedSnapshot.isDraft ||
+        promotedSnapshot.author.toLowerCase() !==
+          pullRequest.author.toLowerCase() ||
         promotedSnapshot.headCommit !== pullRequest.headCommit ||
         promotedSnapshot.baseCommit !== pullRequest.baseCommit ||
         promotedSnapshot.changedFiles !== pullRequest.changedFiles

@@ -43,7 +43,7 @@ governance decisions.
 ## Included in 0.2
 
 - [`@coga/core`](packages/core/README.md), a TypeScript library and `coga` CLI;
-- [`@coga/factory`](packages/factory/README.md) `0.3.0`, with versioned Work
+- [`@coga/factory`](packages/factory/README.md) `0.4.0`, with versioned Work
   Order, Agent Proposal Receipt, Application Factory, per-target recovery,
   Evidence Bundle, Remote Evidence and governance-view contracts plus the
   `coga-factory` CLI;
@@ -62,7 +62,7 @@ governance decisions.
 - exact impact-to-target fan-out, versioned model/prompt/context/output receipts,
   bounded Git patches, a digest-pinned network-disabled Docker test/build
   sandbox, content-addressed local/remote evidence, isolated retry, and
-  idempotent Draft-PR delivery;
+  GitHub-App-bound Draft-PR delivery, and exact-head human approval;
 - form-ready schema hints and narrow agent playbooks, while keeping versioned
   files and pull requests as the source of truth;
 - explicit public-release and privacy checks;

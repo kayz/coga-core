@@ -55,6 +55,44 @@ describe("Factory schemas", () => {
     writeFileSync(escaping, JSON.stringify(valid));
     expect(() => loadWorkOrder(escaping)).toThrow(/Invalid Work Order/iu);
   });
+
+  it("rejects a machine delivery identity authorized as its own human approver", () => {
+    const directory = mkdtempSync(join(tmpdir(), "coga-factory-identity-"));
+    const workOrder = structuredClone(loadWorkOrder(workOrderPath));
+    workOrder.spec.governance.promotion.authorizedApprovers = [
+      workOrder.spec.delivery.identity.appSlug,
+    ];
+    const path = join(directory, "self-approval.json");
+    writeFileSync(path, JSON.stringify(workOrder));
+    expect(() => loadWorkOrder(path)).toThrow(
+      /cannot be used as a human approver/iu,
+    );
+  });
+
+  it("rejects a machine identity recorded as a local Policy approval", () => {
+    const directory = mkdtempSync(join(tmpdir(), "coga-factory-approval-"));
+    const workOrder = structuredClone(loadWorkOrder(workOrderPath));
+    const policy = workOrder.spec.governance.requiredPolicies[0];
+    if (!policy) throw new Error("Expected a required Policy.");
+    workOrder.spec.governance.approvals = [
+      {
+        policy,
+        approver: workOrder.spec.delivery.identity.appSlug,
+        approvedAt: "2026-08-12T12:00:00.000Z",
+        evidence: [
+          {
+            path: "evidence/approval.md",
+            digest: `sha256:${"1".repeat(64)}`,
+          },
+        ],
+      },
+    ];
+    const path = join(directory, "machine-approval.json");
+    writeFileSync(path, JSON.stringify(workOrder));
+    expect(() => loadWorkOrder(path)).toThrow(
+      /cannot be used as a human approver/iu,
+    );
+  });
 });
 
 describe("Evidence Bundle", () => {

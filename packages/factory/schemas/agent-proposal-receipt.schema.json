@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://coga.dev/schemas/factory/v0.2/agent-proposal-receipt.schema.json",
+  "$id": "https://coga.dev/schemas/factory/v0.3/agent-proposal-receipt.schema.json",
   "title": "COGA Agent Proposal Receipt",
   "type": "object",
   "additionalProperties": false,
@@ -51,7 +51,7 @@
     }
   },
   "properties": {
-    "schemaVersion": { "const": "coga.dev/factory/v0.2" },
+    "schemaVersion": { "const": "coga.dev/factory/v0.3" },
     "kind": { "const": "AgentProposalReceipt" },
     "metadata": {
       "type": "object",

@@ -54,6 +54,7 @@
       ],
       "files": [
         ".gitattributes",
+        ".github/CODEOWNERS",
         ".gitignore",
         ".prettierignore",
         "LICENSE",

@@ -9,7 +9,10 @@ import type {
   ProposalCompilationRequest,
   Sha256Digest,
 } from "./types.js";
-import { PATCH_NORMALIZATION_VERSION } from "./types.js";
+import {
+  FACTORY_SCHEMA_VERSION,
+  PATCH_NORMALIZATION_VERSION,
+} from "./types.js";
 import {
   canonicalJson,
   compareText,
@@ -139,7 +142,7 @@ export function compileAgentProposal(
     throw new Error("Agent proposal prompt template digest mismatch.");
   }
   const draft: AgentProposalReceipt = {
-    schemaVersion: "coga.dev/factory/v0.2",
+    schemaVersion: FACTORY_SCHEMA_VERSION,
     kind: "AgentProposalReceipt",
     metadata: {
       id: input.id,

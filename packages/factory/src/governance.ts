@@ -1,6 +1,7 @@
 import { basename } from "node:path";
 import type { ExactReference } from "@coga/core";
 import { verifyEvidenceBundle } from "./evidence.js";
+import { expectedDeliveryAuthor } from "./identity.js";
 import { loadRemoteEvidence } from "./schema.js";
 import type {
   EvidenceBundle,
@@ -106,6 +107,8 @@ export function createGovernanceView(parameters: {
           remoteEntry &&
           (remoteEntry.document.subject.repository !==
             parameters.workOrder.spec.delivery.repository ||
+            remoteEntry.document.subject.pullRequestAuthor.toLowerCase() !==
+              expectedDeliveryAuthor(parameters.workOrder).toLowerCase() ||
             remoteEntry.document.subject.workOrder.id !==
               parameters.workOrder.metadata.id ||
             remoteEntry.document.subject.workOrder.digest !== workOrderDigest)

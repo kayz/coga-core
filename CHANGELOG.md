@@ -3,7 +3,33 @@
 All notable changes to COGA Core are recorded here. Versions follow Semantic
 Versioning; `0.y.z` remains initial development.
 
-## `@coga/factory` 0.3.0 — Unreleased
+## `@coga/factory` 0.4.0 — Unreleased
+
+- Replace Factory protocol v0.2 with `coga.dev/factory/v0.3` and require the
+  `github.app-draft-pr/v3` delivery adapter. The Work Order now fixes a GitHub
+  App slug and the single supported installation-token environment boundary;
+  older Factory documents are explicitly rejected.
+- Preflight the installation token against its bounded repository list before
+  any remote Git mutation. Networked Git and GitHub CLI commands receive only a
+  scrubbed credential environment; tokens are absent from arguments, remotes,
+  documents and errors, with raw and encoded forms redacted on failure. The
+  boundary accepts bounded legacy and stateless `ghs_APPID_JWT` installation
+  tokens, disables inherited credential helpers, prompts, hooks and tracing,
+  rejects applicable Git URL rewrites, and pins GitHub CLI traffic to
+  `github.com`.
+- Require every created or reused Draft PR to be authored by the declared App
+  bot, bind that author into Remote Evidence, and recheck it across the final
+  Draft-to-ready TOCTOU boundary.
+- Make machine and human identities mutually exclusive. Authorized human Policy
+  reviews must still be `APPROVED`, carry the exact Policy marker, and bind the
+  current head; the Factory still cannot merge, tag, release, publish or deploy.
+- Add CODEOWNER ownership and tests that keep the Work Order's five required
+  checks aligned with public Linux CI, plus negative coverage for missing/wrong
+  tokens, inaccessible repositories, moved local heads/branches, redirected Git
+  endpoints, cross-repository PRs, human-authored Drafts, self-approval and
+  credential disclosure.
+
+## `@coga/factory` 0.3.0 — Historical candidate
 
 - Replace the Factory v0.1 protocol with `coga.dev/factory/v0.2`; v0.1 Factory
   documents are explicitly rejected while Core remains `0.2.0`.

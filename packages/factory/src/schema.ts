@@ -15,6 +15,7 @@ import type {
   RemoteEvidence,
   WorkOrder,
 } from "./types.js";
+import { assertSeparatedDeliveryIdentity } from "./identity.js";
 import { readBoundedFile } from "./utils.js";
 
 const MAX_NODES = 100_000;
@@ -117,7 +118,9 @@ export function loadWorkOrder(path: string): WorkOrder {
       `Invalid Work Order: ${formatErrors(validateWorkOrder.errors)}.`,
     );
   }
-  return document as WorkOrder;
+  const workOrder = document as WorkOrder;
+  assertSeparatedDeliveryIdentity(workOrder);
+  return workOrder;
 }
 
 export function loadApplicationFactory(

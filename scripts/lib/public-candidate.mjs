@@ -40,6 +40,7 @@ const SUPPORTED_TEXT_EXTENSIONS = [
 
 const SUPPORTED_TEXT_FILES = [
   ".gitattributes",
+  ".github/CODEOWNERS",
   ".gitignore",
   ".prettierignore",
   "LICENSE",

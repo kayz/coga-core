@@ -107,7 +107,7 @@ jobs:
           jq -e \
             --arg repository "$COGA_REPOSITORY" \
             --arg base "$(jq -r '.base.sha' <<<"$pr_json")" \
-            '.schemaVersion == "coga.dev/factory/v0.2" and
+            '.schemaVersion == "coga.dev/factory/v0.3" and
              .kind == "EvidenceBundle" and
              .governance.draftOnly == true and
              .subject.repository == $repository and

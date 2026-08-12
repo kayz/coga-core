@@ -156,15 +156,18 @@ test(
           "--eval",
           [
             "import { SCHEMA_VERSION, VALIDATION_PROFILES, canTransitionLifecycle } from '@coga/core';",
-            "import { FACTORY_SCHEMA_VERSION, FACTORY_STATES, FactoryController } from '@coga/factory';",
+            "import { FACTORY_SCHEMA_VERSION, FACTORY_STATES, FactoryController, GITHUB_FACTORY_TOKEN_ENVIRONMENT, expectedDeliveryAuthor } from '@coga/factory';",
             "import { readFile } from 'node:fs/promises';",
             "import { createRequire } from 'node:module';",
             "if (SCHEMA_VERSION !== 'coga.dev/v0.2') throw new Error('wrong schema version');",
             "if (VALIDATION_PROFILES.join(',') !== 'local,public,release') throw new Error('wrong profiles');",
             "if (!canTransitionLifecycle('approved', 'published')) throw new Error('broken lifecycle API');",
-            "if (FACTORY_SCHEMA_VERSION !== 'coga.dev/factory/v0.2') throw new Error('wrong factory schema version');",
+            "if (FACTORY_SCHEMA_VERSION !== 'coga.dev/factory/v0.3') throw new Error('wrong factory schema version');",
             "if (!FACTORY_STATES.includes('review')) throw new Error('wrong factory states');",
             "if (typeof FactoryController !== 'function') throw new Error('missing factory controller');",
+            "if (GITHUB_FACTORY_TOKEN_ENVIRONMENT !== 'COGA_FACTORY_GITHUB_TOKEN') throw new Error('wrong delivery credential boundary');",
+            "const deliveryFixture = { spec: { delivery: { identity: { appSlug: 'factory-example' } } } };",
+            "if (expectedDeliveryAuthor(deliveryFixture) !== 'factory-example[bot]') throw new Error('wrong delivery author helper');",
             "const schemaPath = createRequire(import.meta.url).resolve('@coga/core/schemas/coga-instance.schema.json');",
             "const schema = JSON.parse(await readFile(schemaPath, 'utf8'));",
             "if (schema.$id !== 'https://coga.dev/schemas/v0.2/coga-instance.schema.json') throw new Error('wrong schema export');",
@@ -172,7 +175,7 @@ test(
             "for (const name of ['work-order', 'application-factory', 'agent-proposal-receipt', 'proposal-compilation', 'evidence-bundle', 'remote-evidence']) {",
             "  const factorySchemaPath = createRequire(import.meta.url).resolve(`@coga/factory/schemas/${name}.schema.json`);",
             "  const factorySchema = JSON.parse(await readFile(factorySchemaPath, 'utf8'));",
-            "  if (factorySchema.$id !== `https://coga.dev/schemas/factory/v0.2/${name}.schema.json`) throw new Error(`wrong ${name} schema export`);",
+            "  if (factorySchema.$id !== `https://coga.dev/schemas/factory/v0.3/${name}.schema.json`) throw new Error(`wrong ${name} schema export`);",
             "  if (factorySchema.$schema !== 'https://json-schema.org/draft/2020-12/schema') throw new Error(`wrong ${name} schema dialect`);",
             "}",
             "console.log(`${SCHEMA_VERSION}|${FACTORY_SCHEMA_VERSION}`);",
@@ -180,7 +183,7 @@ test(
         ],
         consumerDir,
       );
-      assert.equal(esm.stdout.trim(), "coga.dev/v0.2|coga.dev/factory/v0.2");
+      assert.equal(esm.stdout.trim(), "coga.dev/v0.2|coga.dev/factory/v0.3");
 
       const cli = await npm(
         [
@@ -206,7 +209,7 @@ test(
       );
       const adapters = JSON.parse(factoryCli.stdout);
       assert.equal(adapters.length, 7);
-      assert.ok(adapters.some((entry) => entry.id === "github.draft-pr"));
+      assert.ok(adapters.some((entry) => entry.id === "github.app-draft-pr"));
     } finally {
       await removeWithRetry(temporaryRoot);
     }

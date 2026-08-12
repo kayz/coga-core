@@ -327,7 +327,7 @@ function targetSteps(target: PlannedTarget): ExecutionPlanStep[] {
     {
       id: "delivery.draft-pr",
       kind: "deliver-draft-pr",
-      adapter: "github.draft-pr/v2",
+      adapter: "github.app-draft-pr/v3",
       application: target.application,
     },
   );
