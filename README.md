@@ -49,7 +49,11 @@ governance decisions.
   with five Harness layers and two fictitious consuming applications;
 - form-ready schema hints and narrow agent playbooks, while keeping versioned
   files and pull requests as the source of truth;
-- explicit public-release and privacy checks.
+- explicit public-release and privacy checks;
+- a license-complete, byte-reproducible Core package payload with a normalized
+  CycloneDX SBOM, SHA-256 release manifest, and a fail-closed signed-tag
+  workflow that creates GitHub artifact attestations and a reviewable draft
+  release candidate.
 
 The example is educational. It contains no production endpoint, secret, customer
 data, proprietary contract, or organization-specific compliance baseline.
@@ -64,6 +68,10 @@ npm run check:public
 npm run catalog:example
 npm run impact:example
 ```
+
+Release-payload generation is a separate, stricter lane pinned to Node.js
+24.18.0 and npm 11.16.0. On that exact toolchain, run `npm run release:test`;
+ordinary public checks remain supported on Node.js 22+.
 
 After the build, the CLI can inspect another Instance:
 
@@ -129,5 +137,9 @@ release allowlist and ignored by Git. See [CONTRIBUTING.md](CONTRIBUTING.md) and
 envelope. Exact Harness, artifact, policy, and contract versions are required;
 backward compatibility is not promised before 1.0. Core verifies declarations and
 recorded evidence but does not execute scenarios, tests, reviews, or arbitrary
-commands. The project is licensed under Apache License 2.0. See the
-[design audit](设计方案及差异.md) for the remaining Application and release risks.
+commands. The project is licensed under Apache License 2.0. The private local
+Application now has executable conformance evidence, while DevTools/device
+acceptance remains manual. Release tooling prepares attestable GitHub assets but
+does not publish to npm; the currently unclaimed `@coga/core` package requires a
+separately authorized first-publish bootstrap before trusted publishing can be
+configured. See the [design audit](设计方案及差异.md) for the exact boundary.

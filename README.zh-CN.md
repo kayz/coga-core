@@ -30,7 +30,8 @@ COGA Core                         COGA Instance                       Applicatio
 - Markdown/JSON 目录，以及从精确 Artifact 版本到直接、传递和旧锁 Application 消费者的可重现路径；
 - 一个脱敏的[券商数字客户渠道示例](examples/broker-digital-channel/README.md)，包含五层 Harness 和两个虚构消费应用；
 - 面向未来表单的 Schema 提示与窄职责 Agent 操作手册；
-- 显式公开白名单、隐私和边界检查。
+- 显式公开白名单、隐私和边界检查；
+- LICENSE 完整、字节可复现的 Core 发布载荷，规范化 CycloneDX SBOM、SHA-256 发布清单，以及只接受已验证签名版本 tag、生成 GitHub artifact attestation 与待复核 draft 的工作流。
 
 这个实例只用于说明结构，不包含生产地址、密钥、客户数据、私有接口契约或某家机构的合规基线。
 
@@ -44,6 +45,8 @@ npm run check:public
 npm run catalog:example
 npm run impact:example
 ```
+
+发布载荷生成属于独立的严格通道，固定使用 Node.js 24.18.0 与 npm 11.16.0；只有在这组精确工具链上运行 `npm run release:test`。普通公开检查继续支持 Node.js 22+。
 
 构建后可以用 CLI 检查其他 Instance：
 
@@ -97,4 +100,4 @@ scripts/                             隐私与公开边界门禁
 
 ## 状态
 
-`0.2.0` 仍属于初始开发契约，并明确拒绝 v0.1 envelope。Harness、Artifact、Policy 与 Contract 都必须精确锁定版本；1.0 之前不承诺向后兼容。Core 校验声明和已记录证据，但不会执行 Scenario、测试、评审或任意命令。项目采用 Apache License 2.0；剩余 Application 与发布风险见[设计审计](设计方案及差异.md)。
+`0.2.0` 仍属于初始开发契约，并明确拒绝 v0.1 envelope。Harness、Artifact、Policy 与 Contract 都必须精确锁定版本；1.0 之前不承诺向后兼容。Core 校验声明和已记录证据，但不会执行 Scenario、测试、评审或任意命令。私有本地 Application 已补可执行一致性证据，DevTools/真机验收仍为人工门禁。发布工具只准备可签名的 GitHub 资产，不发布 npm；当前尚未占用的 `@coga/core` 包名必须先经单独授权完成首次发布，之后才能配置 trusted publishing。项目采用 Apache License 2.0；精确边界见[设计审计](设计方案及差异.md)。

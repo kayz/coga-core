@@ -18,8 +18,17 @@
   "files": [
     "dist",
     "schemas",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kayz/coga-core.git",
+    "directory": "packages/core"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && vitest run",

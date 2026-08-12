@@ -53,3 +53,21 @@ console.log(checkLifecycleTransition("approved", "published"));
 ```
 
 The load context records its profile, root directory, and safety limits. Passing different options to an already loaded Instance is rejected. Lifecycle progression remains explicit and monotonic: `draft → candidate → approved → published → deprecated`; remaining in the current state is valid, while skipping or moving backward is not.
+
+## Release candidate integrity
+
+The npm package includes the Apache-2.0 license. From the repository root,
+`npm run release:test` checks a deterministic CycloneDX 1.5 SBOM against the
+complete production dependency graph and verifies byte-reproducible package,
+SBOM, and SHA-256 manifest generation. This release lane is pinned to Node.js
+24.18.0 and npm 11.16.0; the Core library itself remains supported on Node.js
+20+. The version workflow is intentionally
+separate from ordinary CI and accepts only a signed `vMAJOR.MINOR.PATCH` tag that
+identifies the exact `main` tip before creating GitHub attestations and an
+administrator-reviewable draft release candidate. It does not publish a mutable
+release; immutable-release enablement and final publication remain an external
+administrator gate.
+
+The workflow does not publish to npm. `@coga/core` has not yet received its
+separately authorized first registry publish, which is required before an npm
+trusted publisher can be configured.

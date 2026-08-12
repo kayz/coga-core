@@ -48,7 +48,12 @@
         ".yaml",
         ".yml"
       ],
-      "files": [".gitattributes", ".gitignore", "LICENSE"]
+      "files": [
+        ".gitattributes",
+        ".gitignore",
+        "LICENSE",
+        "packages/core/LICENSE"
+      ]
     },
     "binary": {
       "maxFileBytes": 10485760,
