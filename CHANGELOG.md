@@ -12,7 +12,11 @@ Versioning; `0.y.z` remains initial development.
 - Preflight the installation token against its bounded repository list before
   any remote Git mutation. Networked Git and GitHub CLI commands receive only a
   scrubbed credential environment; tokens are absent from arguments, remotes,
-  documents and errors, with raw and encoded forms redacted on failure.
+  documents and errors, with raw and encoded forms redacted on failure. The
+  boundary accepts bounded legacy and stateless `ghs_APPID_JWT` installation
+  tokens, disables inherited credential helpers, prompts, hooks and tracing,
+  rejects applicable Git URL rewrites, and pins GitHub CLI traffic to
+  `github.com`.
 - Require every created or reused Draft PR to be authored by the declared App
   bot, bind that author into Remote Evidence, and recheck it across the final
   Draft-to-ready TOCTOU boundary.
@@ -21,7 +25,8 @@ Versioning; `0.y.z` remains initial development.
   current head; the Factory still cannot merge, tag, release, publish or deploy.
 - Add CODEOWNER ownership and tests that keep the Work Order's five required
   checks aligned with public Linux CI, plus negative coverage for missing/wrong
-  tokens, inaccessible repositories, human-authored Drafts, self-approval and
+  tokens, inaccessible repositories, moved local heads/branches, redirected Git
+  endpoints, cross-repository PRs, human-authored Drafts, self-approval and
   credential disclosure.
 
 ## `@coga/factory` 0.3.0 — Historical candidate

@@ -8,7 +8,7 @@ import {
   createGovernanceView,
   governanceViewMarkdown,
 } from "../src/governance.js";
-import { collectRemoteEvidence } from "../src/remote.js";
+import { collectRemoteEvidence, githubCliEnvironment } from "../src/remote.js";
 import {
   loadAgentProposalReceipt,
   loadApplicationFactory,
@@ -264,6 +264,29 @@ function approval(policy: {
 }
 
 describe("remote evidence and governance", () => {
+  it("pins remote evidence commands to github.com without inheriting gh routing or debug state", () => {
+    const environment = githubCliEnvironment({
+      GH_TOKEN: "human-token",
+      GH_HOST: "attacker.invalid",
+      GH_CONFIG_DIR: "/attacker/config",
+      GH_DEBUG: "api",
+      GITHUB_API_URL: "https://attacker.invalid/api",
+      GITHUB_GRAPHQL_URL: "https://attacker.invalid/graphql",
+      PATH: "trusted-path",
+    });
+    expect(environment).toMatchObject({
+      GH_TOKEN: "human-token",
+      GH_HOST: "github.com",
+      GH_PROMPT_DISABLED: "1",
+      GH_NO_UPDATE_NOTIFIER: "1",
+      PATH: "trusted-path",
+    });
+    expect(environment.GH_CONFIG_DIR).toBeUndefined();
+    expect(environment.GH_DEBUG).toBeUndefined();
+    expect(environment.GITHUB_API_URL).toBeUndefined();
+    expect(environment.GITHUB_GRAPHQL_URL).toBeUndefined();
+  });
+
   it("preserves non-UTF-8 bytes returned by a remote command", async () => {
     const result = await runCheckedBinary(
       process.execPath,

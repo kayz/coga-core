@@ -102,6 +102,34 @@ interface GhPullRequestFile {
   filename: string;
 }
 
+const GITHUB_HOST = "github.com";
+
+export function githubCliEnvironment(
+  environment: NodeJS.ProcessEnv = process.env,
+): NodeJS.ProcessEnv {
+  const cleaned = Object.fromEntries(
+    Object.entries(environment).filter(([key]) => {
+      const normalized = key.toUpperCase();
+      return (
+        !normalized.startsWith("GH_") &&
+        normalized !== "GITHUB_API_URL" &&
+        normalized !== "GITHUB_GRAPHQL_URL"
+      );
+    }),
+  );
+  return {
+    ...cleaned,
+    ...(environment.GH_TOKEN ? { GH_TOKEN: environment.GH_TOKEN } : {}),
+    GH_HOST: GITHUB_HOST,
+    GH_PROMPT_DISABLED: "1",
+    GH_NO_UPDATE_NOTIFIER: "1",
+  };
+}
+
+function repositorySelector(repository: string): string {
+  return `${GITHUB_HOST}/${repository}`;
+}
+
 export class GhEvidenceClient implements GitHubEvidenceClient {
   async pullRequest(
     repository: string,
@@ -114,16 +142,24 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
         "view",
         String(number),
         "--repo",
-        repository,
+        repositorySelector(repository),
         "--json",
         "number,url,state,isDraft,author,baseRefOid,headRefOid,changedFiles",
       ],
-      { cwd: process.cwd(), timeoutMs: 60_000, maxOutputBytes: 1024 * 1024 },
+      {
+        cwd: process.cwd(),
+        timeoutMs: 60_000,
+        maxOutputBytes: 1024 * 1024,
+        env: githubCliEnvironment(),
+      },
       "GitHub PR lookup",
     );
     const value = parseJson<GhPullRequest>(result.stdout, "GitHub PR lookup");
     if (
       value.number !== number ||
+      typeof value.url !== "string" ||
+      value.url.toLowerCase() !==
+        `https://github.com/${repository}/pull/${number}`.toLowerCase() ||
       !COMMIT_PATTERN.test(value.baseRefOid) ||
       !COMMIT_PATTERN.test(value.headRefOid) ||
       !value.author?.login ||
@@ -153,11 +189,17 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
   ): Promise<string[]> {
     const result = await runChecked(
       "gh",
-      ["api", `repos/${repository}/pulls/${number}/files?per_page=100`],
+      [
+        "api",
+        "--hostname",
+        GITHUB_HOST,
+        `repos/${repository}/pulls/${number}/files?per_page=100`,
+      ],
       {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 20 * 1024 * 1024,
+        env: githubCliEnvironment(),
       },
       "GitHub PR file lookup",
     );
@@ -189,6 +231,8 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
       "gh",
       [
         "api",
+        "--hostname",
+        GITHUB_HOST,
         "-H",
         "Accept: application/vnd.github.raw+json",
         `repos/${repository}/contents/${normalized
@@ -200,6 +244,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 20 * 1024 * 1024,
+        env: githubCliEnvironment(),
       },
       "GitHub evidence download",
     );
@@ -216,12 +261,15 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
       "gh",
       [
         "api",
+        "--hostname",
+        GITHUB_HOST,
         `repos/${repository}/commits/${commit}/check-runs?filter=latest&per_page=100`,
       ],
       {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 5 * 1024 * 1024,
+        env: githubCliEnvironment(),
       },
       "GitHub checks lookup",
     );
@@ -255,11 +303,17 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
   ): Promise<GitHubReviewSnapshot[]> {
     const result = await runChecked(
       "gh",
-      ["api", `repos/${repository}/pulls/${number}/reviews?per_page=100`],
+      [
+        "api",
+        "--hostname",
+        GITHUB_HOST,
+        `repos/${repository}/pulls/${number}/reviews?per_page=100`,
+      ],
       {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 5 * 1024 * 1024,
+        env: githubCliEnvironment(),
       },
       "GitHub reviews lookup",
     );
@@ -273,12 +327,15 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
       "gh",
       [
         "api",
+        "--hostname",
+        GITHUB_HOST,
         `repos/${repository}/pulls/${number}/reviews?per_page=100&page=2`,
       ],
       {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 5 * 1024 * 1024,
+        env: githubCliEnvironment(),
       },
       "GitHub review overflow lookup",
     );
@@ -311,11 +368,18 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
   ): Promise<void> {
     await runChecked(
       "gh",
-      ["attestation", "verify", evidencePath, "--repo", repository],
+      [
+        "attestation",
+        "verify",
+        evidencePath,
+        "--repo",
+        repositorySelector(repository),
+      ],
       {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 2 * 1024 * 1024,
+        env: githubCliEnvironment(),
       },
       "GitHub artifact attestation verification",
     );
@@ -324,8 +388,13 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
   async markReady(repository: string, number: number): Promise<void> {
     await runChecked(
       "gh",
-      ["pr", "ready", String(number), "--repo", repository],
-      { cwd: process.cwd(), timeoutMs: 60_000, maxOutputBytes: 1024 * 1024 },
+      ["pr", "ready", String(number), "--repo", repositorySelector(repository)],
+      {
+        cwd: process.cwd(),
+        timeoutMs: 60_000,
+        maxOutputBytes: 1024 * 1024,
+        env: githubCliEnvironment(),
+      },
       "GitHub ready-for-review promotion",
     );
   }

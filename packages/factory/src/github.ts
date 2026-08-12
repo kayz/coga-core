@@ -30,7 +30,11 @@ interface PullRequestSnapshot {
   state: string;
   isDraft: boolean;
   author: string;
+  baseRepository: string;
+  baseRefName: string;
   baseRefOid: string;
+  headRepository: string;
+  headRefName: string;
   headRefOid: string;
 }
 
@@ -41,8 +45,16 @@ interface RestPullRequest {
   draft?: unknown;
   merged_at?: unknown;
   user?: { login?: unknown } | null;
-  base?: { sha?: unknown } | null;
-  head?: { sha?: unknown } | null;
+  base?: {
+    sha?: unknown;
+    ref?: unknown;
+    repo?: { full_name?: unknown } | null;
+  } | null;
+  head?: {
+    sha?: unknown;
+    ref?: unknown;
+    repo?: { full_name?: unknown } | null;
+  } | null;
 }
 
 export type GitHubDeliveryCommandRunner = (
@@ -62,8 +74,10 @@ export interface GitHubDeliveryDependencies {
 }
 
 const COMMIT_PATTERN = /^[0-9a-f]{40}$/u;
-const TOKEN_PATTERN = /^[A-Za-z0-9_]{20,255}$/u;
+const TOKEN_PATTERN = /^ghs_[A-Za-z0-9_.-]{16,8188}$/u;
 const MAX_INSTALLATION_REPOSITORIES = 1000;
+const GIT_URL_REWRITE_PATTERN = "^url\\..*\\.(insteadof|pushinsteadof)$";
+const GIT_NULL_DEVICE = process.platform === "win32" ? "NUL" : "/dev/null";
 
 function cleanEnvironment(environment: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   return Object.fromEntries(
@@ -71,10 +85,13 @@ function cleanEnvironment(environment: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
       const normalized = key.toUpperCase();
       return (
         normalized !== GITHUB_FACTORY_TOKEN_ENVIRONMENT &&
-        normalized !== "GH_TOKEN" &&
-        normalized !== "GITHUB_TOKEN" &&
-        normalized !== "GITHUB_PAT" &&
-        !normalized.startsWith("GIT_CONFIG_")
+        !normalized.startsWith("GH_") &&
+        !normalized.startsWith("GITHUB_") &&
+        !normalized.startsWith("GIT_") &&
+        !normalized.startsWith("GCM_") &&
+        normalized !== "GIT_CONFIG" &&
+        normalized !== "SSH_ASKPASS" &&
+        normalized !== "SSH_ASKPASS_REQUIRE"
       );
     }),
   );
@@ -93,6 +110,55 @@ function redact(value: string, token: string): string {
     (result, secret) => result.replaceAll(secret, "[redacted]"),
     value,
   );
+}
+
+async function assertNoApplicableGitUrlRewrite(parameters: {
+  runner: GitHubDeliveryCommandRunner;
+  token: string;
+  environment: NodeJS.ProcessEnv;
+  workspace: string;
+  targetUrl: string;
+}): Promise<void> {
+  let response: ProcessResult;
+  try {
+    response = await parameters.runner(
+      "git",
+      ["config", "--null", "--get-regexp", GIT_URL_REWRITE_PATTERN],
+      {
+        cwd: parameters.workspace,
+        timeoutMs: 30_000,
+        maxOutputBytes: 64 * 1024,
+        env: parameters.environment,
+      },
+    );
+  } catch (error) {
+    throw new Error(
+      `Git URL rewrite inspection failed: ${redact(error instanceof Error ? error.message : String(error), parameters.token)}`,
+    );
+  }
+  if (response.exitCode === 1 && response.stdout.length === 0) return;
+  if (response.exitCode !== 0) {
+    const detail =
+      response.stderr.trim() || response.stdout.trim() || "no command output";
+    throw new Error(
+      `Git URL rewrite inspection failed with exit ${response.exitCode}: ${redact(detail, parameters.token)}`,
+    );
+  }
+
+  const target = parameters.targetUrl.toLowerCase();
+  for (const record of response.stdout.split("\0")) {
+    if (!record) continue;
+    const separator = record.indexOf("\n");
+    if (separator < 1) {
+      throw new Error("Git URL rewrite inspection returned invalid output.");
+    }
+    const prefix = record.slice(separator + 1);
+    if (target.startsWith(prefix.toLowerCase())) {
+      throw new Error(
+        "Git URL rewrite configuration applies to the Factory delivery endpoint; refusing credentialed Git access.",
+      );
+    }
+  }
 }
 
 async function checked(
@@ -182,6 +248,8 @@ function author(snapshot: PullRequestSnapshot, expected: string): string {
 function assertSnapshot(
   snapshot: unknown,
   repository: string,
+  baseBranch: string,
+  headBranch: string,
   label: string,
 ): asserts snapshot is PullRequestSnapshot {
   if (
@@ -192,7 +260,11 @@ function assertSnapshot(
     !("state" in snapshot) ||
     !("isDraft" in snapshot) ||
     !("author" in snapshot) ||
+    !("baseRepository" in snapshot) ||
+    !("baseRefName" in snapshot) ||
     !("baseRefOid" in snapshot) ||
+    !("headRepository" in snapshot) ||
+    !("headRefName" in snapshot) ||
     !("headRefOid" in snapshot) ||
     typeof snapshot.number !== "number" ||
     !Number.isSafeInteger(snapshot.number) ||
@@ -205,8 +277,16 @@ function assertSnapshot(
     typeof snapshot.isDraft !== "boolean" ||
     typeof snapshot.author !== "string" ||
     snapshot.author.length < 1 ||
+    typeof snapshot.baseRepository !== "string" ||
+    snapshot.baseRepository.toLowerCase() !== repository.toLowerCase() ||
+    typeof snapshot.baseRefName !== "string" ||
+    snapshot.baseRefName !== baseBranch ||
     typeof snapshot.baseRefOid !== "string" ||
     !COMMIT_PATTERN.test(snapshot.baseRefOid) ||
+    typeof snapshot.headRepository !== "string" ||
+    snapshot.headRepository.toLowerCase() !== repository.toLowerCase() ||
+    typeof snapshot.headRefName !== "string" ||
+    snapshot.headRefName !== headBranch ||
     typeof snapshot.headRefOid !== "string" ||
     !COMMIT_PATTERN.test(snapshot.headRefOid)
   ) {
@@ -227,7 +307,11 @@ function fromRestPullRequest(value: RestPullRequest): PullRequestSnapshot {
     state,
     isDraft: value.draft as boolean,
     author: value.user?.login as string,
+    baseRepository: value.base?.repo?.full_name as string,
+    baseRefName: value.base?.ref as string,
     baseRefOid: value.base?.sha as string,
+    headRepository: value.head?.repo?.full_name as string,
+    headRefName: value.head?.ref as string,
     headRefOid: value.head?.sha as string,
   };
 }
@@ -235,13 +319,15 @@ function fromRestPullRequest(value: RestPullRequest): PullRequestSnapshot {
 function parseRestPullRequest(
   value: unknown,
   repository: string,
+  baseBranch: string,
+  headBranch: string,
   label: string,
 ): PullRequestSnapshot {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new Error(`${label} returned an invalid PR object.`);
   }
   const snapshot = fromRestPullRequest(value as RestPullRequest);
-  assertSnapshot(snapshot, repository, label);
+  assertSnapshot(snapshot, repository, baseBranch, headBranch, label);
   return snapshot;
 }
 
@@ -322,12 +408,39 @@ export async function deliverGitHubDraft(
     );
   }
   const baseEnvironment = cleanEnvironment(environment);
-  const ghEnvironment = { ...baseEnvironment, GH_TOKEN: token };
-  const gitEnvironment = {
+  const ghEnvironment = {
     ...baseEnvironment,
-    GIT_CONFIG_COUNT: "1",
-    GIT_CONFIG_KEY_0: "http.https://github.com/.extraheader",
-    GIT_CONFIG_VALUE_0: `AUTHORIZATION: basic ${Buffer.from(`x-access-token:${token}`, "utf8").toString("base64")}`,
+    GH_TOKEN: token,
+    GH_HOST: "github.com",
+    GH_PROMPT_DISABLED: "1",
+    GH_NO_UPDATE_NOTIFIER: "1",
+  };
+  const gitBaseEnvironment = {
+    ...baseEnvironment,
+    GIT_CONFIG_NOSYSTEM: "1",
+    GIT_CONFIG_GLOBAL: GIT_NULL_DEVICE,
+  };
+  const authenticatedUrl = `https://github.com/${repositoryName}.git`;
+  const scopedHttpConfiguration = `http.${authenticatedUrl}.`;
+  const gitEnvironment = {
+    ...gitBaseEnvironment,
+    GCM_INTERACTIVE: "Never",
+    GIT_TERMINAL_PROMPT: "0",
+    GIT_CONFIG_COUNT: "7",
+    GIT_CONFIG_KEY_0: "credential.helper",
+    GIT_CONFIG_VALUE_0: "",
+    GIT_CONFIG_KEY_1: "core.askPass",
+    GIT_CONFIG_VALUE_1: "",
+    GIT_CONFIG_KEY_2: "http.extraheader",
+    GIT_CONFIG_VALUE_2: "",
+    GIT_CONFIG_KEY_3: `${scopedHttpConfiguration}extraheader`,
+    GIT_CONFIG_VALUE_3: "",
+    GIT_CONFIG_KEY_4: `${scopedHttpConfiguration}extraheader`,
+    GIT_CONFIG_VALUE_4: `AUTHORIZATION: basic ${Buffer.from(`x-access-token:${token}`, "utf8").toString("base64")}`,
+    GIT_CONFIG_KEY_5: `${scopedHttpConfiguration}sslVerify`,
+    GIT_CONFIG_VALUE_5: "true",
+    GIT_CONFIG_KEY_6: `${scopedHttpConfiguration}followRedirects`,
+    GIT_CONFIG_VALUE_6: "initial",
   };
   const runner = dependencies.runner ?? runProcess;
   if (
@@ -352,7 +465,11 @@ export async function deliverGitHubDraft(
     token,
     "git",
     ["remote", "get-url", repository.remote],
-    { cwd: parameters.workspace, timeoutMs: 30_000, env: baseEnvironment },
+    {
+      cwd: parameters.workspace,
+      timeoutMs: 30_000,
+      env: gitBaseEnvironment,
+    },
     "Git remote lookup",
   );
   if (!remoteMatches(remoteUrl.stdout, repositoryName)) {
@@ -360,7 +477,47 @@ export async function deliverGitHubDraft(
       `Work Order repository '${repositoryName}' does not match the configured Git remote.`,
     );
   }
-  const authenticatedUrl = `https://github.com/${repositoryName}.git`;
+  const localHead = await checked(
+    runner,
+    token,
+    "git",
+    ["rev-parse", "--verify", "HEAD^{commit}"],
+    {
+      cwd: parameters.workspace,
+      timeoutMs: 30_000,
+      env: gitBaseEnvironment,
+    },
+    "Git local candidate lookup",
+  );
+  if (localHead.stdout.trim() !== parameters.resultCommit) {
+    throw new Error(
+      `Local candidate moved: expected ${parameters.resultCommit}, received ${localHead.stdout.trim() || "missing"}.`,
+    );
+  }
+  const localBranch = await checked(
+    runner,
+    token,
+    "git",
+    ["branch", "--show-current"],
+    {
+      cwd: parameters.workspace,
+      timeoutMs: 30_000,
+      env: gitBaseEnvironment,
+    },
+    "Git local branch lookup",
+  );
+  if (localBranch.stdout.trim() !== branch) {
+    throw new Error(
+      `Local Factory branch must be '${branch}', received '${localBranch.stdout.trim() || "detached"}'.`,
+    );
+  }
+  await assertNoApplicableGitUrlRewrite({
+    runner,
+    token,
+    environment: gitBaseEnvironment,
+    workspace: parameters.workspace,
+    targetUrl: authenticatedUrl,
+  });
   const remoteBase = await checked(
     runner,
     token,
@@ -412,7 +569,7 @@ export async function deliverGitHubDraft(
     runner,
     token,
     "git",
-    ["push", authenticatedUrl, `HEAD:refs/heads/${branch}`],
+    ["push", "--no-verify", authenticatedUrl, `HEAD:refs/heads/${branch}`],
     {
       cwd: parameters.workspace,
       timeoutMs: 120_000,
@@ -468,7 +625,13 @@ export async function deliverGitHubDraft(
     throw new Error("GitHub PR lookup exceeds the 100-entry budget.");
   }
   const snapshots = values.map((value) =>
-    parseRestPullRequest(value, repositoryName, "GitHub PR lookup"),
+    parseRestPullRequest(
+      value,
+      repositoryName,
+      repository.baseBranch,
+      branch,
+      "GitHub PR lookup",
+    ),
   );
   if (snapshots.length > 1) {
     throw new Error(
@@ -533,6 +696,8 @@ export async function deliverGitHubDraft(
   const createdSnapshot = parseRestPullRequest(
     parseJson<unknown>(created.stdout, "Draft PR creation"),
     repositoryName,
+    repository.baseBranch,
+    branch,
     "Draft PR creation",
   );
   const pullRequestNumber = createdSnapshot.number;
@@ -552,6 +717,8 @@ export async function deliverGitHubDraft(
   const snapshot = parseRestPullRequest(
     parseJson<unknown>(viewed.stdout, "Draft PR verification"),
     repositoryName,
+    repository.baseBranch,
+    branch,
     "Draft PR verification",
   );
   if (snapshot.number !== pullRequestNumber) {

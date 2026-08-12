@@ -73,6 +73,13 @@ The token is supplied only through scrubbed child-process environments, never a
 command argument, remote URL, Work Order or evidence file. The adapter then
 requires the created or reused PR author to equal `<app-slug>[bot]`. That machine
 identity and its bot login are forbidden from the human approver allowlist.
+Credentialed Git also disables inherited system/global configuration,
+credential helpers, askpass, interactive prompts, hooks and tracing; it rejects
+local URL rewrites that apply to the exact endpoint and binds the local
+branch/head plus both PR repositories and refs before accepting delivery. The
+bounded token form supports GitHub's legacy and stateless `ghs_APPID_JWT`
+installation tokens. Collector commands pin `github.com` and remove inherited
+`gh` host, API-routing, config-directory and debug overrides.
 
 The local collector independently verifies the declared PR author, attestation,
 configured check set, exact remote Proposal Receipt, and an authorized
