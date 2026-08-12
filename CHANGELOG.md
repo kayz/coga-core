@@ -16,7 +16,9 @@ Versioning; `0.y.z` remains initial development.
   boundary accepts bounded legacy and stateless `ghs_APPID_JWT` installation
   tokens, disables inherited credential helpers, prompts, hooks and tracing,
   rejects applicable Git URL rewrites, and pins GitHub CLI traffic to
-  `github.com`.
+  `github.com`. CLI `--repo` values remain exact `owner/name`; host pinning is
+  deliberately separate so attestation verification and Draft promotion use
+  the syntax accepted by `gh`.
 - Require every created or reused Draft PR to be authored by the declared App
   bot, bind that author into Remote Evidence, and recheck it across the final
   Draft-to-ready TOCTOU boundary. Delivery and collection both use the REST PR

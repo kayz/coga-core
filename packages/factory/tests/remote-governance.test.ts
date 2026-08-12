@@ -10,6 +10,7 @@ import {
 } from "../src/governance.js";
 import {
   collectRemoteEvidence,
+  githubCliRepository,
   githubCliEnvironment,
   parseRestPullRequestSnapshot,
 } from "../src/remote.js";
@@ -268,6 +269,13 @@ function approval(policy: {
 }
 
 describe("remote evidence and governance", () => {
+  it("passes owner/name to gh while the environment independently pins github.com", () => {
+    expect(githubCliRepository("kayz/coga-core")).toBe("kayz/coga-core");
+    expect(() => githubCliRepository("github.com/kayz/coga-core")).toThrow(
+      /exact owner\/name form/iu,
+    );
+  });
+
   it("normalizes the REST App bot login and rejects cross-repository PR bindings", () => {
     const value = {
       number: 42,
@@ -283,7 +291,7 @@ describe("remote evidence and governance", () => {
       },
       head: {
         sha: headCommit,
-        ref: "codex/factory-output/cedar-live-status-v6",
+        ref: "codex/factory-output/cedar-live-status-v7",
         repo: { full_name: "kayz/coga-core" },
       },
       changed_files: 2,
