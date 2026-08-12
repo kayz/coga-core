@@ -1,9 +1,9 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: wechat.miniprogram.scenario.session.and.privacy
   title: Mini-program session and privacy scenarios
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: approved
   scope: instance
   visibility: public
@@ -12,10 +12,10 @@ metadata:
   tags:
     - scenario
     - platform
+  attestations: []
 spec:
   artifactType: scenario
-  summary: >-
-    Observable examples for login exchange failure and privacy denial.
+  summary: Observable examples for login exchange failure and privacy denial.
   statement: |-
     Scenario: temporary login exchange fails
       Given the mini-program obtained a temporary platform login credential
@@ -28,9 +28,7 @@ spec:
       When the user denies the platform authorization
       Then the feature presents its documented safe state
       And the unrelated journey remains usable
-  scope: >-
-    Reused by mini-program applications with authenticated and privacy-sensitive
-    journeys.
+  scope: Reused by mini-program applications with authenticated and privacy-sensitive journeys.
   provenance:
     - source: https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/login.html
       sourceType: document
@@ -40,11 +38,14 @@ spec:
       note: 小程序隐私保护指引
   relations:
     - type: verifies
-      target: wechat.miniprogram.session.exchange
+      target:
+        id: wechat.miniprogram.session.exchange
+        version: 0.2.0
     - type: verifies
-      target: wechat.miniprogram.privacy.authorization
+      target:
+        id: wechat.miniprogram.privacy.authorization
+        version: 0.2.0
   validation:
     - type: review
-      status: passed
-      validator: coga.review.platform.owner
+      status: pending
   contractRefs: []

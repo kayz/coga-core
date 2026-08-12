@@ -1,10 +1,10 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: wechat.miniprogram.delivery.evidence
   title: Mini-program delivery evidence
-  version: 0.1.0
-  lifecycle: published
+  version: 0.2.0
+  lifecycle: approved
   scope: instance
   visibility: public
   owners:
@@ -12,37 +12,44 @@ metadata:
   tags:
     - delivery
     - evidence
+  attestations: []
 spec:
   artifactType: capability
-  summary: >-
-    A mini-program release candidate can produce reproducible build, preview, and
-    upload evidence without embedding credentials in the repository.
-  statement: >-
-    The delivery adapter records the application revision, locked harness versions,
-    tool version, build result, package report, preview or upload result, and
-    approver-visible risk summary. Credential material is supplied by the execution
-    environment and never stored in an artifact or evidence log.
-  scope: >-
-    Applies to local and CI preparation of mini-program candidates; public example
-    packages do not authorize account administration, platform review, or release.
+  summary:
+    A mini-program release candidate can produce reproducible build, preview, and upload
+    evidence without embedding credentials in the repository.
+  statement:
+    The delivery adapter records the application revision, locked harness versions, tool
+    version, build result, package report, preview or upload result, and approver-visible risk
+    summary. Credential material is supplied by the execution environment and never stored in an
+    artifact or evidence log.
+  scope:
+    Applies to local and CI preparation of mini-program candidates; public example packages do
+    not authorize account administration, platform review, or release.
   provenance:
     - source: https://developers.weixin.qq.com/miniprogram/dev/devtools/ci.html
       sourceType: document
       note: miniprogram-ci
   relations:
     - type: verifies
-      target: wechat.miniprogram.package.boundary
+      target:
+        id: wechat.miniprogram.package.boundary
+        version: 0.2.0
     - type: applies-to
-      target: wechat.miniprogram.scenario.delivery
+      target:
+        id: wechat.miniprogram.scenario.delivery
+        version: 0.2.0
   validation:
     - type: schema
-      status: passed
-      validator: coga.validation.domain.artifact.schema
+      status: pending
     - type: scenario
-      status: passed
-      target: wechat.miniprogram.scenario.delivery
-      validator: coga.validation.scenario.reference
+      status: pending
+      target:
+        id: wechat.miniprogram.scenario.delivery
+        version: 0.2.0
   contractRefs:
     - id: contract.wechat.miniprogram.delivery.evidence
-      version: 0.1.0
+      version: 0.2.0
       path: ../../../contracts/miniprogram-delivery-evidence.schema.json
+      format: json-schema-2020-12
+      digest: sha256:fcc372b4c38078946da1fb83ae35e371cb6d3ee26112509cc55b2ccdee6ba042

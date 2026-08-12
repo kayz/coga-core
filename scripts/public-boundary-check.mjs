@@ -1,48 +1,31 @@
-import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import {
+  formatPublicIssue,
+  inspectPublicCandidate,
+  loadPublicReleaseManifest,
+} from "./lib/public-candidate.mjs";
 
-const manifest = JSON.parse(readFileSync("public.release.json", "utf8"));
-const normalize = (value) => value.replaceAll("\\", "/");
-const entries = execFileSync(
-  "git",
-  [
-    "-c",
-    "core.quotepath=false",
-    "ls-files",
-    "-z",
-    "--cached",
-    "--others",
-    "--exclude-standard",
-  ],
-  { encoding: "utf8" },
-)
-  .split("\0")
-  .filter(Boolean)
-  .map(normalize);
+const root = process.cwd();
 
-function matchesPrefix(path, rule) {
-  return rule.endsWith("/") ? path.startsWith(rule) : path === rule;
+let manifest;
+let candidate;
+try {
+  manifest = loadPublicReleaseManifest(root);
+  candidate = inspectPublicCandidate({ manifest, root });
+} catch (error) {
+  console.error(`public.invalid-manifest: ${error.message}`);
+  process.exit(1);
 }
 
-const denied = entries.filter((path) =>
-  manifest.deny.some((rule) => matchesPrefix(path, rule)),
-);
-const outside = entries.filter(
-  (path) => !manifest.allow.some((rule) => matchesPrefix(path, rule)),
-);
+const issues = candidate.issues;
 
-if (denied.length > 0 || outside.length > 0) {
-  if (denied.length > 0) {
-    console.error(
-      "Denied paths found in the public candidate:\n" + denied.join("\n"),
-    );
-  }
-  if (outside.length > 0) {
-    console.error("Paths outside the public allowlist:\n" + outside.join("\n"));
-  }
+if (issues.length > 0) {
+  console.error(
+    "Public-boundary violations detected:\n" +
+      issues.map((item) => `- ${formatPublicIssue(item)}`).join("\n"),
+  );
   process.exit(1);
 }
 
 console.log(
-  `Public boundary passed (${entries.length} candidate files are allowlisted).`,
+  `Public boundary passed (${candidate.entries.length} candidate files, ${candidate.totalBytes} bytes).`,
 );

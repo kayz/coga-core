@@ -18,9 +18,10 @@ resource envelope, avoiding a second source of truth.
    scenarios, and opens a file change for review. It may not publish.
 4. **Review** — a domain owner checks meaning and sources; platform, security,
    compliance, or operations owners join when their layer is affected.
-5. **Validate** — Core 0.1 runs its Schema and selected reference checks. Trusted
-   external runners execute referenced scenarios, contracts, and ordinary tests
-   where available. Agent commentary is supporting evidence, never the gate.
+5. **Validate** — Core 0.2 runs bounded Schema, contract, resource-graph, Profile,
+   and evidence-record checks. Trusted external runners execute referenced
+   scenarios and ordinary tests. Agent commentary is supporting evidence, never
+   the gate.
 6. **Approve** — the responsible human accepts the semantic diff and blast radius.
 7. **Publish** — the package receives a SemVer update, applications continue on
    their exact locks, and impact analysis proposes opt-in upgrade changes.
@@ -29,10 +30,11 @@ resource envelope, avoiding a second source of truth.
 
 ## Promotion rules
 
-The following list is the target governance acceptance policy. Core 0.1 enforces
-only resource Schema, selected reference/visibility checks, and the presence of at
-least one provenance record for a published artifact; the remaining items require
-external command evidence and human review.
+Core 0.2 enforces the structural parts of the following acceptance policy:
+resource and contract validity, exact graph closure, lifecycle consistency,
+completed validation evidence, and approval attestations required by the
+Instance. Source authority, executed behavior, legal applicability, and the human
+decision remain external responsibilities.
 
 An artifact may move to `published` only when all of the following are true:
 

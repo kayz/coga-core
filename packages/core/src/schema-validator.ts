@@ -19,15 +19,22 @@ const schemaFiles = [
 ] as const;
 
 const schemaIds: Record<ResourceKind, string> = {
-  DomainArtifact: "https://coga.dev/schemas/v0.1/domain-artifact.schema.json",
-  HarnessPackage: "https://coga.dev/schemas/v0.1/harness-package.schema.json",
-  CogaInstance: "https://coga.dev/schemas/v0.1/coga-instance.schema.json",
-  Application: "https://coga.dev/schemas/v0.1/application.schema.json",
+  DomainArtifact: "https://coga.dev/schemas/v0.2/domain-artifact.schema.json",
+  HarnessPackage: "https://coga.dev/schemas/v0.2/harness-package.schema.json",
+  CogaInstance: "https://coga.dev/schemas/v0.2/coga-instance.schema.json",
+  Application: "https://coga.dev/schemas/v0.2/application.schema.json",
 };
 
 const require = createRequire(import.meta.url);
 const addFormats = require("ajv-formats") as FormatsPlugin;
-const ajv = new Ajv2020({ allErrors: true, strict: true });
+const ajv = new Ajv2020({
+  allErrors: true,
+  strict: true,
+  // Conditional branches intentionally require properties declared by their
+  // parent schema. Keep the runtime requirement while disabling only Ajv's
+  // same-subschema lint for that standard composition pattern.
+  strictRequired: false,
+});
 addFormats(ajv);
 ajv.addKeyword({ keyword: "x-coga-ui", schemaType: "object", valid: true });
 

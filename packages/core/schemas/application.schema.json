@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://coga.dev/schemas/v0.1/application.schema.json",
+  "$id": "https://coga.dev/schemas/v0.2/application.schema.json",
   "title": "COGA Application",
   "description": "A separately deliverable product that consumes exact harness package versions.",
   "type": "object",
@@ -11,8 +11,8 @@
       "title": "Schema version",
       "description": "Frozen COGA resource contract version.",
       "type": "string",
-      "const": "coga.dev/v0.1",
-      "default": "coga.dev/v0.1"
+      "const": "coga.dev/v0.2",
+      "default": "coga.dev/v0.2"
     },
     "kind": {
       "title": "Resource kind",
@@ -22,7 +22,7 @@
       "default": "Application"
     },
     "metadata": {
-      "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/metadata"
+      "$ref": "https://coga.dev/schemas/v0.2/common.schema.json#/$defs/metadata"
     },
     "spec": {
       "title": "Application definition",
@@ -55,7 +55,7 @@
           "description": "Harness package versions this application was designed and verified against.",
           "type": "array",
           "items": {
-            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+            "$ref": "https://coga.dev/schemas/v0.2/common.schema.json#/$defs/exactRef"
           },
           "minItems": 1,
           "uniqueItems": true,
@@ -68,7 +68,7 @@
           "description": "OpenAPI, JSON Schema, event, or tool contracts used by the application.",
           "type": "array",
           "items": {
-            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/contractRef"
+            "$ref": "https://coga.dev/schemas/v0.2/common.schema.json#/$defs/contractRef"
           },
           "uniqueItems": true,
           "default": [],
@@ -80,7 +80,7 @@
           "title": "Acceptance scenarios",
           "type": "array",
           "items": {
-            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+            "$ref": "https://coga.dev/schemas/v0.2/common.schema.json#/$defs/exactRef"
           },
           "uniqueItems": true,
           "default": [],
@@ -98,7 +98,7 @@
               "title": "Operational runbooks",
               "type": "array",
               "items": {
-                "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+                "$ref": "https://coga.dev/schemas/v0.2/common.schema.json#/$defs/exactRef"
               },
               "uniqueItems": true,
               "default": [],

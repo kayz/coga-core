@@ -1,10 +1,10 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: broker.channel.suitability.boundary
   title: Suitability authority boundary
-  version: 0.1.0
-  lifecycle: published
+  version: 0.2.0
+  lifecycle: approved
   scope: instance
   visibility: public
   owners:
@@ -12,37 +12,41 @@ metadata:
   tags:
     - suitability
     - investor-protection
+  attestations: []
 spec:
   artifactType: rule
-  summary: >-
-    Content discovery and interface availability do not prove that a product or
-    service is suitable or available to a particular customer.
-  statement: >-
-    Before a suitability-sensitive or transaction-adjacent action, the client must
-    obtain the current decision and required disclosures from an authoritative
-    backend contract. It must not calculate, cache as authority, or override an
-    investor classification, product classification, matching result, or exception.
-  scope: >-
-    Applies to client journeys that move from general information toward a
-    personalized recommendation, service enrollment, or transaction-related action.
+  summary:
+    Content discovery and interface availability do not prove that a product or service is
+    suitable or available to a particular customer.
+  statement:
+    Before a suitability-sensitive or transaction-adjacent action, the client must obtain the
+    current decision and required disclosures from an authoritative backend contract. It must not
+    calculate, cache as authority, or override an investor classification, product classification,
+    matching result, or exception.
+  scope:
+    Applies to client journeys that move from general information toward a personalized
+    recommendation, service enrollment, or transaction-related action.
   provenance:
     - source: https://www.csrc.gov.cn/csrc/c101939/c1045348/content.shtml
       sourceType: standard
       note: 证券期货投资者适当性管理办法
   relations:
     - type: depends-on
-      target: broker.channel.content.provenance
+      target:
+        id: broker.channel.content.provenance
+        version: 0.2.0
     - type: applies-to
-      target: broker.channel.scenario.content.and.suitability
+      target:
+        id: broker.channel.scenario.content.and.suitability
+        version: 0.2.0
   validation:
     - type: schema
-      status: passed
-      validator: coga.validation.domain.artifact.schema
+      status: pending
     - type: scenario
-      status: passed
-      target: broker.channel.scenario.content.and.suitability
-      validator: coga.validation.scenario.reference
+      status: pending
+      target:
+        id: broker.channel.scenario.content.and.suitability
+        version: 0.2.0
     - type: review
-      status: passed
-      validator: coga.review.domain.compliance
+      status: pending
   contractRefs: []

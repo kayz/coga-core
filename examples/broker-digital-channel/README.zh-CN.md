@@ -1,4 +1,4 @@
-# 券商数字客户渠道 — COGA Instance 0.1
+# 券商数字客户渠道 — COGA Instance 0.2
 
 这是一个可以公开发布的、经过脱敏的 `CogaInstance` 示例。它证明同一个领域实例可以通过不同的 Harness 组合，约束和维护多个 Application：
 
@@ -26,11 +26,11 @@
 
 | Package                               | Layer        | 作用                                                   |
 | ------------------------------------- | ------------ | ------------------------------------------------------ |
-| `broker.digital.channel.domain@0.1.0` | domain       | 客户渠道概念、权益与适当性边界、内容来源和个人信息规则 |
-| `wechat.miniprogram.platform@0.1.0`   | platform     | 微信登录交换、隐私授权、分包和交付证据                 |
-| `frontend.client.engineering@0.1.0`   | engineering  | 契约优先、显式 UI 状态、无障碍和验证证据               |
-| `example.broker.organization@0.1.0`   | organization | 完全虚构、可替换的审批、密钥隔离和公开发布策略         |
-| `client.application.operations@0.1.0` | operations   | 脱敏遥测、故障分诊和发布回退 Runbook                   |
+| `broker.digital.channel.domain@0.2.0` | domain       | 客户渠道概念、权益与适当性边界、内容来源和个人信息规则 |
+| `wechat.miniprogram.platform@0.2.0`   | platform     | 微信登录交换、隐私授权、分包和交付证据                 |
+| `frontend.client.engineering@0.2.0`   | engineering  | 契约优先、显式 UI 状态、无障碍和验证证据               |
+| `example.broker.organization@0.2.0`   | organization | 完全虚构、可替换的审批、密钥隔离和公开发布策略         |
+| `client.application.operations@0.2.0` | operations   | 脱敏遥测、故障分诊和发布回退 Runbook                   |
 
 小程序锁定全部五个 Package；H5 不依赖微信 Package。这种差异说明 Instance 不是某一种技术模板，而是可以按 Application 交付目标组合的领域工厂。
 
@@ -54,7 +54,7 @@ Application 的一次经验不会自动成为领域知识。只有在去除产�
 
 ## Agent 辅助流程
 
-以下是目标治理流程，不是 Core 0.1 单个命令的能力清单。Core 当前自动执行 Schema、选定引用/发布检查和直接消费者查询；来源权威性、场景执行、传递影响与审批分别需要受信外部证据和人类决定。
+以下治理流程由 Core 0.2 的结构、契约、资源图、证据记录与影响路径检查支撑；来源权威性、Scenario/测试实际执行和审批决定仍分别需要受信外部证据与人类负责人。
 
 1. Curator 从允许的来源或 Application 观察中提出 candidate；
 2. Validator 检查 Schema、ID、SemVer、引用闭包、来源和场景；
@@ -73,4 +73,4 @@ Agent 可以起草、检查和解释，但不能创造缺失的法律或业务�
 4. [`docs/knowledge-governance.md`](docs/knowledge-governance.md)
 5. [`docs/representation-and-form-readiness.md`](docs/representation-and-form-readiness.md)
 
-`0.1.0` 是演示资源合同，不是任何机构可直接采用的生产合规基线。公开法规、标准和平台文档只提供来源追踪；真实适用性仍需负责该组织的专业人员判断。
+`0.2.0` 是演示资源合同，不是任何机构可直接采用的生产合规基线。公开法规、标准和平台文档只提供来源追踪；真实适用性仍需负责该组织的专业人员判断。

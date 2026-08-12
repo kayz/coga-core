@@ -1,10 +1,10 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: broker.channel.identity.context
   title: Channel identity context
-  version: 0.1.0
-  lifecycle: published
+  version: 0.2.0
+  lifecycle: approved
   scope: instance
   visibility: public
   owners:
@@ -12,32 +12,35 @@ metadata:
   tags:
     - identity
     - trust-boundary
+  attestations: []
 spec:
   artifactType: concept
-  summary: >-
-    A channel identity context keeps platform identity, authenticated customer
-    identity, account links, and authorization evidence distinct.
-  statement: >-
-    A platform identifier proves only the platform session represented by its
-    issuer. A client channel may act for a broker customer only after a trusted
-    backend supplies an authenticated customer context and current authorization
-    evidence. Account links are references, not client-owned identity proof.
-  scope: >-
-    Applies whenever a public client channel maps a delivery-platform session to a
-    broker customer or account-related experience.
+  summary:
+    A channel identity context keeps platform identity, authenticated customer identity,
+    account links, and authorization evidence distinct.
+  statement:
+    A platform identifier proves only the platform session represented by its issuer. A
+    client channel may act for a broker customer only after a trusted backend supplies an
+    authenticated customer context and current authorization evidence. Account links are references,
+    not client-owned identity proof.
+  scope:
+    Applies whenever a public client channel maps a delivery-platform session to a broker
+    customer or account-related experience.
   provenance:
     - source: https://pages.nist.gov/800-63-4/
       sourceType: standard
       note: NIST SP 800-63 Digital Identity Guidelines
   relations:
     - type: depends-on
-      target: broker.channel.personal.data.minimization
+      target:
+        id: broker.channel.personal.data.minimization
+        version: 0.2.0
   validation:
     - type: schema
-      status: passed
-      validator: coga.validation.domain.artifact.schema
+      status: pending
     - type: scenario
-      status: passed
-      target: broker.channel.scenario.identity.and.entitlement
-      validator: coga.validation.scenario.reference
+      status: pending
+      target:
+        id: broker.channel.scenario.identity.and.entitlement
+        version: 0.2.0
   contractRefs: []

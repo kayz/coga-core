@@ -7,11 +7,11 @@ agent-operated software factory. It helps a team **calibrate a bounded domain**
 once, package its durable knowledge as a Domain Harness, and use that harness to
 build and evolve multiple applications.
 
-The 0.1 release is deliberately small. It proves that human-readable, versioned
-files can carry domain rules, platform constraints, engineering practices,
-organization policy, and operating knowledge; that Core can validate and catalog
-their 0.1 structure; and that an artifact can be traced to applications that
-directly lock its owning Harness package.
+The 0.2 candidate closes the model's semantic graph. Human-readable, versioned files
+carry domain rules, platform constraints, engineering practices, organization
+policy, and operating knowledge; Core validates their contracts and graph closure;
+and an exact artifact version can be traced through package and artifact edges to
+direct, transitive, and older-pin application consumers.
 
 ## The boundary
 
@@ -33,15 +33,17 @@ Read [the vision](VISION.md) for the full intent and
 [the knowledge model](docs/knowledge-model.md) for the representation and
 governance decisions.
 
-## Included in 0.1
+## Included in 0.2
 
 - [`@coga/core`](packages/core/README.md), a TypeScript library and `coga` CLI;
 - JSON Schema 2020-12 contracts for four resource kinds;
-- schema validation and selected cross-resource checks for identities, exact
-  dependencies, references, publication minimums, declared visibility edges, and
-  likely literal secrets;
-- Markdown/JSON catalogs and direct reverse-impact analysis from an artifact to
-  applications that exactly lock its owning Harness package;
+- bounded canonical loading, JSON Schema validation, exact resource-graph closure,
+  contract identity/content validation, lifecycle and governance-record checks,
+  transitive visibility checks, and cycle-safe literal-secret detection;
+- `local`, `public`, and `release` validation profiles, with strict public-root and
+  release-evidence requirements;
+- Markdown/JSON catalogs and versioned reverse-impact paths from an artifact to
+  direct, transitive, and older-pin application consumers;
 - a sanitized
   [Broker Digital Customer Channel example](examples/broker-digital-channel/README.md)
   with five Harness layers and two fictitious consuming applications;
@@ -66,23 +68,24 @@ npm run impact:example
 After the build, the CLI can inspect another Instance:
 
 ```console
-node packages/core/dist/cli.js validate path/to/instance.yaml
-node packages/core/dist/cli.js catalog path/to/instance.yaml --format markdown
-node packages/core/dist/cli.js impact path/to/instance.yaml artifact.id
+node packages/core/dist/cli.js validate path/to/instance.yaml --profile release
+node packages/core/dist/cli.js catalog path/to/instance.yaml --format markdown --profile public
+node packages/core/dist/cli.js impact path/to/instance.yaml artifact.id@0.2.0 --profile public
 ```
 
 Every canonical resource uses this envelope:
 
 ```yaml
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: example.domain.rule
   title: Example rule
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: candidate
   scope: instance
   visibility: public
+  attestations: []
 spec:
   artifactType: rule
   summary: A short human-readable explanation.
@@ -122,8 +125,9 @@ release allowlist and ignored by Git. See [CONTRIBUTING.md](CONTRIBUTING.md) and
 
 ## Status
 
-`0.1.0` is an initial-development contract. Exact Harness versions are required;
-backward compatibility is not promised before 1.0. The project is licensed under
-Apache License 2.0. Core 0.1 does not load and validate referenced contract files,
-execute scenarios or approvals, or calculate transitive impact. See the
-[design audit](设计方案及差异.md) for the exact boundary and staged plan.
+`0.2.0` is an initial-development contract and intentionally rejects the v0.1
+envelope. Exact Harness, artifact, policy, and contract versions are required;
+backward compatibility is not promised before 1.0. Core verifies declarations and
+recorded evidence but does not execute scenarios, tests, reviews, or arbitrary
+commands. The project is licensed under Apache License 2.0. See the
+[design audit](设计方案及差异.md) for the remaining Application and release risks.

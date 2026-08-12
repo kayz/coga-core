@@ -1,31 +1,34 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: Application
 metadata:
   id: example.application.demo
   title: Example channel application
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: candidate
   scope: application
   visibility: public
+  attestations: []
 spec:
   deliveryTargets:
     - wechat-miniapp
   harnessDependencies:
     - id: example.broker-channel.domain
-      version: 0.1.0
+      version: 0.2.0
     - id: example.broker-channel.operations
-      version: 0.1.0
+      version: 0.2.0
   contracts:
     - id: contract.customer.profile-api
-      version: 0.1.0
-      path: contracts/customer-profile.openapi.yaml
+      version: 0.2.0
+      path: ../contracts/customer-profile.openapi.yaml
+      format: openapi-3.1
+      digest: sha256:54a8f0ed968adcf757470bea1d6ede378b763e09423a0f1f1c175043e6375073
   scenarios:
     - id: scenario.customer.access-allowed
-      version: 0.1.0
+      version: 0.2.0
   operations:
     runbooks:
       - id: runbook.channel.api-degradation
-        version: 0.1.0
+        version: 0.2.0
     settings:
       errorReporting: enabled
   choices:

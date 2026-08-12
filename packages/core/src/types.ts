@@ -1,4 +1,4 @@
-export const SCHEMA_VERSION = "coga.dev/v0.1" as const;
+export const SCHEMA_VERSION = "coga.dev/v0.2" as const;
 
 export const RESOURCE_KINDS = [
   "DomainArtifact",
@@ -32,23 +32,16 @@ export const ARTIFACT_TYPES = [
   "runbook",
 ] as const;
 
+export const VALIDATION_PROFILES = ["local", "public", "release"] as const;
+
 export type ResourceKind = (typeof RESOURCE_KINDS)[number];
 export type Lifecycle = (typeof LIFECYCLES)[number];
 export type HarnessLayer = (typeof HARNESS_LAYERS)[number];
 export type ArtifactType = (typeof ARTIFACT_TYPES)[number];
+export type ValidationProfile = (typeof VALIDATION_PROFILES)[number];
 export type OwnershipScope = "core" | "instance" | "application";
 export type Visibility = "public" | "internal" | "restricted";
-
-export interface ResourceMetadata {
-  id: string;
-  title: string;
-  version: string;
-  lifecycle: Lifecycle;
-  owners?: string[];
-  tags?: string[];
-  scope?: OwnershipScope;
-  visibility?: Visibility;
-}
+export type ContractFormat = "json-schema-2020-12" | "openapi-3.1";
 
 export interface ExactReference {
   id: string;
@@ -57,6 +50,26 @@ export interface ExactReference {
 
 export interface LocatedReference extends ExactReference {
   path: string;
+}
+
+export interface ApprovalAttestation {
+  type: "approval";
+  policy: ExactReference;
+  approver: string;
+  approvedAt: string;
+  evidence: string[];
+}
+
+export interface ResourceMetadata {
+  id: string;
+  title: string;
+  version: string;
+  lifecycle: Lifecycle;
+  scope: OwnershipScope;
+  visibility: Visibility;
+  attestations: ApprovalAttestation[];
+  owners?: string[];
+  tags?: string[];
 }
 
 export interface BaseResource<K extends ResourceKind> {
@@ -82,15 +95,14 @@ export interface ArtifactRelation {
     | "implements"
     | "verifies"
     | "applies-to";
-  target: string;
-  version?: string;
+  target: ExactReference;
   note?: string;
 }
 
 export interface ValidationRecord {
   type: "scenario" | "schema" | "test" | "review";
   status: "pending" | "passed" | "failed";
-  target?: string;
+  target?: ExactReference;
   checkedAt?: string;
   validator?: string;
   evidence?: string[];
@@ -98,8 +110,10 @@ export interface ValidationRecord {
 
 export interface ContractReference {
   id: string;
+  version: string;
   path: string;
-  version?: string;
+  format: ContractFormat;
+  digest?: string;
 }
 
 export interface DomainArtifact extends BaseResource<"DomainArtifact"> {
@@ -124,6 +138,16 @@ export interface HarnessPackage extends BaseResource<"HarnessPackage"> {
   };
 }
 
+export interface ApprovalRule {
+  lifecycle: Lifecycle;
+  policies: ExactReference[];
+}
+
+export interface ReleaseEvidenceRule {
+  lifecycle: Lifecycle;
+  evidence: string[];
+}
+
 export interface CogaInstance extends BaseResource<"CogaInstance"> {
   spec: {
     domain: {
@@ -134,8 +158,8 @@ export interface CogaInstance extends BaseResource<"CogaInstance"> {
     packages: LocatedReference[];
     applications: LocatedReference[];
     governance: {
-      approvalRequiredFor?: Lifecycle[];
-      policyRefs?: string[];
+      approvalRules: ApprovalRule[];
+      releaseEvidence?: ReleaseEvidenceRule[];
       extensions?: Record<string, unknown>;
     };
   };
@@ -162,6 +186,26 @@ export type CanonicalResource =
   | CogaInstance
   | Application;
 
+export interface ResourceLimits {
+  canonicalFileBytes: number;
+  contractFileBytes: number;
+  maxDepth: number;
+  maxNodes: number;
+  maxAliases: number;
+}
+
+export interface CogaOptions {
+  profile?: ValidationProfile;
+  rootDir?: string;
+  limits?: Partial<ResourceLimits>;
+}
+
+export interface LoadContext {
+  profile: ValidationProfile;
+  rootDir: string;
+  limits: ResourceLimits;
+}
+
 export type ValidationIssueSeverity = "error" | "warning";
 
 export interface ValidationIssue {
@@ -184,6 +228,7 @@ export interface LoadedArtifact extends LoadedResource {
 
 export interface LoadedCogaInstance {
   manifestPath: string;
+  context: LoadContext;
   instance: LoadedResource;
   packages: LoadedResource[];
   artifacts: LoadedArtifact[];
@@ -204,7 +249,7 @@ export interface CatalogArtifact {
   lifecycle: Lifecycle;
   artifactType: ArtifactType;
   summary: string;
-  visibility?: Visibility;
+  visibility: Visibility;
 }
 
 export interface CatalogPackage {
@@ -216,7 +261,7 @@ export interface CatalogPackage {
   description: string;
   dependencies: ExactReference[];
   artifacts: CatalogArtifact[];
-  visibility?: Visibility;
+  visibility: Visibility;
 }
 
 export interface CatalogApplication {
@@ -226,7 +271,7 @@ export interface CatalogApplication {
   lifecycle: Lifecycle;
   deliveryTargets: string[];
   harnessDependencies: ExactReference[];
-  visibility?: Visibility;
+  visibility: Visibility;
 }
 
 export interface CogaCatalog {
@@ -239,10 +284,19 @@ export interface CogaCatalog {
     domainName: string;
     boundary: string;
     nonGoals: string[];
-    visibility?: Visibility;
+    visibility: Visibility;
   };
   packages: CatalogPackage[];
   applications: CatalogApplication[];
+}
+
+export interface ImpactPathNode extends ExactReference {
+  kind: "artifact" | "package" | "application";
+}
+
+export interface ImpactReason {
+  type: "direct" | "transitive" | "older-pin";
+  path: ImpactPathNode[];
 }
 
 export interface ImpactApplication {
@@ -250,11 +304,13 @@ export interface ImpactApplication {
   title: string;
   version: string;
   path: string;
-  matchedDependencies: ExactReference[];
+  reasons: ImpactReason[];
+  rerunScenarios: ExactReference[];
+  rerunRunbooks: ExactReference[];
 }
 
 export interface ImpactResult {
-  artifactId: string;
+  artifact: ExactReference;
   found: boolean;
   packages: Array<ExactReference & { layer: HarnessLayer; path: string }>;
   affectedApplications: ImpactApplication[];

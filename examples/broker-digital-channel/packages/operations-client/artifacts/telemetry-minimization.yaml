@@ -1,10 +1,10 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: client.operations.telemetry.minimization
   title: Privacy-preserving client telemetry
-  version: 0.1.0
-  lifecycle: published
+  version: 0.2.0
+  lifecycle: approved
   scope: instance
   visibility: public
   owners:
@@ -12,21 +12,20 @@ metadata:
   tags:
     - telemetry
     - privacy
+  attestations: []
 spec:
   artifactType: policy
-  summary: >-
-    Client telemetry uses stable event meaning and diagnostic correlation while
-    excluding secrets, raw personal data, financial-account identifiers, and
-    private content.
-  statement: >-
+  summary:
+    Client telemetry uses stable event meaning and diagnostic correlation while excluding
+    secrets, raw personal data, financial-account identifiers, and private content.
+  statement:
     Each event has an owner, purpose, schema version, retention class, and data
-    classification. Correlation uses a short-lived opaque value generated for
-    diagnostics. Payload allowlists exclude credentials, session material, raw
-    identifiers, free-form private content, and full backend responses. Redaction is
-    tested before an application enables an event.
-  scope: >-
-    Applies to analytics, logs, crash reports, traces, screenshots, and evidence
-    emitted by client applications or their test and delivery adapters.
+    classification. Correlation uses a short-lived opaque value generated for diagnostics. Payload
+    allowlists exclude credentials, session material, raw identifiers, free-form private content,
+    and full backend responses. Redaction is tested before an application enables an event.
+  scope:
+    Applies to analytics, logs, crash reports, traces, screenshots, and evidence emitted by
+    client applications or their test and delivery adapters.
   provenance:
     - source: https://www.npc.gov.cn/npc/c2/c30834/202108/t20210820_313088.html
       sourceType: standard
@@ -36,18 +35,21 @@ spec:
       note: Google SRE Workbook — Monitoring
   relations:
     - type: refines
-      target: broker.channel.personal.data.minimization
+      target:
+        id: broker.channel.personal.data.minimization
+        version: 0.2.0
     - type: applies-to
-      target: client.operations.scenario.incident
+      target:
+        id: client.operations.scenario.incident
+        version: 0.2.0
   validation:
     - type: schema
-      status: passed
-      validator: coga.validation.domain.artifact.schema
+      status: pending
     - type: scenario
-      status: passed
-      target: client.operations.scenario.incident
-      validator: coga.validation.scenario.reference
+      status: pending
+      target:
+        id: client.operations.scenario.incident
+        version: 0.2.0
     - type: review
-      status: passed
-      validator: coga.review.operations.privacy
+      status: pending
   contractRefs: []

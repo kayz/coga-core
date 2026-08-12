@@ -1,31 +1,9 @@
-import { execFileSync } from "node:child_process";
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { extname, join, relative } from "node:path";
-
-const root = process.cwd();
-const ignoredRoots = new Set([
-  ".git",
-  "node_modules",
-  "dist",
-  "coverage",
-  "private",
-  ".local",
-]);
-const textExtensions = new Set([
-  ".cjs",
-  ".css",
-  ".html",
-  ".js",
-  ".json",
-  ".md",
-  ".mjs",
-  ".ts",
-  ".txt",
-  ".wxml",
-  ".wxss",
-  ".yaml",
-  ".yml",
-]);
+import {
+  enumerateTrackedFiles,
+  formatPublicIssue,
+  inspectPublicCandidate,
+  loadPublicReleaseManifest,
+} from "./lib/public-candidate.mjs";
 
 const forbidden = [
   { label: "private product name", pattern: /\u4fe1\u8c1b\u542c/iu },
@@ -45,36 +23,33 @@ const forbidden = [
   },
 ];
 
-function walk(directory) {
-  const files = [];
-  for (const entry of readdirSync(directory)) {
-    if (ignoredRoots.has(entry)) continue;
-    const absolute = join(directory, entry);
-    const info = statSync(absolute);
-    if (info.isDirectory()) files.push(...walk(absolute));
-    else if (textExtensions.has(extname(entry).toLowerCase()))
-      files.push(absolute);
-  }
-  return files;
+const root = process.cwd();
+let candidate;
+try {
+  const manifest = loadPublicReleaseManifest(root);
+  candidate = inspectPublicCandidate({ manifest, root });
+} catch (error) {
+  console.error(`public.invalid-manifest: ${error.message}`);
+  process.exit(1);
 }
 
-const violations = [];
-for (const file of walk(root)) {
-  const content = readFileSync(file, "utf8");
+const violations = candidate.issues.map(formatPublicIssue);
+let scannedTextFiles = 0;
+for (const file of candidate.files) {
+  if (file.kind !== "text" || file.content === undefined) continue;
+  scannedTextFiles += 1;
   for (const rule of forbidden) {
-    if (rule.pattern.test(content)) {
-      violations.push(`${relative(root, file)}: ${rule.label}`);
+    if (rule.pattern.test(file.content)) {
+      violations.push(`${file.path}: ${rule.label}`);
     }
   }
 }
 
 let tracked = [];
 try {
-  tracked = execFileSync("git", ["ls-files"], { cwd: root, encoding: "utf8" })
-    .split(/\r?\n/u)
-    .filter(Boolean);
+  tracked = enumerateTrackedFiles(root);
 } catch {
-  // A pre-commit workspace may have no tracked files yet; content scanning still runs.
+  // A pre-commit workspace may have no tracked files yet; candidate scanning still runs.
 }
 
 for (const file of tracked) {
@@ -92,5 +67,5 @@ if (violations.length > 0) {
 }
 
 console.log(
-  `Privacy check passed (${walk(root).length} public text files scanned).`,
+  `Privacy check passed (${scannedTextFiles} public text files scanned).`,
 );

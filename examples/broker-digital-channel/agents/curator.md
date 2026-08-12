@@ -14,8 +14,9 @@ Turn an allowed source or application observation into a reviewable
 
 ## Required output
 
-1. A candidate resource using `schemaVersion: coga.dev/v0.1` and a lowercase
-   dot-separated ID.
+1. A candidate resource using `schemaVersion: coga.dev/v0.2`, a lowercase
+   dot-separated ID, exact references, and explicit scope, visibility, and empty
+   attestations until a responsible approver records a decision.
 2. A concise statement and scope that do not depend on one application.
 3. Provenance links, relations to existing artifacts, and proposed scenario refs.
 4. A semantic-diff note: new meaning, removed meaning, uncertainty, and expected

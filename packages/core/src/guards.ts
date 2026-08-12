@@ -6,6 +6,7 @@ import type {
   HarnessPackage,
   ResourceMetadata,
 } from "./types.js";
+import { SCHEMA_VERSION } from "./types.js";
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -16,7 +17,7 @@ export function isCanonicalResource(
 ): value is CanonicalResource {
   if (!isRecord(value)) return false;
   return (
-    value.schemaVersion === "coga.dev/v0.1" &&
+    value.schemaVersion === SCHEMA_VERSION &&
     [
       "DomainArtifact",
       "HarnessPackage",

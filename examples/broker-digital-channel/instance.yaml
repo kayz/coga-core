@@ -1,9 +1,9 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: CogaInstance
 metadata:
   id: instance.broker.digital.customer.channel
   title: Broker Digital Customer Channel Example
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: candidate
   scope: instance
   visibility: public
@@ -12,13 +12,14 @@ metadata:
   tags:
     - public-example
     - broker-channel
+  attestations: []
 spec:
   domain:
     name: Broker digital customer channels
-    boundary: >-
-      Client-facing digital channels that present broker-supplied information and
-      capabilities while delegating identity, entitlement, suitability, account,
-      transaction, and recordkeeping authority to trusted backend systems.
+    boundary:
+      Client-facing digital channels that present broker-supplied information and capabilities
+      while delegating identity, entitlement, suitability, account, transaction, and recordkeeping
+      authority to trusted backend systems.
     nonGoals:
       - Brokerage transaction processing, order routing, clearing, custody, or ledger systems.
       - Investment research computation, pricing models, portfolio engines, or FICANT capabilities.
@@ -27,36 +28,43 @@ spec:
       - A replacement for authoritative backend identity, suitability, or permission decisions.
   packages:
     - id: broker.digital.channel.domain
-      version: 0.1.0
+      version: 0.2.0
       path: packages/domain/package.yaml
     - id: wechat.miniprogram.platform
-      version: 0.1.0
+      version: 0.2.0
       path: packages/platform-wechat-mini-program/package.yaml
     - id: frontend.client.engineering
-      version: 0.1.0
+      version: 0.2.0
       path: packages/engineering-frontend/package.yaml
     - id: example.broker.organization
-      version: 0.1.0
+      version: 0.2.0
       path: packages/organization-example/package.yaml
     - id: client.application.operations
-      version: 0.1.0
+      version: 0.2.0
       path: packages/operations-client/package.yaml
   applications:
     - id: application.aster.mini.program
-      version: 0.1.0
+      version: 0.2.0
       path: applications/aster-mini-program/application.yaml
     - id: application.cedar.insight.h5
-      version: 0.1.0
+      version: 0.2.0
       path: applications/cedar-insight-h5/application.yaml
   governance:
-    approvalRequiredFor:
-      - published
-    policyRefs:
-      - example.organization.change.approval
-      - example.organization.secret.isolation
-      - example.organization.publication.allowlist
     extensions:
       sourceOfTruth: versioned-files
       publishRule: human-review-and-evidence-required
       candidateForm: ui/artifact-candidate.form.schema.json
       reviewPolicy: docs/knowledge-governance.md
+    approvalRules:
+      - lifecycle: published
+        policies:
+          - id: example.organization.change.approval
+            version: 0.2.0
+          - id: example.organization.secret.isolation
+            version: 0.2.0
+          - id: example.organization.publication.allowlist
+            version: 0.2.0
+    releaseEvidence:
+      - lifecycle: published
+        evidence:
+          - ../../本次项目调整.md#4-验证记录

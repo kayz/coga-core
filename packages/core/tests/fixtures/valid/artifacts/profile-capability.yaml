@@ -1,12 +1,13 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: capability.customer.profile
   title: Read customer profile
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: candidate
   scope: instance
   visibility: public
+  attestations: []
 spec:
   artifactType: capability
   summary: Reads the authenticated customer's profile through an explicit service contract.
@@ -14,10 +15,13 @@ spec:
   provenance: []
   relations:
     - type: depends-on
-      target: domain.customer.identity
-      version: 0.1.0
+      target:
+        id: domain.customer.identity
+        version: 0.2.0
   validation: []
   contractRefs:
     - id: contract.customer.profile-api
-      version: 0.1.0
+      version: 0.2.0
       path: ../contracts/customer-profile.openapi.yaml
+      format: openapi-3.1
+      digest: sha256:54a8f0ed968adcf757470bea1d6ede378b763e09423a0f1f1c175043e6375073

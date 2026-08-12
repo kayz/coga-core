@@ -1,6 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:coga:contract:frontend-candidate-evidence:0.1.0",
+  "$id": "urn:coga:contract:frontend-candidate-evidence:0.2.0",
+  "x-coga-contract": {
+    "id": "contract.frontend.candidate.evidence",
+    "version": "0.2.0"
+  },
   "title": "Frontend candidate evidence",
   "type": "object",
   "additionalProperties": false,

@@ -4,7 +4,7 @@
 
 COGA Core 是一个开源、与领域无关的契约层，用来支撑“人类治理、Agent 执行”的软件工厂。它希望团队能够先**标定一个有界领域**，把可持续积累的知识打包为 Domain Harness，再用它持续生产和演进多个 Application。
 
-0.1 版本刻意保持小而完整：它证明人类可读、受版本控制的文件可以承载领域规则、平台约束、工程实践、组织策略和运维知识；Core 可以校验、编目它们的 0.1 结构；一项资产也可以追踪到直接锁定其所属 Harness Package 的 Application。
+0.2 候选补齐了模型的语义图闭包：人类可读、受版本控制的文件继续承载领域规则、平台约束、工程实践、组织策略和运维知识；Core 会校验契约与资源图闭包；一个精确版本的 Artifact 可以沿 Package 与 Artifact 边追踪到直接、传递和旧锁 Application 消费者。
 
 ## 三层边界
 
@@ -21,12 +21,13 @@ COGA Core                         COGA Instance                       Applicatio
 
 完整企图见[愿景文件](VISION.zh-CN.md)，知识表示与治理选择见[知识模型](docs/knowledge-model.md)。
 
-## 0.1 包含什么
+## 0.2 包含什么
 
 - [`@coga/core`](packages/core/README.md)：TypeScript 库与 `coga` CLI；
 - 四类资源的 JSON Schema 2020-12 契约；
-- Schema 校验，以及身份、精确依赖、引用、发布最低条件、已声明可见性边和疑似明文秘密等选定的跨资源检查；
-- Markdown/JSON 目录，以及从资产到精确锁定其所属 Harness Package 的 Application 的直接反向影响分析；
+- 有预算的规范资源装载、Schema 校验、精确资源图闭包、契约身份与内容校验、生命周期与治理记录检查、传递可见性检查和循环安全的明文秘密扫描；
+- `local`、`public` 与 `release` 三档 Profile，以及严格的公开根目录和发布证据要求；
+- Markdown/JSON 目录，以及从精确 Artifact 版本到直接、传递和旧锁 Application 消费者的可重现路径；
 - 一个脱敏的[券商数字客户渠道示例](examples/broker-digital-channel/README.md)，包含五层 Harness 和两个虚构消费应用；
 - 面向未来表单的 Schema 提示与窄职责 Agent 操作手册；
 - 显式公开白名单、隐私和边界检查。
@@ -47,23 +48,24 @@ npm run impact:example
 构建后可以用 CLI 检查其他 Instance：
 
 ```console
-node packages/core/dist/cli.js validate path/to/instance.yaml
-node packages/core/dist/cli.js catalog path/to/instance.yaml --format markdown
-node packages/core/dist/cli.js impact path/to/instance.yaml artifact.id
+node packages/core/dist/cli.js validate path/to/instance.yaml --profile release
+node packages/core/dist/cli.js catalog path/to/instance.yaml --format markdown --profile public
+node packages/core/dist/cli.js impact path/to/instance.yaml artifact.id@0.2.0 --profile public
 ```
 
 每个规范资源都使用统一外壳：
 
 ```yaml
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: example.domain.rule
   title: 示例规则
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: candidate
   scope: instance
   visibility: public
+  attestations: []
 spec:
   artifactType: rule
   summary: 给人阅读的简要说明。
@@ -95,4 +97,4 @@ scripts/                             隐私与公开边界门禁
 
 ## 状态
 
-`0.1.0` 属于初始开发契约。Harness 依赖必须精确锁定；1.0 之前不承诺向后兼容。项目采用 Apache License 2.0。Core 0.1 不会装载并校验被引用的契约文件，不会执行 Scenario 或审批，也不会计算传递影响；准确边界与分期方案见[设计审计](设计方案及差异.md)。
+`0.2.0` 仍属于初始开发契约，并明确拒绝 v0.1 envelope。Harness、Artifact、Policy 与 Contract 都必须精确锁定版本；1.0 之前不承诺向后兼容。Core 校验声明和已记录证据，但不会执行 Scenario、测试、评审或任意命令。项目采用 Apache License 2.0；剩余 Application 与发布风险见[设计审计](设计方案及差异.md)。

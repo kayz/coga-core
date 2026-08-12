@@ -1,9 +1,9 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: Application
 metadata:
   id: application.aster.mini.program
   title: Aster Learning Mini Program
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: candidate
   scope: application
   visibility: public
@@ -12,60 +12,67 @@ metadata:
   tags:
     - fictitious
     - mini-program
+  attestations: []
 spec:
   deliveryTargets:
     - wechat-miniapp
   harnessDependencies:
     - id: broker.digital.channel.domain
-      version: 0.1.0
+      version: 0.2.0
     - id: wechat.miniprogram.platform
-      version: 0.1.0
+      version: 0.2.0
     - id: frontend.client.engineering
-      version: 0.1.0
+      version: 0.2.0
     - id: example.broker.organization
-      version: 0.1.0
+      version: 0.2.0
     - id: client.application.operations
-      version: 0.1.0
+      version: 0.2.0
   contracts:
     - id: contract.example.customer.context
-      version: 0.1.0
+      version: 0.2.0
       path: ../../contracts/customer-context.schema.json
+      format: json-schema-2020-12
+      digest: sha256:9215c572df54ef840bbb1cc548306378ada587336e662182219b920b900e6e1d
     - id: contract.example.content.feed
-      version: 0.1.0
+      version: 0.2.0
       path: ../../contracts/content-item.schema.json
+      format: json-schema-2020-12
+      digest: sha256:354d0f8d06964ec61683a9239619f3a5a1e9d8fa5de32686cabe010b086ec23a
     - id: contract.example.feedback.command
-      version: 0.1.0
+      version: 0.2.0
       path: ../../contracts/feedback-command.schema.json
+      format: json-schema-2020-12
+      digest: sha256:ab77fb1d3d6fa04ba8dacfa2555a7571edddcc727346ec083d88a1f5974485af
   scenarios:
     - id: broker.channel.scenario.identity.and.entitlement
-      version: 0.1.0
+      version: 0.2.0
     - id: broker.channel.scenario.content.and.suitability
-      version: 0.1.0
+      version: 0.2.0
     - id: wechat.miniprogram.scenario.session.and.privacy
-      version: 0.1.0
+      version: 0.2.0
     - id: wechat.miniprogram.scenario.delivery
-      version: 0.1.0
+      version: 0.2.0
     - id: frontend.client.scenario.contract.and.state
-      version: 0.1.0
+      version: 0.2.0
     - id: client.operations.scenario.release
-      version: 0.1.0
+      version: 0.2.0
   operations:
     runbooks:
       - id: client.operations.incident.triage
-        version: 0.1.0
+        version: 0.2.0
       - id: client.operations.release.rollback
-        version: 0.1.0
+        version: 0.2.0
   choices:
     criticalJourneys:
       - application.aster.journey.open.briefing
       - application.aster.journey.submit.feedback
-    recoveryStrategy: >-
+    recoveryStrategy:
       Bind the target's approved version-management mechanism and preserve a
       last-known-good candidate before promotion.
-    productBoundary: >-
-      A fictitious educational briefing experience with optional customer-only
-      views; it does not place orders or calculate suitability.
+    productBoundary:
+      A fictitious educational briefing experience with optional customer-only views; it
+      does not place orders or calculate suitability.
     navigationModel: tabbed-mini-program-shell
     contentPresentation: source-time-and-disclosure-visible
-    authorizationPresentation: explain-locked-capabilities-without-inferring-access
+    entitlementPresentation: explain-locked-capabilities-without-inferring-access
     packageBudgets: declared-and-tested-in-application-repository

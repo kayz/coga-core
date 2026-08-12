@@ -1,4 +1,4 @@
-# Broker Digital Customer Channel — COGA Instance 0.1
+# Broker Digital Customer Channel — COGA Instance 0.2
 
 [中文说明](README.zh-CN.md)
 
@@ -38,7 +38,7 @@ systems as authoritative.
 
 ## Status and safety
 
-Version `0.1.0` is an example contract, not a production compliance baseline.
+Version `0.2.0` is an example contract, not a production compliance baseline.
 Official sources establish provenance; they do not turn this example into legal,
 security, or regulatory advice. A real instance must be reviewed against the
 organization's current obligations, systems, and risk controls.

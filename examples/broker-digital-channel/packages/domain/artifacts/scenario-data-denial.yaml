@@ -1,9 +1,9 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: broker.channel.scenario.data.denial
   title: Optional data denial scenario
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: approved
   scope: instance
   visibility: public
@@ -12,10 +12,10 @@ metadata:
   tags:
     - scenario
     - privacy
+  attestations: []
 spec:
   artifactType: scenario
-  summary: >-
-    An observable privacy example for denied optional data collection.
+  summary: An observable privacy example for denied optional data collection.
   statement: |-
     Scenario: optional collection is denied
       Given a capability requests personal data that is optional for the core journey
@@ -23,18 +23,17 @@ spec:
       Then the application explains the limited effect without coercion
       And no placeholder identifier or raw denial payload enters telemetry
       And the unaffected journey remains available
-  scope: >-
-    Reused by applications that request optional personal data or platform
-    permissions.
+  scope: Reused by applications that request optional personal data or platform permissions.
   provenance:
     - source: https://www.npc.gov.cn/npc/c2/c30834/202108/t20210820_313088.html
       sourceType: standard
       note: 中华人民共和国个人信息保护法
   relations:
     - type: verifies
-      target: broker.channel.personal.data.minimization
+      target:
+        id: broker.channel.personal.data.minimization
+        version: 0.2.0
   validation:
     - type: review
-      status: passed
-      validator: coga.review.domain.privacy
+      status: pending
   contractRefs: []

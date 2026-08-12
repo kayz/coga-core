@@ -1,26 +1,30 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: HarnessPackage
 metadata:
   id: example.broker-channel.domain
   title: Broker channel domain harness
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: candidate
   scope: instance
   visibility: public
+  attestations: []
 spec:
   layer: domain
   description: Shared concepts, rules, capabilities, and acceptance scenarios for broker customer channels.
   dependencies: []
   artifacts:
     - id: domain.customer.identity
-      version: 0.1.0
+      version: 0.2.0
       path: ../artifacts/customer-identity.yaml
     - id: domain.customer.access-rule
-      version: 0.1.0
+      version: 0.2.0
       path: ../artifacts/access-rule.yaml
     - id: scenario.customer.access-allowed
-      version: 0.1.0
+      version: 0.2.0
       path: ../artifacts/access-scenario.yaml
     - id: capability.customer.profile
-      version: 0.1.0
+      version: 0.2.0
       path: ../artifacts/profile-capability.yaml
+    - id: fixture.release.approval-policy
+      version: 0.2.0
+      path: ../artifacts/release-approval-policy.yaml

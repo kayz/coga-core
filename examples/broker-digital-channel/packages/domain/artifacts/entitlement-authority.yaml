@@ -1,10 +1,10 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: broker.channel.entitlement.authority
   title: Authoritative entitlement behavior
-  version: 0.1.0
-  lifecycle: published
+  version: 0.2.0
+  lifecycle: approved
   scope: instance
   visibility: public
   owners:
@@ -12,20 +12,20 @@ metadata:
   tags:
     - authorization
     - fail-closed
+  attestations: []
 spec:
   artifactType: rule
-  summary: >-
-    Client applications render protected capabilities only from current,
-    backend-issued authorization evidence.
-  statement: >-
-    The client must not infer or elevate an entitlement from platform identity,
-    cached presentation state, local configuration, or a visible control. When
-    authorization evidence is missing, expired, malformed, or contradictory, the
-    client denies the protected action or presents an explicitly safe degraded
-    state and requests fresh authority.
-  scope: >-
-    Applies to every protected capability exposed through a broker digital customer
-    channel; exact entitlement policy remains backend- and application-owned.
+  summary:
+    Client applications render protected capabilities only from current, backend-issued
+    authorization evidence.
+  statement:
+    The client must not infer or elevate an entitlement from platform identity, cached
+    presentation state, local configuration, or a visible control. When authorization evidence is
+    missing, expired, malformed, or contradictory, the client denies the protected action or
+    presents an explicitly safe degraded state and requests fresh authority.
+  scope:
+    Applies to every protected capability exposed through a broker digital customer channel;
+    exact entitlement policy remains backend- and application-owned.
   provenance:
     - source: https://owasp.org/www-project-application-security-verification-standard/
       sourceType: standard
@@ -35,15 +35,19 @@ spec:
       note: NIST SP 800-63 Digital Identity Guidelines
   relations:
     - type: depends-on
-      target: broker.channel.identity.context
+      target:
+        id: broker.channel.identity.context
+        version: 0.2.0
     - type: applies-to
-      target: broker.channel.scenario.identity.and.entitlement
+      target:
+        id: broker.channel.scenario.identity.and.entitlement
+        version: 0.2.0
   validation:
     - type: schema
-      status: passed
-      validator: coga.validation.domain.artifact.schema
+      status: pending
     - type: scenario
-      status: passed
-      target: broker.channel.scenario.identity.and.entitlement
-      validator: coga.validation.scenario.reference
+      status: pending
+      target:
+        id: broker.channel.scenario.identity.and.entitlement
+        version: 0.2.0
   contractRefs: []
