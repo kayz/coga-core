@@ -28,7 +28,8 @@ Versioning; `0.y.z` remains initial development.
   PR, and attests its exact content-addressed Evidence Bundle. Its token grants
   only the explicit read scopes needed for Actions, PR metadata/files and
   contents plus the attestation write scopes; ordinary PRs without a Bundle are
-  skipped with a diagnostic notice.
+  skipped with a diagnostic notice. Remote path checks operate on Unicode code
+  points instead of an ambiguous escaped regular-expression character class.
 - Add negative and recovery tests for proposal/input tampering, ignored and
   unbound source context, partial fan-out and failed-target retry, missing remote
   checks/approvals, undeclared or Patch-external PR files, raw binary evidence

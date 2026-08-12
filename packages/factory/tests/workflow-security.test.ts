@@ -52,6 +52,9 @@ describe("Factory remote evidence workflow", () => {
     expect(script).toContain("candidate=false");
     expect(script).toContain("has no Factory Evidence Bundle");
     expect(script).toContain("Unable to read triggering workflow run");
+    expect(script).toContain(".[].filename | explode[]");
+    expect(script).toContain(". >= 32 and . != 92 and . != 127");
+    expect(script).not.toContain("\\\\u0000");
     expect(script).not.toMatch(/\bnpm\b|\bnode\b|git checkout|git clone/iu);
   });
 });
