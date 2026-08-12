@@ -49,7 +49,12 @@ function releaseManifest(overrides = {}) {
           ".yaml",
           ".yml",
         ],
-        files: [".gitattributes", ".gitignore", "LICENSE"],
+        files: [
+          ".gitattributes",
+          ".gitignore",
+          "LICENSE",
+          "packages/core/LICENSE",
+        ],
       },
       binary: {
         maxFileBytes: 10 * MEBIBYTE,
@@ -262,6 +267,19 @@ test("NUL-safe enumeration preserves a Unicode filename", (t) => {
   assert.match(boundary.stdout, /2 candidate files/u);
   assert.equal(privacy.status, 0, privacy.stderr);
   assert.match(privacy.stdout, /2 public text files scanned/u);
+});
+
+test("boundary accepts the explicitly classified package license", (t) => {
+  const root = createRepository(t, {
+    ...releaseManifest(),
+    allow: ["public.release.json", "packages/core/"],
+  });
+  writeFile(root, "packages/core/LICENSE", "Apache License 2.0\n");
+
+  const result = run(BOUNDARY_SCRIPT, root);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /2 candidate files/u);
 });
 
 test("boundary rejects invalid UTF-8 text", (t) => {

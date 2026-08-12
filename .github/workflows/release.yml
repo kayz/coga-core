@@ -1,0 +1,232 @@
+name: version-release-candidate
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    outputs:
+      checksums-sha256: ${{ steps.handoff.outputs.checksums-sha256 }}
+    steps:
+      - name: Check out the exact tag without retained credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up exact Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.18.0
+          package-manager-cache: false
+
+      - name: Pin npm CLI
+        run: |
+          npm install --global npm@11.16.0
+          test "$(npm --version)" = "11.16.0"
+
+      - name: Fail closed unless the version source is exact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: |
+          test "$GITHUB_REF_TYPE" = "tag"
+          test "${{ github.event.repository.private }}" = "false"
+          git fetch --no-tags origin "+refs/heads/main:refs/remotes/origin/main"
+          test "$(git rev-parse HEAD)" = "$RELEASE_COMMIT"
+          test "$(git rev-parse origin/main)" = "$RELEASE_COMMIT"
+          node scripts/release/version-gate.mjs --tag "$RELEASE_TAG" --commit "$RELEASE_COMMIT"
+          TAG_OBJECT_SHA="$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}" \
+            --jq '.object.sha')"
+          test "$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}" \
+            --jq '.object.type')" = "tag"
+          test "$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/${GITHUB_REPOSITORY}/git/tags/${TAG_OBJECT_SHA}" \
+            --jq '.verification.verified')" = "true"
+          test "$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/${GITHUB_REPOSITORY}/git/tags/${TAG_OBJECT_SHA}" \
+            --jq '.verification.reason')" = "valid"
+          test "$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/${GITHUB_REPOSITORY}/git/tags/${TAG_OBJECT_SHA}" \
+            --jq '.object.sha')" = "$RELEASE_COMMIT"
+
+      - name: Install from the frozen lock
+        run: npm ci --ignore-scripts
+
+      - name: Run complete public candidate checks
+        run: npm run check:public
+
+      - name: Test release tooling
+        run: npm run release:test
+
+      - name: Prove byte reproducibility twice
+        run: npm run release:reproducible -- --tag "$GITHUB_REF_NAME"
+
+      - name: Generate and verify release payload
+        run: |
+          mkdir -p "$RUNNER_TEMP/coga-release-handoff/assets"
+          npm run release:generate -- --output "$RUNNER_TEMP/coga-release-handoff/assets" --tag "$GITHUB_REF_NAME"
+          npm run release:verify -- --directory "$RUNNER_TEMP/coga-release-handoff/assets" --tag "$GITHUB_REF_NAME"
+
+      - name: Bind the cross-job handoff to an independent checksum
+        id: handoff
+        run: |
+          cd "$RUNNER_TEMP/coga-release-handoff/assets"
+          test "$(find . -maxdepth 1 -type f | wc -l)" = "3"
+          sha256sum \
+            coga-core-0.2.0.cdx.json \
+            coga-core-0.2.0.release.json \
+            coga-core-0.2.0.tgz > ../SHA256SUMS
+          CHECKSUMS_SHA256="$(sha256sum ../SHA256SUMS | cut -d ' ' -f 1)"
+          test "$(printf '%s' "$CHECKSUMS_SHA256" | wc -c)" = "64"
+          printf 'checksums-sha256=%s\n' "$CHECKSUMS_SHA256" >> "$GITHUB_OUTPUT"
+
+      - name: Upload the verified handoff
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coga-release-${{ github.sha }}
+          path: ${{ runner.temp }}/coga-release-handoff
+          if-no-files-found: error
+          retention-days: 1
+
+  attest-draft:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    steps:
+      - name: Download the verified handoff without checking out repository code
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: coga-release-${{ github.sha }}
+          path: ${{ runner.temp }}/coga-release-handoff
+
+      - name: Verify cross-job checksum binding
+        env:
+          EXPECTED_CHECKSUMS_SHA256: ${{ needs.build.outputs.checksums-sha256 }}
+        run: |
+          test "$(sha256sum "$RUNNER_TEMP/coga-release-handoff/SHA256SUMS" | cut -d ' ' -f 1)" = "$EXPECTED_CHECKSUMS_SHA256"
+          cd "$RUNNER_TEMP/coga-release-handoff/assets"
+          test "$(find . -maxdepth 1 -type f | wc -l)" = "3"
+          test "$(wc -l < ../SHA256SUMS)" = "3"
+          sha256sum --check ../SHA256SUMS
+
+      - name: Revalidate source identity immediately before attestations
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: |
+          test "$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/${GITHUB_REPOSITORY}/commits/main" \
+            --jq '.sha')" = "$RELEASE_COMMIT"
+          TAG_OBJECT_SHA="$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}" \
+            --jq '.object.sha')"
+          test "$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}" \
+            --jq '.object.type')" = "tag"
+          test "$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/${GITHUB_REPOSITORY}/git/tags/${TAG_OBJECT_SHA}" \
+            --jq '.verification.verified')" = "true"
+          test "$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/${GITHUB_REPOSITORY}/git/tags/${TAG_OBJECT_SHA}" \
+            --jq '.verification.reason')" = "valid"
+          test "$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/${GITHUB_REPOSITORY}/git/tags/${TAG_OBJECT_SHA}" \
+            --jq '.object.sha')" = "$RELEASE_COMMIT"
+
+      - name: Sign package provenance and bind its SBOM
+        uses: actions/attest@c32b4b8b198b65d0bd9d63490e847ff7b53989d4 # v4.0.0
+        with:
+          subject-path: ${{ runner.temp }}/coga-release-handoff/assets/coga-core-0.2.0.tgz
+          sbom-path: ${{ runner.temp }}/coga-release-handoff/assets/coga-core-0.2.0.cdx.json
+
+      - name: Sign the complete release candidate provenance
+        uses: actions/attest@c32b4b8b198b65d0bd9d63490e847ff7b53989d4 # v4.0.0
+        with:
+          subject-path: |
+            ${{ runner.temp }}/coga-release-handoff/assets/*
+            ${{ runner.temp }}/coga-release-handoff/SHA256SUMS
+
+      - name: Revalidate main tip immediately before draft creation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: |
+          test "$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/${GITHUB_REPOSITORY}/commits/main" \
+            --jq '.sha')" = "$RELEASE_COMMIT"
+
+      - name: Create draft GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --verify-tag \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            --draft
+
+      - name: Upload checksums and assets to the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "$GITHUB_REF_NAME" "$RUNNER_TEMP/coga-release-handoff/SHA256SUMS"
+          gh release upload "$GITHUB_REF_NAME" \
+            "$RUNNER_TEMP/coga-release-handoff/assets/coga-core-0.2.0.cdx.json" \
+            "$RUNNER_TEMP/coga-release-handoff/assets/coga-core-0.2.0.release.json" \
+            "$RUNNER_TEMP/coga-release-handoff/assets/coga-core-0.2.0.tgz"
+
+      - name: Verify the release remains a draft for administrator review
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" \
+            --jq '.draft')" = "true"

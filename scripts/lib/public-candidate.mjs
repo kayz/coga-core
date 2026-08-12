@@ -37,7 +37,12 @@ const SUPPORTED_TEXT_EXTENSIONS = [
   ".yml",
 ];
 
-const SUPPORTED_TEXT_FILES = [".gitattributes", ".gitignore", "LICENSE"];
+const SUPPORTED_TEXT_FILES = [
+  ".gitattributes",
+  ".gitignore",
+  "LICENSE",
+  "packages/core/LICENSE",
+];
 
 const SUPPORTED_BINARY_EXTENSIONS = {
   ".gif": "gif",

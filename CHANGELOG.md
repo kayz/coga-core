@@ -25,6 +25,15 @@ Versioning; `0.y.z` remains initial development.
 - Migrate the public example and local manifests to 0.2.0. Unsupported public
   validation claims are now `pending`; the Core release fixture uses real local
   contract, validation, and approval evidence.
+- Add local Application conformance evidence for default-deny entitlements,
+  registered telemetry envelopes, explicit view states, complete research
+  fixtures, durable daily voting, scenario traceability, static accessibility,
+  and complete mini-program build output.
+- Include Apache-2.0 license text in the Core package and add deterministic
+  CycloneDX/SHA-256 release assets plus a least-privilege, signed-tag-only GitHub
+  attestation and draft-candidate workflow. Final immutable publication and npm
+  publication remain intentionally gated; `@coga/core` has not yet received its
+  separately authorized first publish.
 
 ## 0.1.0 — 2026-08-08
 
