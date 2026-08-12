@@ -18,6 +18,15 @@ header {
   padding-block: 4rem 2rem;
 }
 
+.status-strip {
+  width: min(68rem, calc(100% - 2rem));
+  box-sizing: border-box;
+  margin: 0 auto 1.5rem;
+  padding: 0.75rem 1rem;
+  color: #ffffff;
+  background: #193f75;
+}
+
 main {
   display: grid;
   gap: 1.5rem;

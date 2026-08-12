@@ -1,0 +1,274 @@
+{
+  "governance": {
+    "approvals": [],
+    "draftOnly": true,
+    "pendingPolicies": [
+      {
+        "id": "example.organization.change.approval",
+        "version": "0.2.0"
+      }
+    ],
+    "requiredPolicies": [
+      {
+        "id": "example.organization.change.approval",
+        "version": "0.2.0"
+      }
+    ]
+  },
+  "impact": {
+    "affectedApplications": [
+      {
+        "id": "application.cedar.insight.h5",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/application.yaml",
+        "reasons": [
+          {
+            "path": [
+              {
+                "id": "web.h5.responsive.shell",
+                "kind": "artifact",
+                "version": "0.2.0"
+              },
+              {
+                "id": "web.h5.platform",
+                "kind": "package",
+                "version": "0.2.0"
+              },
+              {
+                "id": "application.cedar.insight.h5",
+                "kind": "application",
+                "version": "0.2.0"
+              }
+            ],
+            "type": "direct"
+          }
+        ],
+        "rerunRunbooks": [
+          {
+            "id": "client.operations.incident.triage",
+            "version": "0.2.0"
+          },
+          {
+            "id": "client.operations.release.rollback",
+            "version": "0.2.0"
+          }
+        ],
+        "rerunScenarios": [
+          {
+            "id": "broker.channel.scenario.content.and.suitability",
+            "version": "0.2.0"
+          },
+          {
+            "id": "broker.channel.scenario.data.denial",
+            "version": "0.2.0"
+          },
+          {
+            "id": "broker.channel.scenario.identity.and.entitlement",
+            "version": "0.2.0"
+          },
+          {
+            "id": "client.operations.scenario.incident",
+            "version": "0.2.0"
+          },
+          {
+            "id": "frontend.client.scenario.accessibility",
+            "version": "0.2.0"
+          },
+          {
+            "id": "frontend.client.scenario.contract.and.state",
+            "version": "0.2.0"
+          },
+          {
+            "id": "web.h5.scenario.responsive.shell",
+            "version": "0.2.0"
+          }
+        ],
+        "title": "Cedar Market Context H5",
+        "version": "0.2.0"
+      }
+    ],
+    "artifact": {
+      "id": "web.h5.responsive.shell",
+      "version": "0.2.0"
+    },
+    "found": true,
+    "packages": [
+      {
+        "id": "web.h5.platform",
+        "layer": "platform",
+        "path": "examples/broker-digital-channel/packages/platform-web-h5/package.yaml",
+        "version": "0.2.0"
+      }
+    ]
+  },
+  "kind": "EvidenceBundle",
+  "metadata": {
+    "bundleDigest": "sha256:86cab4f9858da047ddcd5881645226dab6919404bf77a1c1a1dd615fe1ed4905",
+    "generatedAt": "2026-08-12T11:43:53.177Z",
+    "workOrderId": "example.cedar.live-status"
+  },
+  "schemaVersion": "coga.dev/factory/v0.1",
+  "steps": [
+    {
+      "adapter": {
+        "id": "coga.domain.patch",
+        "version": "1"
+      },
+      "detail": "Applied 1 governed domain path(s).",
+      "exitCode": 0,
+      "finishedAt": "2026-08-12T11:43:49.013Z",
+      "startedAt": "2026-08-12T11:43:48.740Z",
+      "status": "passed",
+      "stderrDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stepId": "change.apply"
+    },
+    {
+      "adapter": {
+        "id": "coga.agent.patch",
+        "version": "1"
+      },
+      "detail": "Applied 4 Agent-proposed Application path(s).",
+      "exitCode": 0,
+      "finishedAt": "2026-08-12T11:43:49.322Z",
+      "startedAt": "2026-08-12T11:43:49.018Z",
+      "status": "passed",
+      "stderrDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stepId": "proposal.apply"
+    },
+    {
+      "adapter": {
+        "id": "coga.core.validate",
+        "version": "1"
+      },
+      "detail": "Validated 6 packages, 32 artifacts, and 2 applications.",
+      "exitCode": 0,
+      "finishedAt": "2026-08-12T11:43:49.453Z",
+      "startedAt": "2026-08-12T11:43:49.326Z",
+      "status": "passed",
+      "stderrDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stepId": "instance.validate"
+    },
+    {
+      "adapter": {
+        "id": "coga.node.test",
+        "version": "1"
+      },
+      "detail": "Node tests completed in the network-disabled sandbox.",
+      "exitCode": 0,
+      "finishedAt": "2026-08-12T11:43:51.190Z",
+      "sandbox": {
+        "credentialAccess": "none",
+        "image": "node@sha256:4f77a690f2f8946ab16fe1e791a3ac0667ae1c3575c3e4d0d4589e9ed5bfaf3d",
+        "isolation": "docker",
+        "limits": {
+          "cpus": 1,
+          "memoryBytes": 536870912,
+          "pids": 64
+        },
+        "network": "none",
+        "repositoryMount": "read-only",
+        "rootFilesystem": "read-only",
+        "runner": {
+          "id": "coga.docker.sandbox",
+          "version": "1"
+        },
+        "user": "1000:1000"
+      },
+      "startedAt": "2026-08-12T11:43:49.459Z",
+      "status": "passed",
+      "stderrDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutDigest": "sha256:4b6c1ef5f76c46ec4ea55ab5b30675d54d2e7e0f3ceca409e5638cb2286271b1",
+      "stepId": "application.cedar.insight.h5.test.1"
+    },
+    {
+      "adapter": {
+        "id": "coga.node.build",
+        "version": "1"
+      },
+      "detail": "Build completed with 4 output files in an isolated output mount.",
+      "exitCode": 0,
+      "finishedAt": "2026-08-12T11:43:52.559Z",
+      "outputFiles": [
+        {
+          "bytes": 797,
+          "digest": "sha256:61c70cd84cc87fc43bb5f2d9d31c477ca269d5d2887c4fa32e0946a3820efaf7",
+          "path": "app.mjs"
+        },
+        {
+          "bytes": 1036,
+          "digest": "sha256:ef3106262dae390699fc64f466f1f8cd139944699e5749b18da36294fd188eb6",
+          "path": "domain.mjs"
+        },
+        {
+          "bytes": 1109,
+          "digest": "sha256:4dd9710c249e6b3f7157b19f81cc4cbd386617540ac5e5d1f3f65e6f45e62d3c",
+          "path": "index.html"
+        },
+        {
+          "bytes": 921,
+          "digest": "sha256:0c815b6bfec1969ffff1285793050da9715769069ec9e9cf37d038cd5ed3a8d0",
+          "path": "styles.css"
+        }
+      ],
+      "sandbox": {
+        "credentialAccess": "none",
+        "image": "node@sha256:4f77a690f2f8946ab16fe1e791a3ac0667ae1c3575c3e4d0d4589e9ed5bfaf3d",
+        "isolation": "docker",
+        "limits": {
+          "cpus": 1,
+          "memoryBytes": 536870912,
+          "pids": 64
+        },
+        "network": "none",
+        "repositoryMount": "read-only",
+        "rootFilesystem": "read-only",
+        "runner": {
+          "id": "coga.docker.sandbox",
+          "version": "1"
+        },
+        "user": "1000:1000"
+      },
+      "startedAt": "2026-08-12T11:43:51.195Z",
+      "status": "passed",
+      "stderrDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stepId": "application.cedar.insight.h5.build.2"
+    }
+  ],
+  "subject": {
+    "baseCommit": "79bbb605c967ceaab5269cce42f3d4a69b8f722d",
+    "changedFiles": [
+      {
+        "bytes": 797,
+        "digest": "sha256:61c70cd84cc87fc43bb5f2d9d31c477ca269d5d2887c4fa32e0946a3820efaf7",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/src/app.mjs"
+      },
+      {
+        "bytes": 1109,
+        "digest": "sha256:4dd9710c249e6b3f7157b19f81cc4cbd386617540ac5e5d1f3f65e6f45e62d3c",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/src/index.html"
+      },
+      {
+        "bytes": 921,
+        "digest": "sha256:0c815b6bfec1969ffff1285793050da9715769069ec9e9cf37d038cd5ed3a8d0",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/src/styles.css"
+      },
+      {
+        "bytes": 1669,
+        "digest": "sha256:1576d396b93c8801426c5fb7d2d90d506488737950b8de3ff660b8465be5064b",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs"
+      },
+      {
+        "bytes": 1231,
+        "digest": "sha256:0e16f803ca23f32ff3079aad009593a49cbbe1fedf3b7ad7015824f38ce51347",
+        "path": "examples/broker-digital-channel/packages/platform-web-h5/artifacts/responsive-shell.yaml"
+      }
+    ],
+    "planDigest": "sha256:d6f067d76e55717a25255f5553bcee86477bb581c805bd85fa01d72718c7bb19",
+    "repository": "kayz/coga-core",
+    "subjectTree": "3a5d6f544a47f81c95699256864071b168751e2b",
+    "workOrderDigest": "sha256:80c207fbf50854aaea23638c4331c5407acc38314128e8fa06e1ce9e3ce763aa"
+  }
+}
