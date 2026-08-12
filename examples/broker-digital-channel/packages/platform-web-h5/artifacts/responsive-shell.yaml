@@ -18,8 +18,9 @@ spec:
   summary: A public H5 client remains understandable and operable across narrow and wide viewports.
   statement:
     The document uses semantic landmarks, exposes a keyboard skip link, preserves a readable
-    measure, and does not hide authoritative source time or access state when space is constrained.
-  scope: Applies to the public Cedar H5 reference Application and future browser clients.
+    measure, does not hide authoritative source time or access state when space is constrained,
+    and announces access-state changes in a textual live status region.
+  scope: Applies to the public H5 reference Applications and future browser clients.
   provenance:
     - source: https://www.w3.org/TR/WCAG22/
       sourceType: standard
