@@ -68,6 +68,11 @@ administrator-reviewable draft release candidate. It does not publish a mutable
 release; immutable-release enablement and final publication remain an external
 administrator gate.
 
+Before any version workflow, `npm run package:consumer-test` builds the package
+from a clean `dist`, installs its tarball into an empty project, and verifies the
+installed ESM API, `coga` binary, and schema exports. Pull request CI repeats this
+on Node.js 20.20.2, 22.22.1, and 24.18.0 on Linux.
+
 The workflow does not publish to npm. `@coga/core` has not yet received its
 separately authorized first registry publish, which is required before an npm
 trusted publisher can be configured.

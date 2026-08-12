@@ -47,6 +47,7 @@ npm run impact:example
 ```
 
 发布载荷生成属于独立的严格通道，固定使用 Node.js 24.18.0 与 npm 11.16.0；只有在这组精确工具链上运行 `npm run release:test`。普通公开检查继续支持 Node.js 22+。
+`npm run package:consumer-test` 会重新构建 tarball、安装到空目录，并从安装后的包验证公开 ESM API、CLI 与 Schema exports；PR CI 在 Node.js 20.20.2、22.22.1 和 24.18.0 上重复该消费测试。
 
 构建后可以用 CLI 检查其他 Instance：
 

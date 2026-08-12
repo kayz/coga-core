@@ -72,6 +72,9 @@ npm run impact:example
 Release-payload generation is a separate, stricter lane pinned to Node.js
 24.18.0 and npm 11.16.0. On that exact toolchain, run `npm run release:test`;
 ordinary public checks remain supported on Node.js 22+.
+`npm run package:consumer-test` builds a fresh tarball, installs it into an empty
+project, and exercises the public ESM API, CLI, and exported schemas. Pull request
+CI repeats that consumer test on Node.js 20.20.2, 22.22.1, and 24.18.0.
 
 After the build, the CLI can inspect another Instance:
 
