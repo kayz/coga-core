@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "coga.dev/factory/operations/v0.1",
+  "kind": "FactorySloPolicy",
+  "metadata": {
+    "id": "coga.factory.preview.slo"
+  },
+  "window": {
+    "from": "2026-08-01T00:00:00.000Z",
+    "to": "2026-09-01T00:00:00.000Z"
+  },
+  "objectives": {
+    "minimumSuccessRate": 0.95,
+    "maximumP95QueueLatencyMs": 300000,
+    "maximumP95RunDurationMs": 1800000,
+    "maximumIsolationFailureRate": 0.01,
+    "maximumQueueDepth": 50,
+    "maximumEstimatedCostMicros": 500000000
+  },
+  "costModel": {
+    "computeMicrosPerSecond": 1000
+  }
+}

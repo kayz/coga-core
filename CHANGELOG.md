@@ -3,6 +3,30 @@
 All notable changes to COGA Core are recorded here. Versions follow Semantic
 Versioning; `0.y.z` remains initial development.
 
+## `@coga/factory` 0.5.0 — Local candidate
+
+- Add the additive `coga.dev/factory/operations/v0.1` protocol without changing
+  existing v0.3 Work Orders: durable content-addressed tasks, atomic queue
+  records, chained events, worker leases, heartbeats, crash recovery, bounded
+  retries, timing, and a loopback-only authenticated task API.
+- Add purpose-bound short-lived GitHub App credential acquisition. Tokens remain
+  in memory, use an exact repository and permission set, are revoked after use,
+  and are excluded/redacted from persisted records and errors.
+- Add a content-addressed immutable evidence archive with byte/logical/receipt
+  digests and retention metadata, plus verifiable SLO reports for success,
+  latency, isolation failures, queue depth, and estimated compute cost.
+- Add expiring, digest-bound `MergeAuthorization` and
+  `TestEnvironmentAuthorization` gates. The programmatic merge executor requires
+  a fresh exact-head check and squash method; the CLI exposes audit commands only
+  and does not deploy.
+- Add a fail-closed WeChat `PlatformEvidence` gate requiring real DevTools,
+  simulator, physical-device, and screen-reader evidence for one exact candidate.
+- Extend the empty-project package consumer test to exercise the installed 0.5
+  ESM API, operations CLI, and all seven operations Schema exports.
+
+No remote workflow, merge, tag, release, npm publication, deployment, or real
+WeChat platform acceptance was performed for this local candidate.
+
 ## `@coga/factory` 0.4.0 — Unreleased
 
 - Replace Factory protocol v0.2 with `coga.dev/factory/v0.3` and require the

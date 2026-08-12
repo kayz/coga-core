@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://coga.dev/schemas/factory/operations/v0.1/evidence-archive-receipt.schema.json",
+  "title": "COGA Factory Immutable Evidence Archive Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "metadata", "subject", "retention"],
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  },
+  "properties": {
+    "schemaVersion": { "const": "coga.dev/factory/operations/v0.1" },
+    "kind": { "const": "EvidenceArchiveReceipt" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["archivedAt", "receiptDigest"],
+      "properties": {
+        "archivedAt": { "type": "string", "format": "date-time" },
+        "receiptDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "logicalDigest",
+        "byteDigest",
+        "bytes",
+        "objectPath",
+        "sourceName"
+      ],
+      "properties": {
+        "kind": {
+          "enum": ["EvidenceBundle", "RemoteEvidence", "PlatformEvidence"]
+        },
+        "logicalDigest": { "$ref": "#/$defs/digest" },
+        "byteDigest": { "$ref": "#/$defs/digest" },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 52428800
+        },
+        "objectPath": {
+          "type": "string",
+          "pattern": "^objects/sha256/[0-9a-f]{64}\\.bin$"
+        },
+        "sourceName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^[^/\\\\\\u0000-\\u001f\\u007f]+$"
+        }
+      }
+    },
+    "retention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["immutable", "policy", "retainUntil"],
+      "properties": {
+        "immutable": { "const": true },
+        "policy": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+        },
+        "retainUntil": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

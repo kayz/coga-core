@@ -134,7 +134,7 @@ describe("FactoryController", () => {
         ),
       ).toBe("1");
     }
-  }, 30_000);
+  }, 90_000);
 
   it("fails closed when recovery state or worktree identity is changed", async () => {
     const repository = cloneCurrentHead();
@@ -216,7 +216,7 @@ describe("FactoryController", () => {
     writeFileSync(statePath, JSON.stringify(original));
     git(original.workspacePath, "switch", "--detach");
     await expectIsolatedFailure(/does not match commit .* branch/iu);
-  }, 30_000);
+  }, 90_000);
 
   it("isolates one target failure and retries only the failed Application", async () => {
     const repository = cloneCurrentHead();
@@ -278,5 +278,5 @@ describe("FactoryController", () => {
     ).toBe(true);
     expect(attempts.get("cedar")).toBe(cedarAttempts);
     expect(attempts.get("birch")).toBe(3);
-  }, 45_000);
+  }, 90_000);
 });

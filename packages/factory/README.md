@@ -4,10 +4,11 @@
 candidate for every affected Application. It is a bounded factory cell, not a
 general-purpose workflow engine.
 
-The package version is `0.4.0`. Its independently versioned documents use
-`coga.dev/factory/v0.3`; v0.1 and v0.2 Factory documents are intentionally
-rejected. Core resources remain `coga.dev/v0.2` and `@coga/core` remains
-`0.2.0`.
+The package version is `0.5.0`. Existing Work Orders and evidence documents
+continue to use `coga.dev/factory/v0.3`; v0.1 and v0.2 Factory documents are
+intentionally rejected. The additive operations plane uses
+`coga.dev/factory/operations/v0.1`. Core resources remain `coga.dev/v0.2` and
+`@coga/core` remains `0.2.0`.
 
 The controller:
 
@@ -40,6 +41,31 @@ The controller:
 | `RemoteEvidence`       | Exact Work Order/base/PR head/Patch closure, successful checks, attestation and Policy reviews |
 | `GovernanceView`       | Derived, read-only status across local and remote evidence for every target                    |
 | recovery state         | Per-target workspace, freshly derived exact plan, contiguous step prefix and result binding    |
+
+The 0.5 operations plane adds a durable, content-addressed task queue around the
+same controller. Atomic records carry a chained event log, attempt budget,
+worker lease, heartbeat, recovery count, failure class, and measured timing.
+Concurrent workers can claim a task only once; an expired lease is recovered and
+retried without treating a stale worker as the owner. The loopback-only HTTP API
+uses a bearer credential and bounded JSON bodies.
+
+GitHub operations acquire purpose-bound installation tokens from a credential
+provider. App ID and private-key values are read only from the explicit
+`COGA_FACTORY_GITHUB_APP_ID` and `COGA_FACTORY_GITHUB_APP_PRIVATE_KEY`
+environment names; tokens stay in memory, are scoped to one repository and exact
+permissions, expire quickly, are revoked after use, and are redacted from
+records and errors. Evidence can be copied byte-for-byte into an append-only,
+content-addressed local archive whose receipt binds logical and byte digests,
+size, retention rule, and object path.
+
+`FactorySloPolicy` produces verifiable success, latency, isolation, queue-depth,
+and estimated-cost reports. `MergeAuthorization` and
+`TestEnvironmentAuthorization` are separate, expiring human decisions bound to
+exact commits and evidence. The exported merge executor rechecks the live PR and
+supports squash merge only; the CLI deliberately exposes read-only gate audits,
+not a direct merge or deployment command. `PlatformEvidence` requires real,
+distinct evidence for WeChat DevTools compilation, simulator, physical device,
+and screen reader. The gate remains ineligible until operators supply it.
 
 The model and verification sandbox do not receive Git credentials or write the
 repository. A proposal is accepted only as normalized unified-diff bytes, then
@@ -107,8 +133,17 @@ node packages/factory/dist/cli.js adapters
 node packages/factory/dist/cli.js compile-proposal .coga/work-orders/cedar-status/proposal-compilation.yaml --repo-root .
 node packages/factory/dist/cli.js run .coga/work-orders/cedar-status/work-order.yaml --delivery local
 node packages/factory/dist/cli.js governance .coga/work-orders/cedar-status/work-order.yaml --format markdown
+node packages/factory/dist/cli.js operations enqueue .coga/work-orders/cedar-status/work-order.yaml --queue-root .local/factory/queue
+node packages/factory/dist/cli.js operations run-once --queue-root .local/factory/queue
+node packages/factory/dist/cli.js slo-report .coga/factory-slo-policy.json --queue-root .local/factory/queue --measured-at 2026-09-01T00:00:00.000Z
 npm run factory:e2e
 ```
+
+Other commands include `operations list/show/cancel`, `archive-evidence`,
+`verify-archive`, and the non-mutating `audit-merge`,
+`audit-test-environment`, and `audit-platform`. Gate audits exit `2` for a valid
+but ineligible candidate. Operational state belongs under the ignored `.local/`
+directory. Never put credentials on the command line or in a Work Order.
 
 For an existing Draft PR whose Evidence Bundle has been attested:
 

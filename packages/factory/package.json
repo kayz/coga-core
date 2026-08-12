@@ -1,7 +1,7 @@
 {
   "name": "@coga/factory",
-  "version": "0.4.0",
-  "description": "Governed work orders, isolated execution, evidence, and draft-PR delivery for COGA factory cells.",
+  "version": "0.5.0",
+  "description": "Governed work orders, durable operations, immutable evidence, and authorization gates for COGA factory cells.",
   "type": "module",
   "bin": {
     "coga-factory": "./dist/cli.js"

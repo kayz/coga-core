@@ -21,6 +21,15 @@ COGA 0.2 uses:
 - scenarios and ordinary tests as rule enforcement before introducing a general
   policy DSL.
 
+Factory Operations deliberately remains a separate operational model. Work
+Orders and Evidence Bundles describe governed candidate production;
+`FactoryTask` records scheduling, leases, attempts, events, and timing;
+`FactorySloReport` is a derived measurement; `MergeAuthorization` and
+`TestEnvironmentAuthorization` are short-lived human decisions; and
+`PlatformEvidence` records external platform acceptance. None of these documents
+changes a Core resource's domain meaning, and none is inferred from a passing
+test. Their independent protocol is `coga.dev/factory/operations/v0.1`.
+
 This follows the useful part of the Backstage Software Catalog model: repository
 YAML is the source of truth, while catalogs and graphs are derived read models.
 Backstage also recommends that editing interfaces create pull requests rather than

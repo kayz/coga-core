@@ -549,15 +549,20 @@ export class FactoryController {
         evidenceDigest: state.evidence.digest,
       };
       if (this.options.delivery === "github") {
-        result.pullRequest = await deliverGitHubDraft({
-          workspace: state.workspacePath,
-          workOrder,
-          target,
-          baseCommit: state.baseCommit,
-          resultCommit: state.resultCommit,
-          evidencePath: state.evidence.path,
-          evidenceDigest: state.evidence.digest,
-        });
+        result.pullRequest = await deliverGitHubDraft(
+          {
+            workspace: state.workspacePath,
+            workOrder,
+            target,
+            baseCommit: state.baseCommit,
+            resultCommit: state.resultCommit,
+            evidencePath: state.evidence.path,
+            evidenceDigest: state.evidence.digest,
+          },
+          this.dependencies.githubDeliveryToken
+            ? { token: this.dependencies.githubDeliveryToken }
+            : {},
+        );
       }
       state.result = result;
       state.updatedAt = now().toISOString();

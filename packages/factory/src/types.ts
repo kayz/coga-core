@@ -401,6 +401,8 @@ export interface FactoryControllerOptions {
 
 export interface FactoryControllerDependencies {
   sandbox?: SandboxRunner;
+  /** In-memory installation token supplied by a short-lived credential lease. */
+  githubDeliveryToken?: string;
 }
 
 export interface ProcessResult {

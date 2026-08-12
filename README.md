@@ -15,10 +15,10 @@ direct, transitive, and older-pin application consumers.
 
 The repository also contains one deliberately narrow Factory Cell. It turns a
 digest-bound Work Order for an exact Artifact version into independently tested
-candidates for every affected Application and, when explicitly requested, one
-GitHub Draft PR per target. Versioned proposal, local execution, remote CI,
-attestation, and human Policy receipts keep that path auditable without turning
-Core resource files into executable instructions.
+candidates for every affected Application. Its 0.5 operations plane adds a
+durable task queue, short-lived credentials, immutable evidence, measurable SLOs,
+and explicit promotion/platform gates without turning Core resource files into
+executable instructions.
 
 ## The boundary
 
@@ -43,10 +43,10 @@ governance decisions.
 ## Included in 0.2
 
 - [`@coga/core`](packages/core/README.md), a TypeScript library and `coga` CLI;
-- [`@coga/factory`](packages/factory/README.md) `0.4.0`, with versioned Work
+- [`@coga/factory`](packages/factory/README.md) `0.5.0`, with versioned Work
   Order, Agent Proposal Receipt, Application Factory, per-target recovery,
-  Evidence Bundle, Remote Evidence and governance-view contracts plus the
-  `coga-factory` CLI;
+  durable operations, Evidence Bundle/Remote Evidence, SLO, authorization and
+  platform-evidence contracts plus the `coga-factory` CLI;
 - JSON Schema 2020-12 contracts for four resource kinds;
 - bounded canonical loading, JSON Schema validation, exact resource-graph closure,
   contract identity/content validation, lifecycle and governance-record checks,
@@ -97,6 +97,8 @@ the registered adapter surface after building:
 node packages/factory/dist/cli.js adapters
 node packages/factory/dist/cli.js run .coga/work-orders/cedar-status/work-order.yaml --delivery local
 node packages/factory/dist/cli.js governance .coga/work-orders/cedar-status/work-order.yaml --format markdown
+node packages/factory/dist/cli.js operations enqueue .coga/work-orders/cedar-status/work-order.yaml --queue-root .local/factory/queue
+node packages/factory/dist/cli.js operations run-once --queue-root .local/factory/queue
 ```
 
 Release-payload generation is a separate, stricter lane pinned to Node.js
@@ -174,9 +176,12 @@ envelope. Exact Harness, artifact, policy, and contract versions are required;
 backward compatibility is not promised before 1.0. Core verifies declarations and
 recorded evidence but does not execute scenarios, tests, reviews, or arbitrary
 commands. The separate Factory package runs only registered adapters behind a
-bounded Work Order. Its strongest mutation is changing an exactly verified Draft
-PR to ready for review; it never merges, publishes, tags, releases or deploys. The project is licensed
-under Apache License 2.0. The private local
+bounded Work Order. Its normal candidate lane stops at ready-for-review. Factory
+0.5 also exports an authorized squash-merge operation, but it remains unreachable
+without a separate expiring human authorization, fresh exact-head evidence, and
+a purpose-bound credential; the CLI exposes only its read-only audit. Test-
+environment and WeChat platform gates validate evidence but do not deploy. The
+project is licensed under Apache License 2.0. The private local
 Application now has executable conformance evidence, while DevTools/device
 acceptance remains manual. Release tooling prepares attestable GitHub assets but
 does not publish to npm; the currently unclaimed `@coga/core` package requires a

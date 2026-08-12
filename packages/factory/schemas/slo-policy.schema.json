@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://coga.dev/schemas/factory/operations/v0.1/slo-policy.schema.json",
+  "title": "COGA Factory SLO Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "kind",
+    "metadata",
+    "window",
+    "objectives",
+    "costModel"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "coga.dev/factory/operations/v0.1" },
+    "kind": { "const": "FactorySloPolicy" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        }
+      }
+    },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to"],
+      "properties": {
+        "from": { "type": "string", "format": "date-time" },
+        "to": { "type": "string", "format": "date-time" }
+      }
+    },
+    "objectives": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minimumSuccessRate",
+        "maximumP95QueueLatencyMs",
+        "maximumP95RunDurationMs",
+        "maximumIsolationFailureRate",
+        "maximumQueueDepth",
+        "maximumEstimatedCostMicros"
+      ],
+      "properties": {
+        "minimumSuccessRate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "maximumP95QueueLatencyMs": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "maximumP95RunDurationMs": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "maximumIsolationFailureRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "maximumQueueDepth": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "maximumEstimatedCostMicros": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "costModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["computeMicrosPerSecond"],
+      "properties": {
+        "computeMicrosPerSecond": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    }
+  }
+}

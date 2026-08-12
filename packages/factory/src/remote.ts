@@ -121,6 +121,7 @@ export function githubCliEnvironment(
     Object.entries(environment).filter(([key]) => {
       const normalized = key.toUpperCase();
       return (
+        !normalized.startsWith("COGA_FACTORY_GITHUB_") &&
         !normalized.startsWith("GH_") &&
         normalized !== "GITHUB_API_URL" &&
         normalized !== "GITHUB_GRAPHQL_URL"
@@ -202,6 +203,24 @@ export function parseRestPullRequestSnapshot(
 }
 
 export class GhEvidenceClient implements GitHubEvidenceClient {
+  readonly #environment: NodeJS.ProcessEnv;
+
+  constructor(
+    options: {
+      token?: string;
+      environment?: NodeJS.ProcessEnv;
+    } = {},
+  ) {
+    const environment = options.environment ?? process.env;
+    this.#environment = githubCliEnvironment(
+      options.token ? { ...environment, GH_TOKEN: options.token } : environment,
+    );
+  }
+
+  private commandEnvironment(): NodeJS.ProcessEnv {
+    return { ...this.#environment };
+  }
+
   async pullRequest(
     repository: string,
     number: number,
@@ -213,7 +232,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 1024 * 1024,
-        env: githubCliEnvironment(),
+        env: this.commandEnvironment(),
       },
       "GitHub PR lookup",
     );
@@ -240,7 +259,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 20 * 1024 * 1024,
-        env: githubCliEnvironment(),
+        env: this.commandEnvironment(),
       },
       "GitHub PR file lookup",
     );
@@ -285,7 +304,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 20 * 1024 * 1024,
-        env: githubCliEnvironment(),
+        env: this.commandEnvironment(),
       },
       "GitHub evidence download",
     );
@@ -310,7 +329,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 5 * 1024 * 1024,
-        env: githubCliEnvironment(),
+        env: this.commandEnvironment(),
       },
       "GitHub checks lookup",
     );
@@ -354,7 +373,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 5 * 1024 * 1024,
-        env: githubCliEnvironment(),
+        env: this.commandEnvironment(),
       },
       "GitHub reviews lookup",
     );
@@ -376,7 +395,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 5 * 1024 * 1024,
-        env: githubCliEnvironment(),
+        env: this.commandEnvironment(),
       },
       "GitHub review overflow lookup",
     );
@@ -420,7 +439,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 2 * 1024 * 1024,
-        env: githubCliEnvironment(),
+        env: this.commandEnvironment(),
       },
       "GitHub artifact attestation verification",
     );
@@ -440,7 +459,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
         cwd: process.cwd(),
         timeoutMs: 60_000,
         maxOutputBytes: 1024 * 1024,
-        env: githubCliEnvironment(),
+        env: this.commandEnvironment(),
       },
       "GitHub ready-for-review promotion",
     );

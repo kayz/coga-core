@@ -140,9 +140,11 @@ Version 0.2 remains intentionally small, but now proves that:
    recorded as content-addressed evidence, and delivered no further than a Draft
    PR without human approval.
 
-The first Factory Cell accepts an externally prepared Agent patch; reproducible
-model/context/tool execution and remote CI evidence ingestion remain the next
-iteration, not hidden claims of 0.2.
+The Factory still accepts an externally prepared Agent patch rather than calling
+a model, but it now binds model/context/tool declarations and exact inputs into a
+reproducible receipt, ingests exact remote CI evidence, and can run those bounded
+jobs through a durable operations queue. Provider-signed model execution and real
+target-platform acceptance remain external evidence, not hidden claims.
 
 ## What COGA is not
 
