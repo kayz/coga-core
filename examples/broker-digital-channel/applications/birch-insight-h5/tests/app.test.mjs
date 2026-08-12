@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { accessState, viewModel } from "../src/domain.mjs";
+import { statusMessage } from "../src/app.mjs";
 
 const now = new Date("2026-08-12T00:00:00.000Z");
 
@@ -13,6 +14,13 @@ test("keeps the public brief separate from customer authority", () => {
     access: "Public learning brief",
     supportEnabled: false,
   });
+});
+
+test("announces brief state and source as text", () => {
+  assert.equal(
+    statusMessage(viewModel({ authenticated: false }, now)),
+    "Brief state: Public learning brief. Source: Fictitious learning desk.",
+  );
 });
 
 test("enables support only for a current authenticated context", () => {
