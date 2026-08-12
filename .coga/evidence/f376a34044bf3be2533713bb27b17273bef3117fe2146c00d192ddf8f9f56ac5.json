@@ -1,0 +1,343 @@
+{
+  "governance": {
+    "approvals": [],
+    "draftOnly": true,
+    "pendingPolicies": [
+      {
+        "id": "example.organization.change.approval",
+        "version": "0.2.0"
+      }
+    ],
+    "requiredPolicies": [
+      {
+        "id": "example.organization.change.approval",
+        "version": "0.2.0"
+      }
+    ]
+  },
+  "impact": {
+    "affectedApplications": [
+      {
+        "id": "application.birch.insight.h5",
+        "path": "examples/broker-digital-channel/applications/birch-insight-h5/application.yaml",
+        "reasons": [
+          {
+            "path": [
+              {
+                "id": "web.h5.responsive.shell",
+                "kind": "artifact",
+                "version": "0.2.0"
+              },
+              {
+                "id": "web.h5.platform",
+                "kind": "package",
+                "version": "0.2.0"
+              },
+              {
+                "id": "application.birch.insight.h5",
+                "kind": "application",
+                "version": "0.2.0"
+              }
+            ],
+            "type": "direct"
+          }
+        ],
+        "rerunRunbooks": [
+          {
+            "id": "client.operations.incident.triage",
+            "version": "0.2.0"
+          },
+          {
+            "id": "client.operations.release.rollback",
+            "version": "0.2.0"
+          }
+        ],
+        "rerunScenarios": [
+          {
+            "id": "broker.channel.scenario.content.and.suitability",
+            "version": "0.2.0"
+          },
+          {
+            "id": "broker.channel.scenario.identity.and.entitlement",
+            "version": "0.2.0"
+          },
+          {
+            "id": "client.operations.scenario.incident",
+            "version": "0.2.0"
+          },
+          {
+            "id": "frontend.client.scenario.accessibility",
+            "version": "0.2.0"
+          },
+          {
+            "id": "frontend.client.scenario.contract.and.state",
+            "version": "0.2.0"
+          },
+          {
+            "id": "web.h5.scenario.responsive.shell",
+            "version": "0.2.0"
+          }
+        ],
+        "title": "Birch Research Brief H5",
+        "version": "0.2.0"
+      },
+      {
+        "id": "application.cedar.insight.h5",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/application.yaml",
+        "reasons": [
+          {
+            "path": [
+              {
+                "id": "web.h5.responsive.shell",
+                "kind": "artifact",
+                "version": "0.2.0"
+              },
+              {
+                "id": "web.h5.platform",
+                "kind": "package",
+                "version": "0.2.0"
+              },
+              {
+                "id": "application.cedar.insight.h5",
+                "kind": "application",
+                "version": "0.2.0"
+              }
+            ],
+            "type": "direct"
+          }
+        ],
+        "rerunRunbooks": [
+          {
+            "id": "client.operations.incident.triage",
+            "version": "0.2.0"
+          },
+          {
+            "id": "client.operations.release.rollback",
+            "version": "0.2.0"
+          }
+        ],
+        "rerunScenarios": [
+          {
+            "id": "broker.channel.scenario.content.and.suitability",
+            "version": "0.2.0"
+          },
+          {
+            "id": "broker.channel.scenario.data.denial",
+            "version": "0.2.0"
+          },
+          {
+            "id": "broker.channel.scenario.identity.and.entitlement",
+            "version": "0.2.0"
+          },
+          {
+            "id": "client.operations.scenario.incident",
+            "version": "0.2.0"
+          },
+          {
+            "id": "frontend.client.scenario.accessibility",
+            "version": "0.2.0"
+          },
+          {
+            "id": "frontend.client.scenario.contract.and.state",
+            "version": "0.2.0"
+          },
+          {
+            "id": "web.h5.scenario.responsive.shell",
+            "version": "0.2.0"
+          }
+        ],
+        "title": "Cedar Market Context H5",
+        "version": "0.2.0"
+      }
+    ],
+    "artifact": {
+      "id": "web.h5.responsive.shell",
+      "version": "0.2.0"
+    },
+    "found": true,
+    "packages": [
+      {
+        "id": "web.h5.platform",
+        "layer": "platform",
+        "path": "examples/broker-digital-channel/packages/platform-web-h5/package.yaml",
+        "version": "0.2.0"
+      }
+    ]
+  },
+  "kind": "EvidenceBundle",
+  "metadata": {
+    "bundleDigest": "sha256:f376a34044bf3be2533713bb27b17273bef3117fe2146c00d192ddf8f9f56ac5",
+    "generatedAt": "2026-08-12T16:10:39.600Z",
+    "workOrderId": "example.cedar.live-status"
+  },
+  "schemaVersion": "coga.dev/factory/v0.3",
+  "steps": [
+    {
+      "adapter": {
+        "id": "coga.domain.patch",
+        "version": "1"
+      },
+      "detail": "Applied 1 governed domain path(s).",
+      "exitCode": 0,
+      "finishedAt": "2026-08-12T16:10:35.665Z",
+      "startedAt": "2026-08-12T16:10:35.394Z",
+      "status": "passed",
+      "stderrDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stepId": "change.apply"
+    },
+    {
+      "adapter": {
+        "id": "coga.agent.proposal",
+        "version": "2"
+      },
+      "detail": "Applied 4 Agent-proposed path(s) from sha256:cd0ba4e265c7ceaebd74dfcee273df7afa5bba08d0bb94265cf5c9272d59c1b9.",
+      "exitCode": 0,
+      "finishedAt": "2026-08-12T16:10:35.957Z",
+      "startedAt": "2026-08-12T16:10:35.670Z",
+      "status": "passed",
+      "stderrDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stepId": "proposal.apply"
+    },
+    {
+      "adapter": {
+        "id": "coga.core.validate",
+        "version": "1"
+      },
+      "detail": "Validated 6 packages, 32 artifacts, and 3 applications.",
+      "exitCode": 0,
+      "finishedAt": "2026-08-12T16:10:36.137Z",
+      "startedAt": "2026-08-12T16:10:35.961Z",
+      "status": "passed",
+      "stderrDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stepId": "instance.validate"
+    },
+    {
+      "adapter": {
+        "id": "coga.node.test",
+        "version": "1"
+      },
+      "detail": "Node tests completed in the network-disabled sandbox.",
+      "exitCode": 0,
+      "finishedAt": "2026-08-12T16:10:37.626Z",
+      "sandbox": {
+        "credentialAccess": "none",
+        "image": "node@sha256:4f77a690f2f8946ab16fe1e791a3ac0667ae1c3575c3e4d0d4589e9ed5bfaf3d",
+        "isolation": "docker",
+        "limits": {
+          "cpus": 1,
+          "memoryBytes": 536870912,
+          "pids": 64
+        },
+        "network": "none",
+        "repositoryMount": "read-only",
+        "rootFilesystem": "read-only",
+        "runner": {
+          "id": "coga.docker.sandbox",
+          "version": "1"
+        },
+        "user": "1000:1000"
+      },
+      "startedAt": "2026-08-12T16:10:36.143Z",
+      "status": "passed",
+      "stderrDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutDigest": "sha256:4e7d36bd8103b6e3c46ce0af9b9337068dc1a6d4ff650b40dde9087d7303ebce",
+      "stepId": "application.test.1"
+    },
+    {
+      "adapter": {
+        "id": "coga.node.build",
+        "version": "1"
+      },
+      "detail": "Build completed with 4 output files in an isolated output mount.",
+      "exitCode": 0,
+      "finishedAt": "2026-08-12T16:10:38.871Z",
+      "outputFiles": [
+        {
+          "bytes": 797,
+          "digest": "sha256:61c70cd84cc87fc43bb5f2d9d31c477ca269d5d2887c4fa32e0946a3820efaf7",
+          "path": "app.mjs"
+        },
+        {
+          "bytes": 1036,
+          "digest": "sha256:ef3106262dae390699fc64f466f1f8cd139944699e5749b18da36294fd188eb6",
+          "path": "domain.mjs"
+        },
+        {
+          "bytes": 1109,
+          "digest": "sha256:4dd9710c249e6b3f7157b19f81cc4cbd386617540ac5e5d1f3f65e6f45e62d3c",
+          "path": "index.html"
+        },
+        {
+          "bytes": 921,
+          "digest": "sha256:0c815b6bfec1969ffff1285793050da9715769069ec9e9cf37d038cd5ed3a8d0",
+          "path": "styles.css"
+        }
+      ],
+      "sandbox": {
+        "credentialAccess": "none",
+        "image": "node@sha256:4f77a690f2f8946ab16fe1e791a3ac0667ae1c3575c3e4d0d4589e9ed5bfaf3d",
+        "isolation": "docker",
+        "limits": {
+          "cpus": 1,
+          "memoryBytes": 536870912,
+          "pids": 64
+        },
+        "network": "none",
+        "repositoryMount": "read-only",
+        "rootFilesystem": "read-only",
+        "runner": {
+          "id": "coga.docker.sandbox",
+          "version": "1"
+        },
+        "user": "1000:1000"
+      },
+      "startedAt": "2026-08-12T16:10:37.632Z",
+      "status": "passed",
+      "stderrDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stepId": "application.build.2"
+    }
+  ],
+  "subject": {
+    "application": {
+      "id": "application.cedar.insight.h5",
+      "version": "0.2.0"
+    },
+    "baseCommit": "c597284027c04bf34d8e81dfa59a9374b4ef79f7",
+    "changedFiles": [
+      {
+        "bytes": 797,
+        "digest": "sha256:61c70cd84cc87fc43bb5f2d9d31c477ca269d5d2887c4fa32e0946a3820efaf7",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/src/app.mjs"
+      },
+      {
+        "bytes": 1109,
+        "digest": "sha256:4dd9710c249e6b3f7157b19f81cc4cbd386617540ac5e5d1f3f65e6f45e62d3c",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/src/index.html"
+      },
+      {
+        "bytes": 921,
+        "digest": "sha256:0c815b6bfec1969ffff1285793050da9715769069ec9e9cf37d038cd5ed3a8d0",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/src/styles.css"
+      },
+      {
+        "bytes": 1669,
+        "digest": "sha256:1576d396b93c8801426c5fb7d2d90d506488737950b8de3ff660b8465be5064b",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs"
+      },
+      {
+        "bytes": 1226,
+        "digest": "sha256:d83d70a3d85697a938daa7b88c45a9fd113725475dcda5e4ef2ec5c3e7e29e74",
+        "path": "examples/broker-digital-channel/packages/platform-web-h5/artifacts/responsive-shell.yaml"
+      }
+    ],
+    "planDigest": "sha256:c67737225d589bdd512e29671fcfee7d1f089d8f4b2094616ddb8ede246c6589",
+    "proposalReceiptDigest": "sha256:cd0ba4e265c7ceaebd74dfcee273df7afa5bba08d0bb94265cf5c9272d59c1b9",
+    "repository": "kayz/coga-core",
+    "subjectTree": "9de9da2e99f75957967ea56ca52df5e284c7c9df",
+    "workOrderDigest": "sha256:61eef6023e3350cba32fe74edddc7651b4a07a7c3c2b61a4493904025ff258b4"
+  }
+}
