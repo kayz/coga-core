@@ -15,7 +15,8 @@ COGA 0.1 uses:
 - Git commits and pull requests for versioning, review, and publication;
 - stable namespaced identifiers and exact `0.x` SemVer dependency locks;
 - lightweight W3C PROV-inspired provenance fields;
-- SKOS-inspired labels, definitions, broader/related links, and examples;
+- stable identifiers and typed relations inspired by the useful subset of SKOS,
+  while richer labels and vocabulary mappings remain future work;
 - OpenAPI 3.1 for HTTP contracts rather than a COGA-specific API language;
 - scenarios and ordinary tests as rule enforcement before introducing a general
   policy DSL.
@@ -50,6 +51,7 @@ spec:
   provenance: []
   relations: []
   validation: []
+  contractRefs: []
 ```
 
 The `schemaVersion` governs the file format. `metadata.version` governs the
@@ -89,17 +91,18 @@ PROV](https://www.w3.org/TR/prov-primer/):
 - `used`, `wasGeneratedBy`, `wasDerivedFrom`, and `wasAttributedTo` describe why an
   asset exists.
 
-COGA stores source title, URI or repository locator, retrieval time, authority,
-confidentiality, and an optional digest. It does not copy long source documents
-into public assets. Provenance proves what was used; it does not prove that the
-source itself is correct.
+COGA 0.1 stores `source`, `sourceType`, and optional `locator`, `capturedAt`, and
+`note`. It does not currently have separate authority, confidentiality, or digest
+fields, and it does not copy long source documents into public assets. Provenance
+records what was used; it does not prove that the source itself is correct.
 
 ## Concepts without a full ontology stack
 
-Concept fields are inspired by [SKOS](https://www.w3.org/TR/skos-reference/):
-preferred and alternative labels, definitions, scope notes, examples,
-broader/narrower links, related links, and optional exact/close matches to an
-external vocabulary.
+The model is inspired by [SKOS](https://www.w3.org/TR/skos-reference/), but the
+0.1 Schema implements a smaller subset: stable IDs, a human-readable statement,
+and typed relations such as `depends-on`, `refines`, and `conflicts-with`.
+Preferred/alternative labels, broader/narrower relations, examples, and
+exact/close vocabulary matches are target extensions, not 0.1 fields.
 
 COGA 0.1 does not require RDF or OWL. Stable identifiers and typed relations keep
 a future export path open without imposing an open-world reasoner on application
@@ -111,13 +114,18 @@ services.
 ## Rules and execution
 
 A rule is first a human-reviewable normative statement. Its `validation` entries
-connect it to one or more deterministic enforcement mechanisms:
+declare intended evidence from one or more enforcement mechanisms:
 
 - JSON Schema;
 - OpenAPI contract validation;
 - scenario evaluation;
 - an ordinary automated test;
 - explicit manual review.
+
+Core 0.1 validates the shape of these records and resolves a declared scenario
+target to a loaded scenario artifact. It does not execute OpenAPI validation,
+scenarios, ordinary tests, or reviews. Those results must currently be produced by
+an external trusted workflow; treating them as a release gate is a target design.
 
 [Open Policy Agent](https://www.openpolicyagent.org/docs/policy-language) is a
 mature policy-as-code system and may later enforce factory authorization or release
@@ -149,7 +157,8 @@ draft → candidate → approved → published → deprecated
 ```
 
 - Agents may create and revise `draft` and `candidate` assets.
-- Deterministic validation must pass before approval.
+- Deterministic validation must pass before approval; in 0.1 this is a governance
+  requirement enforced by the repository workflow, not a complete Core rule.
 - A human authority approves domain meaning and high-risk policy.
 - `published` means the asset is included in a released Harness package.
 - Replacement uses a relation and a new identifier/version; approved meaning is
@@ -172,19 +181,21 @@ Use these tests in order:
    Application.
 
 Visibility is independent from scope. A real Instance may contain public,
-internal, and restricted assets. An open distribution is built from an explicit
-public allowlist and only when every transitive dependency and provenance source is
-also public.
+internal, and restricted assets. The target policy requires an explicit public
+allowlist and a fully public transitive dependency/provenance closure. Core 0.1
+checks only direct edges from explicitly public loaded resources, while repository
+scripts enforce the current path allowlist; the full closure remains deferred.
 
 ## Deferred infrastructure
 
 ### Graph database
 
 Typed file references are enough to build a deterministic adjacency index,
-reverse links, impact report, and static graph at 0.1 scale. A graph database would
-introduce a second persisted state, synchronization, migration, backup, and access
-control. If multi-hop query load later proves the need, it should remain a derived
-read model.
+reverse links, impact report, and static graph at 0.1 scale. Core 0.1 currently
+implements only direct ownership-to-Application impact; the full multi-hop index is
+the next derived read model. A graph database would introduce a second persisted
+state, synchronization, migration, backup, and access control. If query load later
+proves the need, it should still remain derived from the versioned files.
 
 ### RDF/OWL and a complete ontology
 
@@ -196,10 +207,11 @@ questions plus an ontology steward.
 
 ### General rule DSL
 
-JSON Schema, OpenAPI, scenarios, and normal tests cover the first deterministic
-checks. A DSL becomes justified only when the same stable decision must be
-evaluated across several applications or runtimes and a tested conflict and
-explanation model exists.
+JSON Schema is executed by Core today; OpenAPI, scenarios, and normal tests are
+declared or run by external tooling. Together they are the intended first set of
+deterministic checks. A DSL becomes justified only when the same stable decision
+must be evaluated across several applications or runtimes and a tested conflict
+and explanation model exists.
 
 ## Consequence
 

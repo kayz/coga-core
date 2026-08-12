@@ -54,6 +54,8 @@ Application 的一次经验不会自动成为领域知识。只有在去除产�
 
 ## Agent 辅助流程
 
+以下是目标治理流程，不是 Core 0.1 单个命令的能力清单。Core 当前自动执行 Schema、选定引用/发布检查和直接消费者查询；来源权威性、场景执行、传递影响与审批分别需要受信外部证据和人类决定。
+
 1. Curator 从允许的来源或 Application 观察中提出 candidate；
 2. Validator 检查 Schema、ID、SemVer、引用闭包、来源和场景；
 3. Impact Analyst 计算受影响的 Package 与 Application；

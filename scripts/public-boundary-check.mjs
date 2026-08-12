@@ -5,10 +5,18 @@ const manifest = JSON.parse(readFileSync("public.release.json", "utf8"));
 const normalize = (value) => value.replaceAll("\\", "/");
 const entries = execFileSync(
   "git",
-  ["ls-files", "--cached", "--others", "--exclude-standard"],
+  [
+    "-c",
+    "core.quotepath=false",
+    "ls-files",
+    "-z",
+    "--cached",
+    "--others",
+    "--exclude-standard",
+  ],
   { encoding: "utf8" },
 )
-  .split(/\r?\n/u)
+  .split("\0")
   .filter(Boolean)
   .map(normalize);
 

@@ -13,6 +13,8 @@
     "SECURITY.md",
     "VISION.md",
     "VISION.zh-CN.md",
+    "设计方案及差异.md",
+    "本次项目调整.md",
     "docs/",
     "examples/broker-digital-channel/",
     "package-lock.json",

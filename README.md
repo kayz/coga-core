@@ -1,6 +1,6 @@
 # COGA Core
 
-[中文说明](README.zh-CN.md) · [Vision](VISION.md) · [Public example](examples/broker-digital-channel/README.md) · [Changelog](CHANGELOG.md)
+[中文说明](README.zh-CN.md) · [Vision](VISION.md) · [Design audit](设计方案及差异.md) · [Current adjustment](本次项目调整.md) · [Public example](examples/broker-digital-channel/README.md) · [Changelog](CHANGELOG.md)
 
 COGA Core is the open, domain-neutral contract layer for a human-governed,
 agent-operated software factory. It helps a team **calibrate a bounded domain**
@@ -10,7 +10,8 @@ build and evolve multiple applications.
 The 0.1 release is deliberately small. It proves that human-readable, versioned
 files can carry domain rules, platform constraints, engineering practices,
 organization policy, and operating knowledge; that Core can validate and catalog
-them; and that an artifact change can be traced to consuming applications.
+their 0.1 structure; and that an artifact can be traced to applications that
+directly lock its owning Harness package.
 
 ## The boundary
 
@@ -36,8 +37,11 @@ governance decisions.
 
 - [`@coga/core`](packages/core/README.md), a TypeScript library and `coga` CLI;
 - JSON Schema 2020-12 contracts for four resource kinds;
-- structural and semantic validation, including references and publication rules;
-- Markdown/JSON catalogs and deterministic reverse-impact analysis;
+- schema validation and selected cross-resource checks for identities, exact
+  dependencies, references, publication minimums, declared visibility edges, and
+  likely literal secrets;
+- Markdown/JSON catalogs and direct reverse-impact analysis from an artifact to
+  applications that exactly lock its owning Harness package;
 - a sanitized
   [Broker Digital Customer Channel example](examples/broker-digital-channel/README.md)
   with five Harness layers and two fictitious consuming applications;
@@ -86,6 +90,7 @@ spec:
   provenance: []
   relations: []
   validation: []
+  contractRefs: []
 ```
 
 ## Knowledge authoring and future UI
@@ -107,6 +112,8 @@ packages/core/                       domain-neutral library, CLI, and schemas
 examples/broker-digital-channel/     sanitized, reusable COGA Instance
 docs/                                cross-cutting architecture decisions
 scripts/                             privacy and public-boundary gates
+设计方案及差异.md                    audited current/target design boundary
+本次项目调整.md                      current alignment scope and verification
 ```
 
 Private applications and source material are intentionally outside the public
@@ -117,4 +124,6 @@ release allowlist and ignored by Git. See [CONTRIBUTING.md](CONTRIBUTING.md) and
 
 `0.1.0` is an initial-development contract. Exact Harness versions are required;
 backward compatibility is not promised before 1.0. The project is licensed under
-Apache License 2.0.
+Apache License 2.0. Core 0.1 does not load and validate referenced contract files,
+execute scenarios or approvals, or calculate transitive impact. See the
+[design audit](设计方案及差异.md) for the exact boundary and staged plan.
