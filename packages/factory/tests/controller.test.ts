@@ -11,6 +11,7 @@ import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { FactoryController, FactoryPausedError } from "../src/controller.js";
 import type { SandboxRunner } from "../src/types.js";
+import { selectReplayBase, workOrderRelativePath } from "./replay-base.js";
 
 const repositoryRoot = resolve(import.meta.dirname, "../../..");
 
@@ -32,7 +33,7 @@ function cloneCurrentHead(): string {
     clone,
   ]);
   execFileSync("git", ["-C", clone, "fetch", repositoryRoot, "HEAD"]);
-  execFileSync("git", ["-C", clone, "checkout", "--detach", "FETCH_HEAD"]);
+  selectReplayBase(clone);
   execFileSync("git", ["-C", clone, "switch", "-c", "factory-test-base"]);
   return clone;
 }
@@ -63,10 +64,7 @@ const fakeSandbox: SandboxRunner = {
 describe("FactoryController", () => {
   it("resumes after interruption and returns one idempotent local candidate", async () => {
     const repository = cloneCurrentHead();
-    const workOrder = join(
-      repository,
-      ".coga/work-orders/cedar-status/work-order.yaml",
-    );
+    const workOrder = join(repository, workOrderRelativePath);
     const stateRoot = join(repository, ".local", "factory-test-state");
     const workspaceRoot = join(
       tmpdir(),
@@ -129,10 +127,7 @@ describe("FactoryController", () => {
 
   it("fails closed when recovery state or worktree identity is changed", async () => {
     const repository = cloneCurrentHead();
-    const workOrder = join(
-      repository,
-      ".coga/work-orders/cedar-status/work-order.yaml",
-    );
+    const workOrder = join(repository, workOrderRelativePath);
     const stateRoot = join(repository, ".local", "factory-tamper-state");
     const workspaceRoot = join(
       tmpdir(),
