@@ -1,10 +1,10 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: wechat.miniprogram.package.boundary
   title: Mini-program package boundary
-  version: 0.1.0
-  lifecycle: published
+  version: 0.2.0
+  lifecycle: approved
   scope: instance
   visibility: public
   owners:
@@ -12,32 +12,35 @@ metadata:
   tags:
     - packaging
     - performance
+  attestations: []
 spec:
   artifactType: rule
-  summary: >-
-    Main-package and subpackage boundaries follow actual first-journey dependencies
-    and are checked against application-owned performance budgets.
-  statement: >-
+  summary:
+    Main-package and subpackage boundaries follow actual first-journey dependencies and are
+    checked against application-owned performance budgets.
+  statement:
     The main package contains only boot and first-journey dependencies. Optional or
-    independently entered features belong in deliberate subpackages. Shared modules
-    must not create hidden duplication. Each application declares testable package
-    and loading budgets without changing this platform invariant.
-  scope: >-
-    Applies to the build graph and release evidence of every mini-program consuming
-    this platform package.
+    independently entered features belong in deliberate subpackages. Shared modules must not create
+    hidden duplication. Each application declares testable package and loading budgets without
+    changing this platform invariant.
+  scope:
+    Applies to the build graph and release evidence of every mini-program consuming this platform
+    package.
   provenance:
     - source: https://developers.weixin.qq.com/miniprogram/dev/framework/subpackages/basic.html
       sourceType: document
       note: 小程序分包加载
   relations:
     - type: applies-to
-      target: wechat.miniprogram.scenario.delivery
+      target:
+        id: wechat.miniprogram.scenario.delivery
+        version: 0.2.0
   validation:
     - type: schema
-      status: passed
-      validator: coga.validation.domain.artifact.schema
+      status: pending
     - type: scenario
-      status: passed
-      target: wechat.miniprogram.scenario.delivery
-      validator: coga.validation.scenario.reference
+      status: pending
+      target:
+        id: wechat.miniprogram.scenario.delivery
+        version: 0.2.0
   contractRefs: []

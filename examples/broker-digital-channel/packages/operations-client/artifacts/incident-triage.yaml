@@ -1,10 +1,10 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: client.operations.incident.triage
   title: Client incident triage runbook
-  version: 0.1.0
-  lifecycle: published
+  version: 0.2.0
+  lifecycle: approved
   scope: instance
   visibility: public
   owners:
@@ -12,41 +12,58 @@ metadata:
   tags:
     - incident
     - runbook
+  attestations: []
 spec:
   artifactType: runbook
-  summary: >-
-    Triage establishes user impact and ownership before diagnosis, preserving an
-    evidence timeline without exposing private data.
-  statement: |-
-    1. Confirm the alert or report against observable user impact; do not infer severity from event count alone.
-    2. Identify application revision, harness locks, delivery target, affected journey, and last known good revision.
-    3. Classify whether the failure is client code, contract compatibility, backend availability, platform behavior, or unknown.
-    4. Assign an incident owner and record actions, evidence, timestamps, and decisions in the authorized system.
-    5. Mitigate with the smallest reversible action; use the rollback runbook when a recent candidate is implicated.
-    6. Verify recovery from the user's path and monitoring, then create a sanitized regression candidate from the learned failure.
-  scope: >-
-    Applies to deployed client-application defects and degraded journeys. Real
-    paging, severity, communication, and escalation bindings are organization-owned.
+  summary:
+    Triage establishes user impact and ownership before diagnosis, preserving an evidence
+    timeline without exposing private data.
+  statement: >-
+    1. Confirm the alert or report against observable user impact; do not infer severity from event
+    count alone.
+
+    2. Identify application revision, harness locks, delivery target, affected journey, and last
+    known good revision.
+
+    3. Classify whether the failure is client code, contract compatibility, backend availability,
+    platform behavior, or unknown.
+
+    4. Assign an incident owner and record actions, evidence, timestamps, and decisions in the
+    authorized system.
+
+    5. Mitigate with the smallest reversible action; use the rollback runbook when a recent
+    candidate is implicated.
+
+    6. Verify recovery from the user's path and monitoring, then create a sanitized regression
+    candidate from the learned failure.
+  scope:
+    Applies to deployed client-application defects and degraded journeys. Real paging, severity,
+    communication, and escalation bindings are organization-owned.
   provenance:
     - source: https://sre.google/workbook/incident-response/
       sourceType: document
       note: Google SRE Workbook — Incident Response
   relations:
     - type: depends-on
-      target: client.operations.telemetry.minimization
+      target:
+        id: client.operations.telemetry.minimization
+        version: 0.2.0
     - type: depends-on
-      target: client.operations.release.rollback
+      target:
+        id: client.operations.release.rollback
+        version: 0.2.0
     - type: applies-to
-      target: client.operations.scenario.incident
+      target:
+        id: client.operations.scenario.incident
+        version: 0.2.0
   validation:
     - type: schema
-      status: passed
-      validator: coga.validation.domain.artifact.schema
+      status: pending
     - type: scenario
-      status: passed
-      target: client.operations.scenario.incident
-      validator: coga.validation.scenario.reference
+      status: pending
+      target:
+        id: client.operations.scenario.incident
+        version: 0.2.0
     - type: review
-      status: passed
-      validator: coga.review.operations.owner
+      status: pending
   contractRefs: []

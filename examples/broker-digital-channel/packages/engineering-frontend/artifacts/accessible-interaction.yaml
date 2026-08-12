@@ -1,10 +1,10 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: frontend.client.accessible.interaction
   title: Accessible critical interaction
-  version: 0.1.0
-  lifecycle: published
+  version: 0.2.0
+  lifecycle: approved
   scope: instance
   visibility: public
   owners:
@@ -12,32 +12,35 @@ metadata:
   tags:
     - accessibility
     - interaction
+  attestations: []
 spec:
   artifactType: policy
-  summary: >-
-    Critical content and actions remain understandable without relying on color,
-    pointer precision, or an unlabeled visual control.
-  statement: >-
-    Interactive elements expose a meaningful name, role, state, and usable target;
-    focus and reading order follow the journey; status and validation messages are
-    programmatically perceivable; and financial or legal actions include error
-    prevention appropriate to the application's risk assessment.
-  scope: >-
-    Applies to core application journeys. Platform-specific accessibility support is
-    evaluated and documented where full web semantics are unavailable.
+  summary:
+    Critical content and actions remain understandable without relying on color, pointer
+    precision, or an unlabeled visual control.
+  statement:
+    Interactive elements expose a meaningful name, role, state, and usable target; focus and
+    reading order follow the journey; status and validation messages are programmatically
+    perceivable; and financial or legal actions include error prevention appropriate to the
+    application's risk assessment.
+  scope:
+    Applies to core application journeys. Platform-specific accessibility support is evaluated
+    and documented where full web semantics are unavailable.
   provenance:
     - source: https://www.w3.org/TR/WCAG22/
       sourceType: standard
       note: Web Content Accessibility Guidelines 2.2
   relations:
     - type: applies-to
-      target: frontend.client.scenario.accessibility
+      target:
+        id: frontend.client.scenario.accessibility
+        version: 0.2.0
   validation:
     - type: schema
-      status: passed
-      validator: coga.validation.domain.artifact.schema
+      status: pending
     - type: scenario
-      status: passed
-      target: frontend.client.scenario.accessibility
-      validator: coga.validation.scenario.reference
+      status: pending
+      target:
+        id: frontend.client.scenario.accessibility
+        version: 0.2.0
   contractRefs: []

@@ -1,12 +1,12 @@
-# `@coga/core` 0.1
+# `@coga/core` 0.2
 
-`@coga/core` is the domain-neutral control contract for a COGA software factory. It loads canonical YAML or JSON resources, validates their schemas and selected cross-resource constraints, produces a human-readable catalog, and traces an artifact to applications that directly consume its exact owning harness package version.
+`@coga/core` is the domain-neutral control contract for a COGA software factory. It safely loads canonical YAML or JSON resources, validates contracts and the versioned resource graph, produces a human-readable catalog, and traces an exact artifact version to direct, transitive, and older-pin application consumers.
 
 Core deliberately does **not** interpret broker, mini-program, organization, or product rules. A COGA instance supplies that knowledge as versioned `DomainArtifact` and `HarnessPackage` resources. An application records exact harness dependencies and keeps application-only decisions in `spec.choices`.
 
 ## Resource contract
 
-Every resource uses `schemaVersion: coga.dev/v0.1`, one of the four resource kinds, stable lowercase dot-separated IDs, exact SemVer versions, and `metadata.lifecycle`. Optional `metadata.scope` (`core`, `instance`, or `application`) and `metadata.visibility` (`public`, `internal`, or `restricted`) record ownership and publication intent. Core 0.1 checks direct edges from a resource explicitly marked `public` to loaded non-public resources; omitted visibility and full transitive publication closure are not inferred.
+Every resource uses `schemaVersion: coga.dev/v0.2`, one of the four resource kinds, stable lowercase dot-separated IDs, exact SemVer versions, and explicit `metadata.lifecycle`, `metadata.scope`, `metadata.visibility`, and `metadata.attestations`. References to artifacts, policies, packages, applications, and contracts always include an exact version.
 
 - `DomainArtifact` records a concept, rule, capability, scenario, policy, or runbook.
 - `HarnessPackage` owns artifacts in one of the domain, platform, engineering, organization, or operations layers.
@@ -18,13 +18,15 @@ Canonical manifests remain the source of truth. The schemas include titles, desc
 ## CLI
 
 ```console
-coga validate ./instance.yaml
-coga catalog ./instance.yaml
-coga catalog ./instance.yaml --format json
-coga impact ./instance.yaml domain.customer.identity
+coga validate ./instance.yaml --profile release
+coga catalog ./instance.yaml --profile public
+coga catalog ./instance.yaml --format json --profile public
+coga impact ./instance.yaml domain.customer.identity@0.2.0 --profile public
 ```
 
-Validation covers JSON Schema, declared file identity, exact package dependencies, artifact relations, the existence and type of scenario/runbook bindings, minimum published-artifact provenance, declared public visibility edges, and likely literal secrets. A capability must list at least one `contractRef`, but Core 0.1 does not open or validate the referenced contract file, execute scenarios, enforce governance approvals or `policyRefs`, or calculate transitive package impact. Secret references such as `env://NAME`, `vault://path`, or `${NAME}` are allowed; secret values are not.
+The `local` profile applies resource budgets, Schema and contract validation, graph closure, and cycle-safe secret checks while allowing explicitly loaded local Harness files outside the Instance root. `public` adds root containment, explicit public visibility, and transitive visibility closure. `release` also verifies contract digests, completed validation evidence, approval attestations required by `governance.approvalRules`, and non-empty lifecycle entries in `governance.releaseEvidence`.
+
+JSON Schema contracts must declare Draft 2020-12; OpenAPI contracts must use 3.1.x. Both carry `x-coga-contract: { id, version }`, and only bounded local `$ref` values are accepted. Core validates evidence records; it does not execute scenarios, tests, reviews, approvals, or arbitrary commands. Secret references such as `env://NAME`, `vault://path`, or `${NAME}` remain allowed; literal secret values do not.
 
 ## Library
 
@@ -38,13 +40,16 @@ import {
   checkLifecycleTransition,
 } from "@coga/core";
 
-const loaded = load("./instance.yaml");
-const result = validate(loaded);
+const options = { profile: "release" } as const;
+const loaded = load("./instance.yaml", options);
+const result = validate(loaded, options);
 if (!result.valid) throw new Error(result.issues[0]?.message);
 
-console.log(renderCatalogMarkdown(catalog(loaded)));
-console.log(impact(loaded, "domain.customer.identity"));
+console.log(renderCatalogMarkdown(catalog(loaded, options)));
+console.log(
+  impact(loaded, { id: "domain.customer.identity", version: "0.2.0" }, options),
+);
 console.log(checkLifecycleTransition("approved", "published"));
 ```
 
-Lifecycle progression is deliberately explicit and monotonic in 0.1: `draft → candidate → approved → published → deprecated`. Remaining in the current state is valid; skipping or moving backward is not.
+The load context records its profile, root directory, and safety limits. Passing different options to an already loaded Instance is rejected. Lifecycle progression remains explicit and monotonic: `draft → candidate → approved → published → deprecated`; remaining in the current state is valid, while skipping or moving backward is not.

@@ -17,11 +17,11 @@ const packageDirectory = resolve(testDirectory, "..");
 const fixture = (name: string) =>
   resolve(testDirectory, "fixtures", name, "instance.yaml");
 
-describe("COGA Core 0.1", () => {
+describe("COGA Core 0.2", () => {
   it("loads and validates a complete canonical fixture", () => {
     const loaded = load(fixture("valid"));
     expect(loaded.packages).toHaveLength(2);
-    expect(loaded.artifacts).toHaveLength(5);
+    expect(loaded.artifacts).toHaveLength(6);
     expect(loaded.applications).toHaveLength(1);
 
     const result = validate(loaded);
@@ -53,28 +53,33 @@ describe("COGA Core 0.1", () => {
   });
 
   it("finds affected applications only through exact harness package dependencies", () => {
-    const result = impact(fixture("valid"), "domain.customer.identity");
+    const result = impact(fixture("valid"), {
+      id: "domain.customer.identity",
+      version: "0.2.0",
+    });
     expect(result.found).toBe(true);
     expect(result.packages).toMatchObject([
       {
         id: "example.broker-channel.domain",
-        version: "0.1.0",
+        version: "0.2.0",
         layer: "domain",
       },
     ]);
     expect(result.affectedApplications.map((entry) => entry.id)).toEqual([
       "example.application.demo",
     ]);
-    expect(impact(fixture("valid"), "domain.unknown.artifact")).toMatchObject({
-      found: false,
-      affectedApplications: [],
-    });
+    expect(
+      impact(fixture("valid"), {
+        id: "domain.unknown.artifact",
+        version: "0.2.0",
+      }),
+    ).toMatchObject({ found: false, affectedApplications: [] });
   });
 
   it("builds deterministic JSON and human-readable catalogs", () => {
     const value = catalog(fixture("valid"));
     expect(value.instance.id).toBe("example.broker-channel.instance");
-    expect(value.packages.flatMap((entry) => entry.artifacts)).toHaveLength(5);
+    expect(value.packages.flatMap((entry) => entry.artifacts)).toHaveLength(6);
     expect(renderCatalogMarkdown(value)).toContain(
       "`domain.customer.identity`",
     );
@@ -93,7 +98,7 @@ describe("COGA Core 0.1", () => {
   });
 
   it("rejects public resources that directly reference loaded non-public resources", () => {
-    const loaded = load(fixture("valid"));
+    const loaded = load(fixture("valid"), { profile: "public" });
     const identity = loaded.artifacts.find(
       (entry) =>
         (entry.document as DomainArtifact).metadata?.id ===
@@ -155,7 +160,7 @@ describe("COGA Core 0.1", () => {
     const manifest = fixture("valid");
     const validation = spawnSync(
       process.execPath,
-      [cli, "validate", manifest],
+      [cli, "validate", "--profile", "release", manifest],
       {
         encoding: "utf8",
       },
@@ -165,7 +170,7 @@ describe("COGA Core 0.1", () => {
 
     const catalogResult = spawnSync(
       process.execPath,
-      [cli, "catalog", manifest, "--format", "json"],
+      [cli, "catalog", "--profile", "public", manifest, "--format", "json"],
       { encoding: "utf8" },
     );
     expect(catalogResult.status).toBe(0);
@@ -175,12 +180,38 @@ describe("COGA Core 0.1", () => {
 
     const impactResult = spawnSync(
       process.execPath,
-      [cli, "impact", manifest, "domain.customer.identity"],
+      [
+        cli,
+        "impact",
+        "--profile",
+        "public",
+        manifest,
+        "domain.customer.identity@0.2.0",
+      ],
       { encoding: "utf8" },
     );
     expect(impactResult.status).toBe(0);
     expect(JSON.parse(impactResult.stdout).affectedApplications).toHaveLength(
       1,
     );
-  });
+
+    const invalid = spawnSync(
+      process.execPath,
+      [cli, "validate", fixture("dangling"), "--profile", "public"],
+      { encoding: "utf8" },
+    );
+    expect(invalid.status).toBe(1);
+
+    const malformedQuery = spawnSync(process.execPath, [cli, "impact", "x"], {
+      encoding: "utf8",
+    });
+    expect(malformedQuery.status).toBe(2);
+
+    const missingArtifact = spawnSync(
+      process.execPath,
+      [cli, "impact", manifest, "domain.unknown.artifact@0.2.0"],
+      { encoding: "utf8" },
+    );
+    expect(missingArtifact.status).toBe(1);
+  }, 20_000);
 });

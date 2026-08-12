@@ -1,12 +1,12 @@
 # Knowledge and Domain Asset Model
 
-This document records why COGA 0.1 uses a file-first, schema-driven model for
+This document records why COGA 0.2 uses a file-first, schema-driven model for
 domain knowledge. It is a design decision, not a claim that every kind of domain
 knowledge can already be automated.
 
 ## Decision summary
 
-COGA 0.1 uses:
+COGA 0.2 uses:
 
 - YAML 1.2 files as the canonical authored representation;
 - JSON Schema Draft 2020-12 for structural validation and future form generation;
@@ -33,15 +33,16 @@ format](https://backstage.io/docs/next/features/software-catalog/descriptor-form
 Every COGA resource uses a common envelope:
 
 ```yaml
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: broker.digital.channel.rule.backend-entitlement-authority
   title: Backend entitlements are authoritative
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: candidate
   scope: instance
   visibility: public
+  attestations: []
   owners:
     - role.domain-steward
 spec:
@@ -59,13 +60,13 @@ resource's consumer-visible version. Git commits identify an exact source
 revision. A future package digest will identify an immutable build. Business
 effective dates are separate from all four.
 
-SemVer explicitly treats `0.y.z` as initial development, so 0.1 consumers use
+SemVer explicitly treats `0.y.z` as initial development, so 0.2 consumers use
 exact versions rather than permissive ranges. See [Semantic Versioning
 2.0.0](https://semver.org/).
 
 ## Minimal asset types
 
-COGA Core 0.1 recognizes a deliberately small set:
+COGA Core 0.2 recognizes a deliberately small set:
 
 | Type         | Purpose                                                                  |
 | ------------ | ------------------------------------------------------------------------ |
@@ -91,7 +92,7 @@ PROV](https://www.w3.org/TR/prov-primer/):
 - `used`, `wasGeneratedBy`, `wasDerivedFrom`, and `wasAttributedTo` describe why an
   asset exists.
 
-COGA 0.1 stores `source`, `sourceType`, and optional `locator`, `capturedAt`, and
+COGA 0.2 stores `source`, `sourceType`, and optional `locator`, `capturedAt`, and
 `note`. It does not currently have separate authority, confidentiality, or digest
 fields, and it does not copy long source documents into public assets. Provenance
 records what was used; it does not prove that the source itself is correct.
@@ -99,12 +100,12 @@ records what was used; it does not prove that the source itself is correct.
 ## Concepts without a full ontology stack
 
 The model is inspired by [SKOS](https://www.w3.org/TR/skos-reference/), but the
-0.1 Schema implements a smaller subset: stable IDs, a human-readable statement,
+0.2 Schema implements a smaller subset: stable IDs, a human-readable statement,
 and typed relations such as `depends-on`, `refines`, and `conflicts-with`.
 Preferred/alternative labels, broader/narrower relations, examples, and
-exact/close vocabulary matches are target extensions, not 0.1 fields.
+exact/close vocabulary matches are target extensions, not 0.2 fields.
 
-COGA 0.1 does not require RDF or OWL. Stable identifiers and typed relations keep
+COGA 0.2 does not require RDF or OWL. Stable identifiers and typed relations keep
 a future export path open without imposing an open-world reasoner on application
 validation. Formal industry ontologies such as [FIBO](https://spec.edmcouncil.org/fibo/index.html)
 remain valuable external references when their bounded subject actually applies;
@@ -122,14 +123,16 @@ declare intended evidence from one or more enforcement mechanisms:
 - an ordinary automated test;
 - explicit manual review.
 
-Core 0.1 validates the shape of these records and resolves a declared scenario
-target to a loaded scenario artifact. It does not execute OpenAPI validation,
-scenarios, ordinary tests, or reviews. Those results must currently be produced by
-an external trusted workflow; treating them as a release gate is a target design.
+Core 0.2 validates JSON Schema and OpenAPI 3.1 contract files, resolves exact
+validation targets, and checks that completed validation records contain a time,
+validator, and non-empty evidence. It does not execute scenarios, ordinary tests,
+reviews, or approval decisions. Those results must be produced by a trusted
+external workflow; the `release` profile verifies the resulting records and exact
+Policy attestations without rerunning them.
 
 [Open Policy Agent](https://www.openpolicyagent.org/docs/policy-language) is a
 mature policy-as-code system and may later enforce factory authorization or release
-gates that must be evaluated in several runtimes. COGA 0.1 does not add a general
+gates that must be evaluated in several runtimes. COGA 0.2 does not add a general
 rule DSL: rule conflict, precedence, time, exceptions, explanation, sandboxing, and
 testing would otherwise become a second major product before real use has proved
 the need.
@@ -150,15 +153,15 @@ authoritative database.
 
 ## Lifecycle and agent authority
 
-COGA 0.1 uses:
+COGA 0.2 uses:
 
 ```text
 draft → candidate → approved → published → deprecated
 ```
 
 - Agents may create and revise `draft` and `candidate` assets.
-- Deterministic validation must pass before approval; in 0.1 this is a governance
-  requirement enforced by the repository workflow, not a complete Core rule.
+- Deterministic validation evidence must exist before publication; Core verifies
+  its record shape and graph references, while a trusted runner produces it.
 - A human authority approves domain meaning and high-risk policy.
 - `published` means the asset is included in a released Harness package.
 - Replacement uses a relation and a new identifier/version; approved meaning is
@@ -181,19 +184,19 @@ Use these tests in order:
    Application.
 
 Visibility is independent from scope. A real Instance may contain public,
-internal, and restricted assets. The target policy requires an explicit public
-allowlist and a fully public transitive dependency/provenance closure. Core 0.1
-checks only direct edges from explicitly public loaded resources, while repository
-scripts enforce the current path allowlist; the full closure remains deferred.
+internal, and restricted assets. The `public` and `release` profiles require every
+loaded resource to be explicitly public, keep paths inside the Instance root, and
+check the full transitive resource closure. Repository scripts independently
+enforce the release-file allowlist and content classification policy.
 
 ## Deferred infrastructure
 
 ### Graph database
 
 Typed file references are enough to build a deterministic adjacency index,
-reverse links, impact report, and static graph at 0.1 scale. Core 0.1 currently
-implements only direct ownership-to-Application impact; the full multi-hop index is
-the next derived read model. A graph database would introduce a second persisted
+reverse links, impact report, and static graph at 0.2 scale. Core 0.2 derives
+multi-hop direct, transitive, and older-pin impact paths from the loaded files. A
+graph database would introduce a second persisted
 state, synchronization, migration, backup, and access control. If query load later
 proves the need, it should still remain derived from the versioned files.
 
@@ -207,8 +210,8 @@ questions plus an ontology steward.
 
 ### General rule DSL
 
-JSON Schema is executed by Core today; OpenAPI, scenarios, and normal tests are
-declared or run by external tooling. Together they are the intended first set of
+JSON Schema and OpenAPI contract validation are executed by Core today; scenarios
+and normal tests are declared and run by external tooling. Together they are the intended first set of
 deterministic checks. A DSL becomes justified only when the same stable decision
 must be evaluated across several applications or runtimes and a tested conflict
 and explanation model exists.

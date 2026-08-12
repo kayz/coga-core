@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://coga.dev/schemas/v0.1/coga-instance.schema.json",
+  "$id": "https://coga.dev/schemas/v0.2/coga-instance.schema.json",
   "title": "COGA Instance",
   "description": "A bounded domain factory that registers exact harness packages and applications.",
   "type": "object",
@@ -11,8 +11,8 @@
       "title": "Schema version",
       "description": "Frozen COGA resource contract version.",
       "type": "string",
-      "const": "coga.dev/v0.1",
-      "default": "coga.dev/v0.1"
+      "const": "coga.dev/v0.2",
+      "default": "coga.dev/v0.2"
     },
     "kind": {
       "title": "Resource kind",
@@ -22,7 +22,7 @@
       "default": "CogaInstance"
     },
     "metadata": {
-      "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/metadata"
+      "$ref": "https://coga.dev/schemas/v0.2/common.schema.json#/$defs/metadata"
     },
     "spec": {
       "title": "Instance definition",
@@ -71,7 +71,7 @@
           "title": "Registered harness packages",
           "type": "array",
           "items": {
-            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/locatedRef"
+            "$ref": "https://coga.dev/schemas/v0.2/common.schema.json#/$defs/locatedRef"
           },
           "uniqueItems": true,
           "default": [],
@@ -83,7 +83,7 @@
           "title": "Registered applications",
           "type": "array",
           "items": {
-            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/locatedRef"
+            "$ref": "https://coga.dev/schemas/v0.2/common.schema.json#/$defs/locatedRef"
           },
           "uniqueItems": true,
           "default": [],
@@ -93,32 +93,34 @@
         },
         "governance": {
           "title": "Governance",
-          "description": "Instance-selected policies applied through Core's generic lifecycle mechanism.",
+          "description": "Exact policy rules applied to lifecycle states.",
           "type": "object",
           "additionalProperties": false,
+          "required": ["approvalRules"],
           "properties": {
-            "approvalRequiredFor": {
-              "title": "Approval-required lifecycle states",
+            "approvalRules": {
+              "title": "Lifecycle approval rules",
               "type": "array",
               "items": {
-                "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/lifecycle"
-              },
-              "uniqueItems": true,
-              "default": ["published"],
-              "x-coga-ui": {
-                "control": "multi-select"
-              }
-            },
-            "policyRefs": {
-              "title": "Governance policy artifacts",
-              "type": "array",
-              "items": {
-                "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/stableId"
+                "$ref": "https://coga.dev/schemas/v0.2/common.schema.json#/$defs/approvalRule"
               },
               "uniqueItems": true,
               "default": [],
               "x-coga-ui": {
-                "control": "artifact-picker"
+                "control": "list"
+              }
+            },
+            "releaseEvidence": {
+              "title": "Lifecycle release evidence",
+              "description": "Immutable evidence locators proving the controlled lifecycle release decision.",
+              "type": "array",
+              "items": {
+                "$ref": "https://coga.dev/schemas/v0.2/common.schema.json#/$defs/releaseEvidenceRule"
+              },
+              "uniqueItems": true,
+              "default": [],
+              "x-coga-ui": {
+                "control": "evidence-list"
               }
             },
             "extensions": {
@@ -131,7 +133,7 @@
               }
             }
           },
-          "default": {}
+          "default": { "approvalRules": [], "releaseEvidence": [] }
         }
       }
     }

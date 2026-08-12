@@ -1,9 +1,9 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: client.operations.scenario.incident
   title: Client incident scenario
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: approved
   scope: instance
   visibility: public
@@ -12,11 +12,10 @@ metadata:
   tags:
     - scenario
     - incident
+  attestations: []
 spec:
   artifactType: scenario
-  summary: >-
-    An observable incident example that separates client, contract, backend, and
-    platform evidence.
+  summary: An observable incident example that separates client, contract, backend, and platform evidence.
   statement: |-
     Scenario: a core journey fails after a release
       Given monitoring and a user-path check confirm impact
@@ -25,20 +24,23 @@ spec:
       And evidence is classified without raw customer or session data
       And mitigation is selected from reversible, pre-approved actions
       And recovery is verified from both the user path and monitoring
-  scope: >-
-    Reused by applications that bind this operations package to private monitoring
-    and incident systems.
+  scope:
+    Reused by applications that bind this operations package to private monitoring and incident
+    systems.
   provenance:
     - source: https://sre.google/workbook/incident-response/
       sourceType: document
       note: Google SRE Workbook — Incident Response
   relations:
     - type: verifies
-      target: client.operations.telemetry.minimization
+      target:
+        id: client.operations.telemetry.minimization
+        version: 0.2.0
     - type: verifies
-      target: client.operations.incident.triage
+      target:
+        id: client.operations.incident.triage
+        version: 0.2.0
   validation:
     - type: review
-      status: passed
-      validator: coga.review.operations.owner
+      status: pending
   contractRefs: []

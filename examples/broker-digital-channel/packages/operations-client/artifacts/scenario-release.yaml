@@ -1,9 +1,9 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: client.operations.scenario.release
   title: Client rollback readiness scenario
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: approved
   scope: instance
   visibility: public
@@ -12,10 +12,10 @@ metadata:
   tags:
     - scenario
     - rollback
+  attestations: []
 spec:
   artifactType: scenario
-  summary: >-
-    An observable example for a release candidate with incomplete recovery evidence.
+  summary: An observable example for a release candidate with incomplete recovery evidence.
   statement: |-
     Scenario: rollback evidence is incomplete
       Given a candidate passed feature tests
@@ -23,17 +23,17 @@ spec:
       When promotion evidence is evaluated
       Then the candidate remains blocked
       And the missing recovery evidence is reported without changing any test gate
-  scope: >-
-    Reused by application promotion workflows across delivery targets.
+  scope: Reused by application promotion workflows across delivery targets.
   provenance:
     - source: https://sre.google/workbook/canarying-releases/
       sourceType: document
       note: Google SRE Workbook — Canarying Releases
   relations:
     - type: verifies
-      target: client.operations.release.rollback
+      target:
+        id: client.operations.release.rollback
+        version: 0.2.0
   validation:
     - type: review
-      status: passed
-      validator: coga.review.operations.owner
+      status: pending
   contractRefs: []

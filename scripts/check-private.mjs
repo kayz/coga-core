@@ -11,7 +11,15 @@ if (!existsSync(`${privateRoot}/package.json`)) {
 
 const manifest = spawnSync(
   process.execPath,
-  ["../../packages/core/dist/cli.js", "validate", "local-instance.yaml"],
+  [
+    "../../packages/core/dist/cli.js",
+    "validate",
+    "local-instance.yaml",
+    "--profile",
+    "local",
+    "--root",
+    "../..",
+  ],
   {
     cwd: privateRoot,
     stdio: "inherit",

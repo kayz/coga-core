@@ -1,0 +1,14 @@
+openapi: 3.1.0
+info:
+  title: Fixture customer profile API
+  version: 0.2.0
+x-coga-contract:
+  id: contract.customer.profile-api
+  version: 0.2.0
+paths:
+  /customer-profile:
+    get:
+      operationId: getCustomerProfile
+      responses:
+        "204":
+          description: No profile is available for this fixture request

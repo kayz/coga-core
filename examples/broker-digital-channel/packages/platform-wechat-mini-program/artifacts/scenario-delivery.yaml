@@ -1,9 +1,9 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: wechat.miniprogram.scenario.delivery
   title: Mini-program delivery scenario
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: approved
   scope: instance
   visibility: public
@@ -12,10 +12,10 @@ metadata:
   tags:
     - scenario
     - delivery
+  attestations: []
 spec:
   artifactType: scenario
-  summary: >-
-    An observable example for package evidence and credential isolation.
+  summary: An observable example for package evidence and credential isolation.
   statement: |-
     Scenario: build evidence reveals a package regression
       Given an application declares package and loading budgets
@@ -23,8 +23,7 @@ spec:
       Then the evidence identifies the application and harness revisions
       And the package report is compared with those budgets
       And a failed budget blocks candidate promotion without exposing credentials
-  scope: >-
-    Reused by mini-program application build and release-candidate preparation.
+  scope: Reused by mini-program application build and release-candidate preparation.
   provenance:
     - source: https://developers.weixin.qq.com/miniprogram/dev/framework/subpackages/basic.html
       sourceType: document
@@ -34,11 +33,14 @@ spec:
       note: miniprogram-ci
   relations:
     - type: verifies
-      target: wechat.miniprogram.package.boundary
+      target:
+        id: wechat.miniprogram.package.boundary
+        version: 0.2.0
     - type: verifies
-      target: wechat.miniprogram.delivery.evidence
+      target:
+        id: wechat.miniprogram.delivery.evidence
+        version: 0.2.0
   validation:
     - type: review
-      status: passed
-      validator: coga.review.platform.owner
+      status: pending
   contractRefs: []

@@ -1,10 +1,10 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: client.operations.release.rollback
   title: Client release rollback runbook
-  version: 0.1.0
-  lifecycle: published
+  version: 0.2.0
+  lifecycle: approved
   scope: instance
   visibility: public
   owners:
@@ -12,20 +12,30 @@ metadata:
   tags:
     - release
     - rollback
+  attestations: []
 spec:
   artifactType: runbook
-  summary: >-
-    A client release records a last-known-good candidate and a target-appropriate,
-    pre-reviewed recovery path.
-  statement: |-
-    1. Before promotion, record the candidate revision, exact harness locks, contract locks, evidence, and last-known-good revision.
-    2. Confirm that the delivery target supports the chosen recovery mechanism and document platform latency or review constraints.
-    3. When rollback criteria are met, stop further promotion and invoke the approved reversible mechanism.
-    4. Verify the critical user journey and monitoring against the restored revision; do not close from deployment status alone.
-    5. Preserve the failed candidate and sanitized evidence for diagnosis, then add a regression scenario before retrying promotion.
-  scope: >-
-    Applies to client release preparation and mitigation. It does not authorize a
-    production release, platform review action, or environment administration.
+  summary:
+    A client release records a last-known-good candidate and a target-appropriate, pre-reviewed
+    recovery path.
+  statement: >-
+    1. Before promotion, record the candidate revision, exact harness locks, contract locks,
+    evidence, and last-known-good revision.
+
+    2. Confirm that the delivery target supports the chosen recovery mechanism and document platform
+    latency or review constraints.
+
+    3. When rollback criteria are met, stop further promotion and invoke the approved reversible
+    mechanism.
+
+    4. Verify the critical user journey and monitoring against the restored revision; do not close
+    from deployment status alone.
+
+    5. Preserve the failed candidate and sanitized evidence for diagnosis, then add a regression
+    scenario before retrying promotion.
+  scope:
+    Applies to client release preparation and mitigation. It does not authorize a production
+    release, platform review action, or environment administration.
   provenance:
     - source: https://sre.google/workbook/canarying-releases/
       sourceType: document
@@ -35,18 +45,21 @@ spec:
       note: Google SRE Workbook — Incident Response
   relations:
     - type: depends-on
-      target: frontend.client.verification.evidence
+      target:
+        id: frontend.client.verification.evidence
+        version: 0.2.0
     - type: applies-to
-      target: client.operations.scenario.release
+      target:
+        id: client.operations.scenario.release
+        version: 0.2.0
   validation:
     - type: schema
-      status: passed
-      validator: coga.validation.domain.artifact.schema
+      status: pending
     - type: scenario
-      status: passed
-      target: client.operations.scenario.release
-      validator: coga.validation.scenario.reference
+      status: pending
+      target:
+        id: client.operations.scenario.release
+        version: 0.2.0
     - type: review
-      status: passed
-      validator: coga.review.operations.owner
+      status: pending
   contractRefs: []

@@ -1,10 +1,10 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: frontend.client.verification.evidence
   title: Frontend candidate evidence
-  version: 0.1.0
-  lifecycle: published
+  version: 0.2.0
+  lifecycle: approved
   scope: instance
   visibility: public
   owners:
@@ -12,19 +12,20 @@ metadata:
   tags:
     - testing
     - evidence
+  attestations: []
 spec:
   artifactType: capability
-  summary: >-
-    Each frontend candidate produces reviewable evidence tied to the exact source
-    and harness dependency locks.
-  statement: >-
-    Candidate evidence identifies revisions and records static analysis, unit and
-    component results, contract compatibility, core journey outcomes, accessibility
-    checks, visual changes where relevant, and target-specific build budgets. A
-    failure remains visible and cannot be replaced by agent confidence.
-  scope: >-
-    Applies before application merge or delivery-candidate promotion; the exact test
-    tools and risk thresholds are selected by the application and organization.
+  summary:
+    Each frontend candidate produces reviewable evidence tied to the exact source and harness
+    dependency locks.
+  statement:
+    Candidate evidence identifies revisions and records static analysis, unit and component
+    results, contract compatibility, core journey outcomes, accessibility checks, visual changes
+    where relevant, and target-specific build budgets. A failure remains visible and cannot be
+    replaced by agent confidence.
+  scope:
+    Applies before application merge or delivery-candidate promotion; the exact test tools and
+    risk thresholds are selected by the application and organization.
   provenance:
     - source: https://cucumber.io/docs/gherkin/reference/
       sourceType: standard
@@ -34,22 +35,29 @@ spec:
       note: Web Content Accessibility Guidelines 2.2
   relations:
     - type: verifies
-      target: frontend.client.state.explicit
+      target:
+        id: frontend.client.state.explicit
+        version: 0.2.0
     - type: verifies
-      target: frontend.client.accessible.interaction
+      target:
+        id: frontend.client.accessible.interaction
+        version: 0.2.0
   validation:
     - type: schema
-      status: passed
-      validator: coga.validation.domain.artifact.schema
+      status: pending
     - type: scenario
-      status: passed
-      target: frontend.client.scenario.contract.and.state
-      validator: coga.validation.scenario.reference
+      status: pending
+      target:
+        id: frontend.client.scenario.contract.and.state
+        version: 0.2.0
     - type: scenario
-      status: passed
-      target: frontend.client.scenario.accessibility
-      validator: coga.validation.scenario.reference
+      status: pending
+      target:
+        id: frontend.client.scenario.accessibility
+        version: 0.2.0
   contractRefs:
     - id: contract.frontend.candidate.evidence
-      version: 0.1.0
+      version: 0.2.0
       path: ../../../contracts/frontend-candidate-evidence.schema.json
+      format: json-schema-2020-12
+      digest: sha256:6b3aa95a7576f2de226a7c85f164113dc813b11bc07f85a075e8ed7d6f7cc355

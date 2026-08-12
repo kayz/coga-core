@@ -1,10 +1,13 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: CogaInstance
 metadata:
   id: test.invalid-rule.instance
   title: Invalid published rule fixture
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: draft
+  scope: instance
+  visibility: public
+  attestations: []
 spec:
   domain:
     name: Invalid rule fixture
@@ -12,7 +15,9 @@ spec:
     nonGoals: []
   packages:
     - id: test.invalid-rule.package
-      version: 0.1.0
+      version: 0.2.0
       path: package.yaml
   applications: []
-  governance: {}
+  governance:
+    approvalRules: []
+    releaseEvidence: []

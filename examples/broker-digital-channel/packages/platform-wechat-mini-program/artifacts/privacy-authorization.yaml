@@ -1,10 +1,10 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: wechat.miniprogram.privacy.authorization
   title: Mini-program privacy authorization
-  version: 0.1.0
-  lifecycle: published
+  version: 0.2.0
+  lifecycle: approved
   scope: instance
   visibility: public
   owners:
@@ -12,18 +12,18 @@ metadata:
   tags:
     - privacy
     - permission
+  attestations: []
 spec:
   artifactType: policy
-  summary: >-
-    Privacy-sensitive platform capabilities require declared purpose, platform
-    authorization handling, and a deliberate denial path.
-  statement: >-
-    Before invoking a privacy-sensitive platform API, the application must present
-    the applicable purpose and follow the current platform privacy-authorization
-    flow. Denial, withdrawal, or unavailable permission must produce a documented
-    safe state. The application must not repeatedly coerce consent or silently
-    substitute unrelated data.
-  scope: >-
+  summary:
+    Privacy-sensitive platform capabilities require declared purpose, platform authorization
+    handling, and a deliberate denial path.
+  statement:
+    Before invoking a privacy-sensitive platform API, the application must present the
+    applicable purpose and follow the current platform privacy-authorization flow. Denial,
+    withdrawal, or unavailable permission must produce a documented safe state. The application must
+    not repeatedly coerce consent or silently substitute unrelated data.
+  scope:
     Applies to WeChat platform APIs governed by the mini-program privacy mechanism;
     organization-specific notices and data inventories remain private overlays.
   provenance:
@@ -35,18 +35,21 @@ spec:
       note: 中华人民共和国个人信息保护法
   relations:
     - type: refines
-      target: broker.channel.personal.data.minimization
+      target:
+        id: broker.channel.personal.data.minimization
+        version: 0.2.0
     - type: applies-to
-      target: wechat.miniprogram.scenario.session.and.privacy
+      target:
+        id: wechat.miniprogram.scenario.session.and.privacy
+        version: 0.2.0
   validation:
     - type: schema
-      status: passed
-      validator: coga.validation.domain.artifact.schema
+      status: pending
     - type: scenario
-      status: passed
-      target: wechat.miniprogram.scenario.session.and.privacy
-      validator: coga.validation.scenario.reference
+      status: pending
+      target:
+        id: wechat.miniprogram.scenario.session.and.privacy
+        version: 0.2.0
     - type: review
-      status: passed
-      validator: coga.review.platform.privacy
+      status: pending
   contractRefs: []

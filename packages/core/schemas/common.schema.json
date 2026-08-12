@@ -1,206 +1,145 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://coga.dev/schemas/v0.1/common.schema.json",
+  "$id": "https://coga.dev/schemas/v0.2/common.schema.json",
   "title": "COGA Common Definitions",
-  "description": "Reusable form-ready definitions for COGA 0.1 resources.",
+  "description": "Reusable form-ready definitions for COGA 0.2 resources.",
   "$defs": {
     "stableId": {
       "title": "Stable ID",
-      "description": "A lowercase, dot-separated, namespaced identifier. Segments may contain digits and hyphens.",
       "type": "string",
       "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$",
       "examples": ["domain.customer.identity"],
-      "x-coga-ui": {
-        "control": "text",
-        "placeholder": "namespace.subject.name"
-      }
+      "x-coga-ui": { "control": "text" }
     },
     "semver": {
       "title": "Exact semantic version",
-      "description": "An exact SemVer value; ranges and tags are not accepted.",
       "type": "string",
       "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$",
-      "examples": ["0.1.0"],
-      "x-coga-ui": {
-        "control": "text",
-        "placeholder": "0.1.0"
-      }
+      "examples": ["0.2.0"],
+      "x-coga-ui": { "control": "text" }
     },
     "lifecycle": {
       "title": "Lifecycle",
-      "description": "Governed publication state of this versioned resource.",
       "type": "string",
       "enum": ["draft", "candidate", "approved", "published", "deprecated"],
-      "default": "draft",
-      "x-coga-ui": {
-        "control": "select"
-      }
-    },
-    "metadata": {
-      "title": "Resource metadata",
-      "description": "Stable identity, display metadata, exact version, and lifecycle state.",
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["id", "title", "version", "lifecycle"],
-      "properties": {
-        "id": {
-          "$ref": "#/$defs/stableId"
-        },
-        "title": {
-          "title": "Title",
-          "description": "Short human-readable resource name.",
-          "type": "string",
-          "minLength": 1,
-          "x-coga-ui": {
-            "control": "text"
-          }
-        },
-        "version": {
-          "$ref": "#/$defs/semver"
-        },
-        "lifecycle": {
-          "$ref": "#/$defs/lifecycle"
-        },
-        "owners": {
-          "title": "Owners",
-          "description": "Human or team identifiers accountable for this resource.",
-          "type": "array",
-          "items": {
-            "type": "string",
-            "minLength": 1
-          },
-          "uniqueItems": true,
-          "default": [],
-          "x-coga-ui": {
-            "control": "tags"
-          }
-        },
-        "tags": {
-          "title": "Tags",
-          "description": "Search and catalog labels without identity semantics.",
-          "type": "array",
-          "items": {
-            "type": "string",
-            "minLength": 1
-          },
-          "uniqueItems": true,
-          "default": [],
-          "x-coga-ui": {
-            "control": "tags"
-          }
-        },
-        "scope": {
-          "title": "Ownership scope",
-          "description": "The architectural boundary that owns this resource.",
-          "type": "string",
-          "enum": ["core", "instance", "application"],
-          "x-coga-ui": {
-            "control": "select"
-          }
-        },
-        "visibility": {
-          "title": "Visibility",
-          "description": "The publication boundary for this resource. Public resources cannot directly depend on loaded non-public resources.",
-          "type": "string",
-          "enum": ["public", "internal", "restricted"],
-          "x-coga-ui": {
-            "control": "select"
-          }
-        }
-      }
+      "x-coga-ui": { "control": "select" }
     },
     "exactRef": {
       "title": "Exact version reference",
-      "description": "A stable ID paired with an exact SemVer version.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "version"],
       "properties": {
-        "id": {
-          "$ref": "#/$defs/stableId"
-        },
-        "version": {
-          "$ref": "#/$defs/semver"
-        }
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/semver" }
       }
     },
     "locatedRef": {
       "title": "Located exact resource reference",
-      "description": "An exact resource reference and its canonical YAML or JSON file path.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "version", "path"],
       "properties": {
-        "id": {
-          "$ref": "#/$defs/stableId"
-        },
-        "version": {
-          "$ref": "#/$defs/semver"
-        },
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/semver" },
         "path": {
-          "title": "Canonical file",
-          "description": "Path relative to the referring manifest, or an absolute path.",
           "type": "string",
           "minLength": 1,
-          "x-coga-ui": {
-            "control": "file"
-          }
+          "x-coga-ui": { "control": "file" }
+        }
+      }
+    },
+    "approvalAttestation": {
+      "title": "Approval attestation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "policy", "approver", "approvedAt", "evidence"],
+      "properties": {
+        "type": { "const": "approval" },
+        "policy": { "$ref": "#/$defs/exactRef" },
+        "approver": { "type": "string", "minLength": 1 },
+        "approvedAt": { "type": "string", "format": "date-time" },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "metadata": {
+      "title": "Resource metadata",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "version",
+        "lifecycle",
+        "scope",
+        "visibility",
+        "attestations"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "title": { "type": "string", "minLength": 1 },
+        "version": { "$ref": "#/$defs/semver" },
+        "lifecycle": { "$ref": "#/$defs/lifecycle" },
+        "owners": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true,
+          "default": [],
+          "x-coga-ui": { "control": "tags" }
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true,
+          "default": [],
+          "x-coga-ui": { "control": "tags" }
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["core", "instance", "application"],
+          "x-coga-ui": { "control": "select" }
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["public", "internal", "restricted"],
+          "x-coga-ui": { "control": "select" }
+        },
+        "attestations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/approvalAttestation" },
+          "default": [],
+          "x-coga-ui": { "control": "evidence-list" }
         }
       }
     },
     "provenance": {
       "title": "Provenance record",
-      "description": "Traceable authority for a domain assertion.",
       "type": "object",
       "additionalProperties": false,
       "required": ["source", "sourceType"],
       "properties": {
-        "source": {
-          "title": "Source",
-          "description": "Stable document URI, repository path, system identifier, or named human authority.",
-          "type": "string",
-          "minLength": 1
-        },
+        "source": { "type": "string", "minLength": 1 },
         "sourceType": {
-          "title": "Source type",
           "type": "string",
-          "enum": ["document", "standard", "expert", "system", "observation"],
-          "x-coga-ui": {
-            "control": "select"
-          }
+          "enum": ["document", "standard", "expert", "system", "observation"]
         },
-        "locator": {
-          "title": "Locator",
-          "description": "Section, page, record, commit, or other precise location within the source.",
-          "type": "string",
-          "minLength": 1
-        },
-        "capturedAt": {
-          "title": "Captured at",
-          "type": "string",
-          "format": "date-time",
-          "x-coga-ui": {
-            "control": "datetime"
-          }
-        },
-        "note": {
-          "title": "Provenance note",
-          "type": "string",
-          "x-coga-ui": {
-            "control": "textarea"
-          }
-        }
+        "locator": { "type": "string", "minLength": 1 },
+        "capturedAt": { "type": "string", "format": "date-time" },
+        "note": { "type": "string" }
       }
     },
     "relation": {
       "title": "Artifact relation",
-      "description": "A typed edge to another stable artifact, optionally pinned to an exact version.",
       "type": "object",
       "additionalProperties": false,
       "required": ["type", "target"],
       "properties": {
         "type": {
-          "title": "Relation type",
           "type": "string",
           "enum": [
             "depends-on",
@@ -210,114 +149,114 @@
             "implements",
             "verifies",
             "applies-to"
-          ],
-          "x-coga-ui": {
-            "control": "select"
-          }
+          ]
         },
-        "target": {
-          "$ref": "#/$defs/stableId"
-        },
-        "version": {
-          "$ref": "#/$defs/semver"
-        },
-        "note": {
-          "title": "Relation note",
-          "type": "string"
-        }
+        "target": { "$ref": "#/$defs/exactRef" },
+        "note": { "type": "string" }
       }
     },
     "validation": {
       "title": "Validation record",
-      "description": "A deterministic test, scenario, schema, or human review result supporting publication.",
       "type": "object",
       "additionalProperties": false,
       "required": ["type", "status"],
       "properties": {
         "type": {
-          "title": "Validation type",
           "type": "string",
-          "enum": ["scenario", "schema", "test", "review"],
-          "x-coga-ui": {
-            "control": "select"
-          }
+          "enum": ["scenario", "schema", "test", "review"]
         },
         "status": {
-          "title": "Status",
           "type": "string",
-          "enum": ["pending", "passed", "failed"],
-          "default": "pending",
-          "x-coga-ui": {
-            "control": "select"
-          }
+          "enum": ["pending", "passed", "failed"]
         },
-        "target": {
-          "$ref": "#/$defs/stableId"
-        },
-        "checkedAt": {
-          "title": "Checked at",
-          "type": "string",
-          "format": "date-time",
-          "x-coga-ui": {
-            "control": "datetime"
-          }
-        },
-        "validator": {
-          "title": "Validator",
-          "description": "Stable tool, test, workflow, or reviewer identifier.",
-          "type": "string",
-          "minLength": 1
-        },
+        "target": { "$ref": "#/$defs/exactRef" },
+        "checkedAt": { "type": "string", "format": "date-time" },
+        "validator": { "type": "string", "minLength": 1 },
         "evidence": {
-          "title": "Evidence references",
           "type": "array",
-          "items": {
-            "type": "string",
-            "minLength": 1
-          },
-          "default": []
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
         }
       },
       "allOf": [
         {
           "if": {
-            "properties": {
-              "type": {
-                "const": "scenario"
-              }
-            },
+            "properties": { "type": { "const": "scenario" } },
             "required": ["type"]
           },
+          "then": { "required": ["target"] }
+        },
+        {
+          "if": {
+            "properties": { "status": { "enum": ["passed", "failed"] } },
+            "required": ["status"]
+          },
+          "then": { "required": ["checkedAt", "validator", "evidence"] }
+        },
+        {
+          "if": {
+            "properties": { "status": { "const": "pending" } },
+            "required": ["status"]
+          },
           "then": {
-            "properties": {
-              "target": {
-                "$ref": "#/$defs/stableId"
-              }
-            },
-            "required": ["target"]
+            "not": {
+              "anyOf": [
+                { "required": ["checkedAt"] },
+                { "required": ["validator"] },
+                { "required": ["evidence"] }
+              ]
+            }
           }
         }
       ]
     },
     "contractRef": {
       "title": "Contract reference",
-      "description": "A stable named contract and its canonical source file.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "path"],
+      "required": ["id", "version", "path", "format"],
       "properties": {
-        "id": {
-          "$ref": "#/$defs/stableId"
-        },
-        "version": {
-          "$ref": "#/$defs/semver"
-        },
-        "path": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/semver" },
+        "path": { "type": "string", "minLength": 1 },
+        "format": {
           "type": "string",
-          "minLength": 1,
-          "x-coga-ui": {
-            "control": "file"
-          }
+          "enum": ["json-schema-2020-12", "openapi-3.1"]
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "approvalRule": {
+      "title": "Lifecycle approval rule",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lifecycle", "policies"],
+      "properties": {
+        "lifecycle": { "$ref": "#/$defs/lifecycle" },
+        "policies": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/exactRef" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "releaseEvidenceRule": {
+      "title": "Lifecycle release evidence",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lifecycle", "evidence"],
+      "properties": {
+        "lifecycle": { "$ref": "#/$defs/lifecycle" },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
         }
       }
     }

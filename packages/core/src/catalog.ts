@@ -7,11 +7,14 @@ import {
   metadataOf,
 } from "./guards.js";
 import { load } from "./loader.js";
+import { assertCompatibleOptions } from "./options.js";
+import { SCHEMA_VERSION } from "./types.js";
 import type {
   CatalogApplication,
   CatalogArtifact,
   CatalogPackage,
   CogaCatalog,
+  CogaOptions,
   LoadedCogaInstance,
 } from "./types.js";
 
@@ -22,8 +25,12 @@ function requireMetadata(document: unknown, label: string) {
 }
 
 /** Build a deterministic, content-light catalog from a loaded instance. */
-export function catalog(input: string | LoadedCogaInstance): CogaCatalog {
-  const loaded = typeof input === "string" ? load(input) : input;
+export function catalog(
+  input: string | LoadedCogaInstance,
+  options?: CogaOptions,
+): CogaCatalog {
+  const loaded = typeof input === "string" ? load(input, options) : input;
+  assertCompatibleOptions(loaded, options);
   if (!isCogaInstance(loaded.instance.document)) {
     throw new Error(
       "Catalog entry point must be a valid CogaInstance resource.",
@@ -65,7 +72,7 @@ export function catalog(input: string | LoadedCogaInstance): CogaCatalog {
             lifecycle: metadata.lifecycle,
             artifactType: artifact.document.spec.artifactType,
             summary: artifact.document.spec.summary,
-            ...(metadata.visibility ? { visibility: metadata.visibility } : {}),
+            visibility: metadata.visibility,
           };
         })
         .sort(
@@ -83,9 +90,7 @@ export function catalog(input: string | LoadedCogaInstance): CogaCatalog {
         description: resource.document.spec.description,
         dependencies: [...resource.document.spec.dependencies],
         artifacts,
-        ...(packageMetadata.visibility
-          ? { visibility: packageMetadata.visibility }
-          : {}),
+        visibility: packageMetadata.visibility,
       };
     })
     .sort(
@@ -108,7 +113,7 @@ export function catalog(input: string | LoadedCogaInstance): CogaCatalog {
         lifecycle: metadata.lifecycle,
         deliveryTargets: [...resource.document.spec.deliveryTargets],
         harnessDependencies: [...resource.document.spec.harnessDependencies],
-        ...(metadata.visibility ? { visibility: metadata.visibility } : {}),
+        visibility: metadata.visibility,
       };
     })
     .sort(
@@ -118,7 +123,7 @@ export function catalog(input: string | LoadedCogaInstance): CogaCatalog {
     );
 
   return {
-    schemaVersion: "coga.dev/v0.1",
+    schemaVersion: SCHEMA_VERSION,
     instance: {
       id: instanceMetadata.id,
       title: instanceMetadata.title,
@@ -127,9 +132,7 @@ export function catalog(input: string | LoadedCogaInstance): CogaCatalog {
       domainName: loaded.instance.document.spec.domain.name,
       boundary: loaded.instance.document.spec.domain.boundary,
       nonGoals: [...loaded.instance.document.spec.domain.nonGoals],
-      ...(instanceMetadata.visibility
-        ? { visibility: instanceMetadata.visibility }
-        : {}),
+      visibility: instanceMetadata.visibility,
     },
     packages,
     applications,

@@ -1,9 +1,9 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: Application
 metadata:
   id: application.cedar.insight.h5
   title: Cedar Market Context H5
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: candidate
   scope: application
   visibility: public
@@ -12,57 +12,64 @@ metadata:
   tags:
     - fictitious
     - h5
+  attestations: []
 spec:
   deliveryTargets:
     - web-h5
   harnessDependencies:
     - id: broker.digital.channel.domain
-      version: 0.1.0
+      version: 0.2.0
     - id: frontend.client.engineering
-      version: 0.1.0
+      version: 0.2.0
     - id: example.broker.organization
-      version: 0.1.0
+      version: 0.2.0
     - id: client.application.operations
-      version: 0.1.0
+      version: 0.2.0
   contracts:
     - id: contract.example.customer.context
-      version: 0.1.0
+      version: 0.2.0
       path: ../../contracts/customer-context.schema.json
+      format: json-schema-2020-12
+      digest: sha256:9215c572df54ef840bbb1cc548306378ada587336e662182219b920b900e6e1d
     - id: contract.example.content.feed
-      version: 0.1.0
+      version: 0.2.0
       path: ../../contracts/content-item.schema.json
+      format: json-schema-2020-12
+      digest: sha256:354d0f8d06964ec61683a9239619f3a5a1e9d8fa5de32686cabe010b086ec23a
     - id: contract.example.support.request
-      version: 0.1.0
+      version: 0.2.0
       path: ../../contracts/support-request.schema.json
+      format: json-schema-2020-12
+      digest: sha256:43b00abc578161dc3608293282ed7f952ed5c473b426ec60b6a32a14efde0bca
   scenarios:
     - id: broker.channel.scenario.identity.and.entitlement
-      version: 0.1.0
+      version: 0.2.0
     - id: broker.channel.scenario.content.and.suitability
-      version: 0.1.0
+      version: 0.2.0
     - id: broker.channel.scenario.data.denial
-      version: 0.1.0
+      version: 0.2.0
     - id: frontend.client.scenario.contract.and.state
-      version: 0.1.0
+      version: 0.2.0
     - id: frontend.client.scenario.accessibility
-      version: 0.1.0
+      version: 0.2.0
     - id: client.operations.scenario.incident
-      version: 0.1.0
+      version: 0.2.0
   operations:
     runbooks:
       - id: client.operations.incident.triage
-        version: 0.1.0
+        version: 0.2.0
       - id: client.operations.release.rollback
-        version: 0.1.0
+        version: 0.2.0
   choices:
     criticalJourneys:
       - application.cedar.journey.read.market.context
       - application.cedar.journey.request.support
-    recoveryStrategy: >-
-      Bind immutable web assets to an approved reversible release mechanism and
-      verify the restored journey from an external user path.
-    productBoundary: >-
-      A fictitious mobile-web context reader with a support-request handoff; it does
-      not provide personalized recommendations or transaction actions.
+    recoveryStrategy:
+      Bind immutable web assets to an approved reversible release mechanism and verify
+      the restored journey from an external user path.
+    productBoundary:
+      A fictitious mobile-web context reader with a support-request handoff; it does not
+      provide personalized recommendations or transaction actions.
     navigationModel: responsive-document-shell
     initialAccess: public-summary-with-authoritative-customer-upgrade
     accessibilityTarget: wcag.2.2.aa-for-core-journeys

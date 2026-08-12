@@ -1,10 +1,10 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: broker.channel.content.provenance
   title: Financial content provenance and disclosure
-  version: 0.1.0
-  lifecycle: published
+  version: 0.2.0
+  lifecycle: approved
   scope: instance
   visibility: public
   owners:
@@ -12,35 +12,37 @@ metadata:
   tags:
     - content
     - disclosure
+  attestations: []
 spec:
   artifactType: rule
-  summary: >-
-    Financial content must retain enough provenance and status for the client to
-    present it without inventing certainty or authority.
-  statement: >-
-    A content contract must distinguish content identity, source, effective or
-    observation time, approval status, freshness state, and applicable disclosure.
-    The client must preserve those meanings, identify unavailable or stale content,
-    and never synthesize a missing claim, timestamp, approval, or risk statement.
-  scope: >-
-    Applies to market, research, educational, promotional, and user-contributed
-    financial information presented by client applications.
+  summary:
+    Financial content must retain enough provenance and status for the client to present it
+    without inventing certainty or authority.
+  statement:
+    A content contract must distinguish content identity, source, effective or observation
+    time, approval status, freshness state, and applicable disclosure. The client must preserve
+    those meanings, identify unavailable or stale content, and never synthesize a missing claim,
+    timestamp, approval, or risk statement.
+  scope:
+    Applies to market, research, educational, promotional, and user-contributed financial
+    information presented by client applications.
   provenance:
     - source: https://www.npc.gov.cn/c2/c30834/201912/t20191231_304436.html
       sourceType: standard
       note: 中华人民共和国证券法
   relations:
     - type: applies-to
-      target: broker.channel.scenario.content.and.suitability
+      target:
+        id: broker.channel.scenario.content.and.suitability
+        version: 0.2.0
   validation:
     - type: schema
-      status: passed
-      validator: coga.validation.domain.artifact.schema
+      status: pending
     - type: scenario
-      status: passed
-      target: broker.channel.scenario.content.and.suitability
-      validator: coga.validation.scenario.reference
+      status: pending
+      target:
+        id: broker.channel.scenario.content.and.suitability
+        version: 0.2.0
     - type: review
-      status: passed
-      validator: coga.review.domain.content
+      status: pending
   contractRefs: []

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://coga.dev/schemas/v0.1/harness-package.schema.json",
+  "$id": "https://coga.dev/schemas/v0.2/harness-package.schema.json",
   "title": "COGA Harness Package",
   "description": "A versioned package that groups reusable artifacts in exactly one harness layer.",
   "type": "object",
@@ -11,8 +11,8 @@
       "title": "Schema version",
       "description": "Frozen COGA resource contract version.",
       "type": "string",
-      "const": "coga.dev/v0.1",
-      "default": "coga.dev/v0.1"
+      "const": "coga.dev/v0.2",
+      "default": "coga.dev/v0.2"
     },
     "kind": {
       "title": "Resource kind",
@@ -22,7 +22,7 @@
       "default": "HarnessPackage"
     },
     "metadata": {
-      "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/metadata"
+      "$ref": "https://coga.dev/schemas/v0.2/common.schema.json#/$defs/metadata"
     },
     "spec": {
       "title": "Harness package definition",
@@ -59,7 +59,7 @@
           "description": "Other harness packages required at exact versions.",
           "type": "array",
           "items": {
-            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/exactRef"
+            "$ref": "https://coga.dev/schemas/v0.2/common.schema.json#/$defs/exactRef"
           },
           "uniqueItems": true,
           "default": [],
@@ -72,7 +72,7 @@
           "description": "Canonical artifact files owned by this exact package version.",
           "type": "array",
           "items": {
-            "$ref": "https://coga.dev/schemas/v0.1/common.schema.json#/$defs/locatedRef"
+            "$ref": "https://coga.dev/schemas/v0.2/common.schema.json#/$defs/locatedRef"
           },
           "uniqueItems": true,
           "default": [],

@@ -1,6 +1,6 @@
 {
   "name": "coga-core-workspace",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "COGA Core and public example instances",
   "type": "module",
@@ -12,13 +12,14 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "format:check": "prettier --check \"**/*.{cjs,js,json,md,mjs,ts,yaml,yml}\" --ignore-path .gitignore",
-    "validate:example": "node packages/core/dist/cli.js validate examples/broker-digital-channel/instance.yaml",
-    "catalog:example": "node packages/core/dist/cli.js catalog examples/broker-digital-channel/instance.yaml --format markdown",
-    "impact:example": "node packages/core/dist/cli.js impact examples/broker-digital-channel/instance.yaml broker.channel.identity.context",
+    "validate:example": "node packages/core/dist/cli.js validate examples/broker-digital-channel/instance.yaml --profile release",
+    "catalog:example": "node packages/core/dist/cli.js catalog examples/broker-digital-channel/instance.yaml --format markdown --profile public",
+    "impact:example": "node packages/core/dist/cli.js impact examples/broker-digital-channel/instance.yaml broker.channel.identity.context@0.2.0 --profile public",
     "docs:check": "node scripts/check-doc-links.mjs",
     "privacy:check": "node scripts/privacy-check.mjs",
     "boundary:check": "node scripts/public-boundary-check.mjs",
-    "check:public": "npm run format:check && npm run typecheck && npm run test && npm run build && npm run validate:example && npm run docs:check && npm run privacy:check && npm run boundary:check",
+    "gates:test": "node --test scripts/tests/*.test.mjs",
+    "check:public": "npm run format:check && npm run typecheck && npm run test && npm run gates:test && npm run build && npm run validate:example && npm run docs:check && npm run privacy:check && npm run boundary:check",
     "check:local": "npm run check:public && node scripts/check-private.mjs"
   },
   "engines": {

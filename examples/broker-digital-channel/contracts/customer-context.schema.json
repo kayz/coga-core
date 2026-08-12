@@ -1,6 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:coga:example:contract:customer-context:0.1.0",
+  "$id": "urn:coga:example:contract:customer-context:0.2.0",
+  "x-coga-contract": {
+    "id": "contract.example.customer.context",
+    "version": "0.2.0"
+  },
   "title": "Fictitious customer context",
   "description": "A sanitized example contract shape, not a production or proprietary API.",
   "type": "object",

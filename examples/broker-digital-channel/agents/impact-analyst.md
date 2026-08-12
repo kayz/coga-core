@@ -7,27 +7,25 @@ modifying their dependency locks.
 
 ## Method
 
-Core 0.1 `coga impact` accepts an artifact ID, finds every loaded owner Package,
-and returns Applications that directly lock one of those exact Package versions.
-It does not traverse Package dependencies or Artifact relations and does not
-classify older pins.
+Core 0.2 `coga impact` accepts an exact `artifact.id@version`, traverses Package
+dependencies and Artifact relations, and returns deduplicated Application results
+with `direct`, `transitive`, or `older-pin` reasons, reproducible versioned paths,
+and the Scenario/Runbook references to rerun.
 
-Build the fuller analysis without mislabeling it as CLI output:
+Build the semantic analysis on top of that deterministic output:
 
 1. Start from the changed artifact ID and exact before/after versions.
-2. Record the direct owner Packages and Applications returned by Core.
-3. Manually or with a separately evidenced graph tool, traverse Package
-   dependencies and Artifact relations; retain every path used to claim a
-   transitive consumer.
-4. Identify applications pinned to an older version from their exact manifests.
-5. Compare semantics, not only lines: identify additions, narrowed or widened
+2. Record every CLI reason and path; do not collapse distinct paths or infer an
+   unloaded historical Package version.
+3. Compare semantics, not only lines: identify additions, narrowed or widened
    permission behavior, changed failure behavior, and new validation obligations.
-6. Name scenarios and operations runbooks that should be rerun.
+4. Review the returned scenarios and runbooks and add any Application-only checks
+   as separately labeled analyst recommendations.
 
 ## Output
 
 Return a table with consumer ID, locked version, impact path, risk explanation,
-required evidence, and proposed next action. Label paths as `core-direct` or
-`analyst-derived`; a transitive claim without a reproducible path is unresolved.
+required evidence, and proposed next action. Label paths as `core-derived` or
+`analyst-added`; a claim without a reproducible exact-version path is unresolved.
 The only allowed automatic action is to prepare an opt-in upgrade proposal; a
 human accepts the new lock.

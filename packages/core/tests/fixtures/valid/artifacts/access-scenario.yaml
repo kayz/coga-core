@@ -1,12 +1,21 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: scenario.customer.access-allowed
   title: Authorized customer access
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: published
   scope: instance
   visibility: public
+  attestations:
+    - type: approval
+      policy:
+        id: fixture.release.approval-policy
+        version: 0.2.0
+      approver: fixture.release-reviewer
+      approvedAt: 2026-08-08T00:00:00Z
+      evidence:
+        - evidence/release-approval.md
 spec:
   artifactType: scenario
   summary: An entitled customer is allowed to enter a protected channel capability.
@@ -17,11 +26,14 @@ spec:
       locator: Authorized path
   relations:
     - type: verifies
-      target: domain.customer.access-rule
-      version: 0.1.0
+      target:
+        id: domain.customer.access-rule
+        version: 0.2.0
   validation:
     - type: test
       status: passed
       checkedAt: 2026-08-08T00:00:00Z
       validator: test.scenario.access
+      evidence:
+        - evidence/access-rule-scenario.md
   contractRefs: []

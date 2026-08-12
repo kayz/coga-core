@@ -1,10 +1,13 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: CogaInstance
 metadata:
   id: test.dangling.instance
   title: Dangling references fixture
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: draft
+  scope: instance
+  visibility: public
+  attestations: []
 spec:
   domain:
     name: Dangling fixture
@@ -12,10 +15,12 @@ spec:
     nonGoals: []
   packages:
     - id: test.dangling.package
-      version: 0.1.0
+      version: 0.2.0
       path: package.yaml
   applications:
     - id: test.dangling.application
-      version: 0.1.0
+      version: 0.2.0
       path: application.yaml
-  governance: {}
+  governance:
+    approvalRules: []
+    releaseEvidence: []

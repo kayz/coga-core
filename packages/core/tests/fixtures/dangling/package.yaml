@@ -1,15 +1,18 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: HarnessPackage
 metadata:
   id: test.dangling.package
   title: Dangling fixture package
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: draft
+  scope: instance
+  visibility: public
+  attestations: []
 spec:
   layer: domain
   description: Contains one dangling artifact relation.
   dependencies: []
   artifacts:
     - id: test.dangling.concept
-      version: 0.1.0
+      version: 0.2.0
       path: artifact.yaml

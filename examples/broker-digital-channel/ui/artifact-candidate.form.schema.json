@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:coga:form:artifact-candidate:0.1.0",
+  "$id": "urn:coga:form:artifact-candidate:0.2.0",
   "title": "Domain artifact candidate",
   "description": "Form contract for proposing, not publishing, a COGA domain artifact.",
   "type": "object",
@@ -8,7 +8,7 @@
   "required": ["schemaVersion", "kind", "metadata", "spec"],
   "properties": {
     "schemaVersion": {
-      "const": "coga.dev/v0.1"
+      "const": "coga.dev/v0.2"
     },
     "kind": {
       "const": "DomainArtifact"
@@ -22,7 +22,8 @@
         "version",
         "lifecycle",
         "scope",
-        "visibility"
+        "visibility",
+        "attestations"
       ],
       "properties": {
         "id": {
@@ -38,7 +39,7 @@
           "title": "Exact SemVer",
           "type": "string",
           "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$",
-          "default": "0.1.0"
+          "default": "0.2.0"
         },
         "lifecycle": {
           "const": "candidate"
@@ -64,6 +65,56 @@
             "type": "string"
           },
           "uniqueItems": true
+        },
+        "attestations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "policy",
+              "approver",
+              "approvedAt",
+              "evidence"
+            ],
+            "properties": {
+              "type": {
+                "const": "approval"
+              },
+              "policy": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "version"],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+                  },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+                  }
+                }
+              },
+              "approver": {
+                "type": "string",
+                "minLength": 1
+              },
+              "approvedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1
+              }
+            }
+          }
         }
       }
     },
@@ -149,12 +200,19 @@
                 ]
               },
               "target": {
-                "type": "string",
-                "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
-              },
-              "version": {
-                "type": "string",
-                "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "version"],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+                  },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+                  }
+                }
               }
             }
           }
@@ -175,8 +233,19 @@
                 "enum": ["pending", "passed", "failed"]
               },
               "target": {
-                "type": "string",
-                "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "version"],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$"
+                  },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+                  }
+                }
               },
               "validator": {
                 "type": "string",
@@ -185,8 +254,14 @@
               "evidence": {
                 "type": "array",
                 "items": {
-                  "type": "string"
-                }
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1
+              },
+              "checkedAt": {
+                "type": "string",
+                "format": "date-time"
               }
             }
           },
@@ -197,7 +272,7 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "path"],
+            "required": ["id", "version", "path", "format"],
             "properties": {
               "id": {
                 "type": "string",
@@ -210,6 +285,14 @@
               "path": {
                 "type": "string",
                 "minLength": 1
+              },
+              "format": {
+                "type": "string",
+                "enum": ["json-schema-2020-12", "openapi-3.1"]
+              },
+              "digest": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
               }
             }
           }

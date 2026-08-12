@@ -1,9 +1,9 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: HarnessPackage
 metadata:
   id: broker.digital.channel.domain
   title: Broker Digital Channel Domain
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: approved
   scope: instance
   visibility: public
@@ -12,34 +12,35 @@ metadata:
   tags:
     - broker-channel
     - domain
+  attestations: []
 spec:
   layer: domain
-  description: >-
-    Stable concepts and invariants for broker-facing client channels, independent
-    of delivery platform and any particular application.
+  description:
+    Stable concepts and invariants for broker-facing client channels, independent of
+    delivery platform and any particular application.
   dependencies: []
   artifacts:
     - id: broker.channel.identity.context
-      version: 0.1.0
+      version: 0.2.0
       path: artifacts/identity-context.yaml
     - id: broker.channel.entitlement.authority
-      version: 0.1.0
+      version: 0.2.0
       path: artifacts/entitlement-authority.yaml
     - id: broker.channel.suitability.boundary
-      version: 0.1.0
+      version: 0.2.0
       path: artifacts/suitability-boundary.yaml
     - id: broker.channel.content.provenance
-      version: 0.1.0
+      version: 0.2.0
       path: artifacts/content-provenance.yaml
     - id: broker.channel.personal.data.minimization
-      version: 0.1.0
+      version: 0.2.0
       path: artifacts/personal-data-minimization.yaml
     - id: broker.channel.scenario.identity.and.entitlement
-      version: 0.1.0
+      version: 0.2.0
       path: artifacts/scenario-identity-and-entitlement.yaml
     - id: broker.channel.scenario.content.and.suitability
-      version: 0.1.0
+      version: 0.2.0
       path: artifacts/scenario-content-and-suitability.yaml
     - id: broker.channel.scenario.data.denial
-      version: 0.1.0
+      version: 0.2.0
       path: artifacts/scenario-data-denial.yaml

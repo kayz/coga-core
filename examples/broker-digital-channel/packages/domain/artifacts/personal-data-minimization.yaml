@@ -1,10 +1,10 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: DomainArtifact
 metadata:
   id: broker.channel.personal.data.minimization
   title: Purpose-bound personal data
-  version: 0.1.0
-  lifecycle: published
+  version: 0.2.0
+  lifecycle: approved
   scope: instance
   visibility: public
   owners:
@@ -12,38 +12,41 @@ metadata:
   tags:
     - privacy
     - data-minimization
+  attestations: []
 spec:
   artifactType: policy
-  summary: >-
-    Client channels minimize personal data and keep sensitive account information
-    out of source, logs, analytics, screenshots, and harness knowledge.
-  statement: >-
-    Each collected field requires a stated channel purpose and a defined retention
-    owner. Financial-account and identity data receive sensitive-data handling. The
-    client must not place raw identifiers, credentials, tokens, or private content
-    in telemetry or reusable harness artifacts; denial of optional collection must
-    have an explicit user-visible outcome.
-  scope: >-
-    Applies to collection, storage, use, transfer, display, diagnostics, analytics,
-    and deletion in every application consuming this domain package.
+  summary:
+    Client channels minimize personal data and keep sensitive account information out of
+    source, logs, analytics, screenshots, and harness knowledge.
+  statement:
+    Each collected field requires a stated channel purpose and a defined retention owner.
+    Financial-account and identity data receive sensitive-data handling. The client must not place
+    raw identifiers, credentials, tokens, or private content in telemetry or reusable harness
+    artifacts; denial of optional collection must have an explicit user-visible outcome.
+  scope:
+    Applies to collection, storage, use, transfer, display, diagnostics, analytics, and deletion
+    in every application consuming this domain package.
   provenance:
     - source: https://www.npc.gov.cn/npc/c2/c30834/202108/t20210820_313088.html
       sourceType: standard
       note: 中华人民共和国个人信息保护法
   relations:
     - type: applies-to
-      target: broker.channel.identity.context
+      target:
+        id: broker.channel.identity.context
+        version: 0.2.0
     - type: applies-to
-      target: broker.channel.scenario.data.denial
+      target:
+        id: broker.channel.scenario.data.denial
+        version: 0.2.0
   validation:
     - type: schema
-      status: passed
-      validator: coga.validation.domain.artifact.schema
+      status: pending
     - type: scenario
-      status: passed
-      target: broker.channel.scenario.data.denial
-      validator: coga.validation.scenario.reference
+      status: pending
+      target:
+        id: broker.channel.scenario.data.denial
+        version: 0.2.0
     - type: review
-      status: passed
-      validator: coga.review.domain.privacy
+      status: pending
   contractRefs: []

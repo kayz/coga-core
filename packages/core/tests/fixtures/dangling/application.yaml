@@ -1,10 +1,13 @@
-schemaVersion: coga.dev/v0.1
+schemaVersion: coga.dev/v0.2
 kind: Application
 metadata:
   id: test.dangling.application
   title: Dangling application
-  version: 0.1.0
+  version: 0.2.0
   lifecycle: draft
+  scope: application
+  visibility: public
+  attestations: []
 spec:
   deliveryTargets:
     - web
