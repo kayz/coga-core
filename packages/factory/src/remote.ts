@@ -112,6 +112,7 @@ interface GhPullRequestFile {
 }
 
 const GITHUB_HOST = "github.com";
+const GITHUB_REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u;
 
 export function githubCliEnvironment(
   environment: NodeJS.ProcessEnv = process.env,
@@ -135,8 +136,11 @@ export function githubCliEnvironment(
   };
 }
 
-function repositorySelector(repository: string): string {
-  return `${GITHUB_HOST}/${repository}`;
+export function githubCliRepository(repository: string): string {
+  if (!GITHUB_REPOSITORY_PATTERN.test(repository)) {
+    throw new Error("GitHub CLI repository must use exact owner/name form.");
+  }
+  return repository;
 }
 
 export function parseRestPullRequestSnapshot(
@@ -410,7 +414,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
         "verify",
         evidencePath,
         "--repo",
-        repositorySelector(repository),
+        githubCliRepository(repository),
       ],
       {
         cwd: process.cwd(),
@@ -425,7 +429,13 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
   async markReady(repository: string, number: number): Promise<void> {
     await runChecked(
       "gh",
-      ["pr", "ready", String(number), "--repo", repositorySelector(repository)],
+      [
+        "pr",
+        "ready",
+        String(number),
+        "--repo",
+        githubCliRepository(repository),
+      ],
       {
         cwd: process.cwd(),
         timeoutMs: 60_000,

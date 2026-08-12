@@ -79,7 +79,9 @@ local URL rewrites that apply to the exact endpoint and binds the local
 branch/head plus both PR repositories and refs before accepting delivery. The
 bounded token form supports GitHub's legacy and stateless `ghs_APPID_JWT`
 installation tokens. Collector commands pin `github.com` and remove inherited
-`gh` host, API-routing, config-directory and debug overrides.
+`gh` host, API-routing, config-directory and debug overrides. Their `--repo`
+argument remains exact `owner/name`; `gh attestation verify` and `gh pr ready`
+do not accept a duplicated hostname in that field.
 
 The local collector independently verifies the declared PR author, attestation,
 configured check set, exact remote Proposal Receipt, and an authorized
