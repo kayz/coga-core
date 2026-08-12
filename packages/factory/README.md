@@ -85,7 +85,9 @@ The local collector independently verifies the declared PR author, attestation,
 configured check set, exact remote Proposal Receipt, and an authorized
 `APPROVED` review for every Policy. It also re-downloads the governed domain and
 proposal Patches and requires the PR/Evidence Bundle file set to equal their exact
-path closure. A review body must contain:
+path closure. Delivery and collection use the same REST PR identity; GitHub
+CLI's GraphQL `app/<slug>` display form is not accepted as the canonical
+`<slug>[bot]` login. A review body must contain:
 
 ```text
 [coga-policy:<policy-id>@<version>]
