@@ -9,7 +9,7 @@ spec:
   repository:
     baseCommit: work-order-commit
     remote: origin
-    baseBranch: codex/factory-cell-mvp
+    baseBranch: main
   instance:
     manifest: examples/broker-digital-channel/instance.yaml
     profile: public
@@ -40,8 +40,8 @@ spec:
   delivery:
     adapter: github.draft-pr/v1
     repository: kayz/coga-core
-    branch: codex/factory-cell-demo
-    title: "Factory demo: enforce Cedar live status evidence"
+    branch: codex/factory-cell-demo-main
+    title: "Factory demo from main: enforce Cedar live status evidence"
     body:
       This Draft PR is generated from the governed responsive-shell change. It updates
       the real Cedar H5 reference Application, runs COGA closure plus sandboxed tests and
