@@ -191,13 +191,19 @@ export class GitRepository {
 
     const check = await runProcess(
       "git",
-      ["apply", "--check", "--whitespace=error-all", patchPath],
+      [
+        "apply",
+        "--check",
+        "--unidiff-zero",
+        "--whitespace=error-all",
+        patchPath,
+      ],
       { cwd: workspace, timeoutMs: 30_000, maxOutputBytes: 1024 * 1024 },
     );
     if (check.exitCode !== 0) {
       const reverse = await runProcess(
         "git",
-        ["apply", "--reverse", "--check", patchPath],
+        ["apply", "--reverse", "--check", "--unidiff-zero", patchPath],
         { cwd: workspace, timeoutMs: 30_000, maxOutputBytes: 1024 * 1024 },
       );
       if (reverse.exitCode === 0) return { paths, alreadyApplied: true };
@@ -205,7 +211,10 @@ export class GitRepository {
         `${label} cannot be applied: ${check.stderr.trim() || check.stdout.trim()}.`,
       );
     }
-    await this.git(["apply", "--whitespace=error-all", patchPath], workspace);
+    await this.git(
+      ["apply", "--unidiff-zero", "--whitespace=error-all", patchPath],
+      workspace,
+    );
     return { paths, alreadyApplied: false };
   }
 

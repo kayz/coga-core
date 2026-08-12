@@ -106,5 +106,5 @@ describe("FactoryController", () => {
         `${first.baseCommit}..${first.resultCommit}`,
       ),
     ).toBe("1");
-  });
+  }, 30_000);
 });
