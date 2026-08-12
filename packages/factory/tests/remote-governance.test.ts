@@ -8,7 +8,11 @@ import {
   createGovernanceView,
   governanceViewMarkdown,
 } from "../src/governance.js";
-import { collectRemoteEvidence, githubCliEnvironment } from "../src/remote.js";
+import {
+  collectRemoteEvidence,
+  githubCliEnvironment,
+  parseRestPullRequestSnapshot,
+} from "../src/remote.js";
 import {
   loadAgentProposalReceipt,
   loadApplicationFactory,
@@ -264,6 +268,50 @@ function approval(policy: {
 }
 
 describe("remote evidence and governance", () => {
+  it("normalizes the REST App bot login and rejects cross-repository PR bindings", () => {
+    const value = {
+      number: 42,
+      html_url: "https://github.com/kayz/coga-core/pull/42",
+      state: "open",
+      draft: true,
+      merged_at: null,
+      user: { login: "coga-factory-kayz[bot]" },
+      base: {
+        sha: baseCommit,
+        ref: "main",
+        repo: { full_name: "kayz/coga-core" },
+      },
+      head: {
+        sha: headCommit,
+        ref: "codex/factory-output/cedar-live-status-v6",
+        repo: { full_name: "kayz/coga-core" },
+      },
+      changed_files: 2,
+    };
+    expect(
+      parseRestPullRequestSnapshot(value, "kayz/coga-core", 42),
+    ).toMatchObject({
+      author: "coga-factory-kayz[bot]",
+      state: "OPEN",
+      isDraft: true,
+      baseCommit,
+      headCommit,
+    });
+    expect(() =>
+      parseRestPullRequestSnapshot(
+        {
+          ...value,
+          head: {
+            ...value.head,
+            repo: { full_name: "attacker/other" },
+          },
+        },
+        "kayz/coga-core",
+        42,
+      ),
+    ).toThrow(/repository, ref, or commit bindings/iu);
+  });
+
   it("pins remote evidence commands to github.com without inheriting gh routing or debug state", () => {
     const environment = githubCliEnvironment({
       GH_TOKEN: "human-token",

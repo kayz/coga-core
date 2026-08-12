@@ -33,7 +33,7 @@ spec:
           path: .coga/work-orders/cedar-status/cedar-agent-proposal.json
           digest: sha256:90a331fa353e0f636c4853d9c4836fcced5b6082c9bde35661a51307a8a36437
       delivery:
-        branch: codex/factory-output/cedar-live-status-v5
+        branch: codex/factory-output/cedar-live-status-v6
         title: "Factory fan-out: enforce Cedar live status evidence"
         body:
           This Draft PR is one isolated target from a governed fan-out run. It updates
@@ -51,7 +51,7 @@ spec:
           path: .coga/work-orders/cedar-status/birch-agent-proposal.json
           digest: sha256:dd626fdf0e1922841cf5baa8cdc8df6eef7a239bb572dba78df57471666371bb
       delivery:
-        branch: codex/factory-output/birch-live-status-v5
+        branch: codex/factory-output/birch-live-status-v6
         title: "Factory fan-out: enforce Birch live status evidence"
         body:
           This Draft PR is one isolated target from a governed fan-out run. It updates

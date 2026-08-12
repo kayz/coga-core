@@ -19,7 +19,9 @@ Versioning; `0.y.z` remains initial development.
   `github.com`.
 - Require every created or reused Draft PR to be authored by the declared App
   bot, bind that author into Remote Evidence, and recheck it across the final
-  Draft-to-ready TOCTOU boundary.
+  Draft-to-ready TOCTOU boundary. Delivery and collection both use the REST PR
+  representation so GitHub's GraphQL `app/<slug>` display form cannot be
+  confused with the canonical `<slug>[bot]` login.
 - Make machine and human identities mutually exclusive. Authorized human Policy
   reviews must still be `APPROVED`, carry the exact Policy marker, and bind the
   current head; the Factory still cannot merge, tag, release, publish or deploy.

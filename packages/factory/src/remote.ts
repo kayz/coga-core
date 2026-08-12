@@ -63,15 +63,24 @@ function parseJson<T>(source: string, label: string): T {
   }
 }
 
-interface GhPullRequest {
-  number: number;
-  url: string;
-  state: "OPEN" | "CLOSED" | "MERGED";
-  isDraft: boolean;
-  author: { login?: string } | null;
-  baseRefOid: string;
-  headRefOid: string;
-  changedFiles: number;
+interface RestGhPullRequest {
+  number?: unknown;
+  html_url?: unknown;
+  state?: unknown;
+  draft?: unknown;
+  merged_at?: unknown;
+  user?: { login?: unknown } | null;
+  base?: {
+    sha?: unknown;
+    ref?: unknown;
+    repo?: { full_name?: unknown } | null;
+  } | null;
+  head?: {
+    sha?: unknown;
+    ref?: unknown;
+    repo?: { full_name?: unknown } | null;
+  } | null;
+  changed_files?: unknown;
 }
 
 interface GhCheckRun {
@@ -130,6 +139,64 @@ function repositorySelector(repository: string): string {
   return `${GITHUB_HOST}/${repository}`;
 }
 
+export function parseRestPullRequestSnapshot(
+  value: unknown,
+  repository: string,
+  number: number,
+): GitHubPullRequestSnapshot {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("GitHub PR lookup returned an invalid PR object.");
+  }
+  const pr = value as RestGhPullRequest;
+  const state =
+    typeof pr.merged_at === "string"
+      ? "MERGED"
+      : typeof pr.state === "string"
+        ? pr.state.toUpperCase()
+        : "";
+  if (
+    pr.number !== number ||
+    typeof pr.html_url !== "string" ||
+    pr.html_url.toLowerCase() !==
+      `https://github.com/${repository}/pull/${number}`.toLowerCase() ||
+    (pr.merged_at !== null && typeof pr.merged_at !== "string") ||
+    !["OPEN", "CLOSED", "MERGED"].includes(state) ||
+    typeof pr.draft !== "boolean" ||
+    typeof pr.user?.login !== "string" ||
+    pr.user.login.length < 1 ||
+    typeof pr.base?.sha !== "string" ||
+    !COMMIT_PATTERN.test(pr.base.sha) ||
+    typeof pr.base.ref !== "string" ||
+    pr.base.ref.length < 1 ||
+    typeof pr.base.repo?.full_name !== "string" ||
+    pr.base.repo.full_name.toLowerCase() !== repository.toLowerCase() ||
+    typeof pr.head?.sha !== "string" ||
+    !COMMIT_PATTERN.test(pr.head.sha) ||
+    typeof pr.head.ref !== "string" ||
+    pr.head.ref.length < 1 ||
+    typeof pr.head.repo?.full_name !== "string" ||
+    pr.head.repo.full_name.toLowerCase() !== repository.toLowerCase() ||
+    typeof pr.changed_files !== "number" ||
+    !Number.isSafeInteger(pr.changed_files) ||
+    pr.changed_files < 1 ||
+    pr.changed_files > 100
+  ) {
+    throw new Error(
+      "GitHub PR lookup returned inconsistent repository, ref, or commit bindings.",
+    );
+  }
+  return {
+    number: pr.number,
+    url: pr.html_url,
+    state: state as "OPEN" | "CLOSED" | "MERGED",
+    isDraft: pr.draft,
+    author: pr.user.login,
+    baseCommit: pr.base.sha,
+    headCommit: pr.head.sha,
+    changedFiles: pr.changed_files,
+  };
+}
+
 export class GhEvidenceClient implements GitHubEvidenceClient {
   async pullRequest(
     repository: string,
@@ -137,15 +204,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
   ): Promise<GitHubPullRequestSnapshot> {
     const result = await runChecked(
       "gh",
-      [
-        "pr",
-        "view",
-        String(number),
-        "--repo",
-        repositorySelector(repository),
-        "--json",
-        "number,url,state,isDraft,author,baseRefOid,headRefOid,changedFiles",
-      ],
+      ["api", "--hostname", GITHUB_HOST, `repos/${repository}/pulls/${number}`],
       {
         cwd: process.cwd(),
         timeoutMs: 60_000,
@@ -154,33 +213,11 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
       },
       "GitHub PR lookup",
     );
-    const value = parseJson<GhPullRequest>(result.stdout, "GitHub PR lookup");
-    if (
-      value.number !== number ||
-      typeof value.url !== "string" ||
-      value.url.toLowerCase() !==
-        `https://github.com/${repository}/pull/${number}`.toLowerCase() ||
-      !COMMIT_PATTERN.test(value.baseRefOid) ||
-      !COMMIT_PATTERN.test(value.headRefOid) ||
-      !value.author?.login ||
-      !Number.isSafeInteger(value.changedFiles) ||
-      value.changedFiles < 1 ||
-      value.changedFiles > 100
-    ) {
-      throw new Error(
-        "GitHub PR lookup returned inconsistent commit bindings.",
-      );
-    }
-    return {
-      number: value.number,
-      url: value.url,
-      state: value.state,
-      isDraft: value.isDraft,
-      author: value.author.login,
-      baseCommit: value.baseRefOid,
-      headCommit: value.headRefOid,
-      changedFiles: value.changedFiles,
-    };
+    return parseRestPullRequestSnapshot(
+      parseJson<unknown>(result.stdout, "GitHub PR lookup"),
+      repository,
+      number,
+    );
   }
 
   async pullRequestFiles(
