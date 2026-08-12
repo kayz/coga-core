@@ -26,13 +26,13 @@ COGA Core                         COGA Instance                       Applicatio
 ## 0.2 包含什么
 
 - [`@coga/core`](packages/core/README.md)：TypeScript 库与 `coga` CLI；
-- [`@coga/factory`](packages/factory/README.md) `0.3.0`：版本化 Work Order、Agent Proposal Receipt、Application Factory、目标级恢复、Evidence Bundle、Remote Evidence 与治理视图契约，以及 `coga-factory` CLI；
+- [`@coga/factory`](packages/factory/README.md) `0.4.0`：版本化 Work Order、Agent Proposal Receipt、Application Factory、目标级恢复、Evidence Bundle、Remote Evidence、GitHub App 机器交付身份与人类治理视图契约，以及 `coga-factory` CLI；
 - 四类资源的 JSON Schema 2020-12 契约；
 - 有预算的规范资源装载、Schema 校验、精确资源图闭包、契约身份与内容校验、生命周期与治理记录检查、传递可见性检查和循环安全的明文秘密扫描；
 - `local`、`public` 与 `release` 三档 Profile，以及严格的公开根目录和发布证据要求；
 - Markdown/JSON 目录，以及从精确 Artifact 版本到直接、传递和旧锁 Application 消费者的可重现路径；
 - 一个脱敏的[券商数字客户渠道示例](examples/broker-digital-channel/README.md)，包含五层 Harness、三个虚构消费 manifest，以及供 Factory Cell 使用的真实、零依赖 Cedar/Birch H5 参考 Application；
-- 精确的影响 fan-out、模型/提示/上下文/输出回执、受限 Git 补丁、摘要固定且断网的 Docker 测试/构建沙箱、目标级失败恢复、内容寻址本地/远端证据和幂等 Draft PR 交付；
+- 精确的影响 fan-out、模型/提示/上下文/输出回执、受限 Git 补丁、摘要固定且断网的 Docker 测试/构建沙箱、目标级失败恢复、内容寻址本地/远端证据、GitHub App 机器身份 Draft PR 交付和精确 head 人类审批；
 - 面向未来表单的 Schema 提示与窄职责 Agent 操作手册；
 - 显式公开白名单、隐私和边界检查；
 - LICENSE 完整、字节可复现的 Core 发布载荷，规范化 CycloneDX SBOM、SHA-256 发布清单，以及只接受已验证签名版本 tag、生成 GitHub artifact attestation 与待复核 draft 的工作流。

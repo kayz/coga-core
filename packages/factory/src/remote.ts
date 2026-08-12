@@ -4,6 +4,10 @@ import { dirname, join } from "node:path";
 import type { ExactReference } from "@coga/core";
 import { verifyEvidenceBundle } from "./evidence.js";
 import { inspectPatchPaths } from "./git.js";
+import {
+  assertSeparatedDeliveryIdentity,
+  expectedDeliveryAuthor,
+} from "./identity.js";
 import { normalizeProposalPatch, proposalReceiptDigest } from "./proposal.js";
 import { loadAgentProposalReceipt, loadRemoteEvidence } from "./schema.js";
 import type {
@@ -64,6 +68,7 @@ interface GhPullRequest {
   url: string;
   state: "OPEN" | "CLOSED" | "MERGED";
   isDraft: boolean;
+  author: { login?: string } | null;
   baseRefOid: string;
   headRefOid: string;
   changedFiles: number;
@@ -111,7 +116,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
         "--repo",
         repository,
         "--json",
-        "number,url,state,isDraft,baseRefOid,headRefOid,changedFiles",
+        "number,url,state,isDraft,author,baseRefOid,headRefOid,changedFiles",
       ],
       { cwd: process.cwd(), timeoutMs: 60_000, maxOutputBytes: 1024 * 1024 },
       "GitHub PR lookup",
@@ -121,6 +126,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
       value.number !== number ||
       !COMMIT_PATTERN.test(value.baseRefOid) ||
       !COMMIT_PATTERN.test(value.headRefOid) ||
+      !value.author?.login ||
       !Number.isSafeInteger(value.changedFiles) ||
       value.changedFiles < 1 ||
       value.changedFiles > 100
@@ -134,6 +140,7 @@ export class GhEvidenceClient implements GitHubEvidenceClient {
       url: value.url,
       state: value.state,
       isDraft: value.isDraft,
+      author: value.author.login,
       baseCommit: value.baseRefOid,
       headCommit: value.headRefOid,
       changedFiles: value.changedFiles,
@@ -334,6 +341,7 @@ function approvedPolicies(
       entry.toLowerCase(),
     ),
   );
+  const deliveryAuthor = expectedDeliveryAuthor(workOrder).toLowerCase();
   const approvals: RemotePolicyApproval[] = [];
   const latestByReviewer = new Map<string, GitHubReviewSnapshot>();
   for (const review of [...reviews].sort((left, right) => right.id - left.id)) {
@@ -341,6 +349,7 @@ function approvedPolicies(
     if (
       review.commit === headCommit &&
       authorized.has(reviewer) &&
+      reviewer !== deliveryAuthor &&
       !latestByReviewer.has(reviewer)
     ) {
       latestByReviewer.set(reviewer, review);
@@ -378,6 +387,7 @@ export async function collectRemoteEvidence(parameters: {
   promote?: boolean;
   client?: GitHubEvidenceClient;
 }): Promise<{ path: string; evidence: RemoteEvidence; promoted: boolean }> {
+  assertSeparatedDeliveryIdentity(parameters.workOrder);
   const target = parameters.workOrder.spec.targets.find(
     (entry) => exactKey(entry.application) === exactKey(parameters.application),
   );
@@ -408,6 +418,12 @@ export async function collectRemoteEvidence(parameters: {
   );
   if (pullRequest.state !== "OPEN") {
     throw new Error("Remote evidence can only be collected from an open PR.");
+  }
+  const requiredAuthor = expectedDeliveryAuthor(parameters.workOrder);
+  if (pullRequest.author.toLowerCase() !== requiredAuthor.toLowerCase()) {
+    throw new Error(
+      `Remote PR author '${pullRequest.author}' does not match the declared delivery identity '${requiredAuthor}'.`,
+    );
   }
   if (pullRequest.baseCommit === pullRequest.headCommit) {
     throw new Error("Remote PR head does not contain a candidate change.");
@@ -642,6 +658,7 @@ export async function collectRemoteEvidence(parameters: {
         repository,
         pullRequest: pullRequest.number,
         pullRequestUrl: pullRequest.url,
+        pullRequestAuthor: pullRequest.author,
         baseCommit: pullRequest.baseCommit,
         headCommit: pullRequest.headCommit,
         application: parameters.application,
@@ -691,6 +708,7 @@ export async function collectRemoteEvidence(parameters: {
       if (
         current.state !== "OPEN" ||
         !current.isDraft ||
+        current.author.toLowerCase() !== pullRequest.author.toLowerCase() ||
         current.headCommit !== pullRequest.headCommit ||
         current.baseCommit !== pullRequest.baseCommit ||
         current.changedFiles !== pullRequest.changedFiles
@@ -707,6 +725,8 @@ export async function collectRemoteEvidence(parameters: {
       if (
         promotedSnapshot.state !== "OPEN" ||
         promotedSnapshot.isDraft ||
+        promotedSnapshot.author.toLowerCase() !==
+          pullRequest.author.toLowerCase() ||
         promotedSnapshot.headCommit !== pullRequest.headCommit ||
         promotedSnapshot.baseCommit !== pullRequest.baseCommit ||
         promotedSnapshot.changedFiles !== pullRequest.changedFiles

@@ -1,4 +1,4 @@
-schemaVersion: coga.dev/factory/v0.2
+schemaVersion: coga.dev/factory/v0.3
 kind: ApplicationFactory
 metadata:
   id: factory.application.cedar.insight.h5

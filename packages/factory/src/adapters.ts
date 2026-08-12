@@ -73,9 +73,9 @@ export const ADAPTER_MANIFESTS: Readonly<Record<string, AdapterManifest>> = {
     mutatesWorkspace: true,
     credentialAccess: "none",
   },
-  "github.draft-pr/v2": {
-    id: "github.draft-pr",
-    version: "2",
+  "github.app-draft-pr/v3": {
+    id: "github.app-draft-pr",
+    version: "3",
     kind: "deliver-draft-pr",
     network: "github-only",
     mutatesWorkspace: false,

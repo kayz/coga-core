@@ -4,6 +4,10 @@ export {
   FACTORY_STATES,
 } from "./types.js";
 export type * from "./types.js";
+export {
+  GITHUB_FACTORY_TOKEN_ENVIRONMENT,
+  expectedDeliveryAuthor,
+} from "./identity.js";
 export { loadApplicationFactory, loadWorkOrder } from "./schema.js";
 export {
   loadAgentProposalReceipt,

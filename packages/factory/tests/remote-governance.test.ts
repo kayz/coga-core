@@ -231,6 +231,7 @@ function snapshot(
     url: "https://github.com/kayz/coga-core/pull/42",
     state: "OPEN",
     isDraft,
+    author: "coga-factory-kayz[bot]",
     baseCommit: base,
     headCommit: head,
     changedFiles: 2,
@@ -364,6 +365,40 @@ describe("remote evidence and governance", () => {
     expect(result.promoted).toBe(false);
     expect(result.evidence.promotion.eligible).toBe(false);
     expect(result.evidence.promotion.blockers).toHaveLength(2);
+    expect(client.readyCalls).toBe(0);
+  });
+
+  it("rejects a PR that was not created by the declared GitHub App", async () => {
+    const fixture = targetFixture();
+    const root = mkdtempSync(join(tmpdir(), "coga-remote-human-author-"));
+    const client = new FakeGitHubClient({
+      remoteFiles: fixture.remoteFiles,
+      prFiles: fixture.prFiles,
+      checks: checks(
+        fixture.workOrder.spec.governance.promotion.requiredChecks,
+      ),
+      reviews: fixture.workOrder.spec.governance.requiredPolicies.map(approval),
+      snapshots: [
+        {
+          ...snapshot(true),
+          author: "kayz",
+          changedFiles: fixture.prFiles.length,
+        },
+      ],
+    });
+    await expect(
+      collectRemoteEvidence({
+        workOrder: fixture.workOrder,
+        baseCommit,
+        application: fixture.target.application,
+        pullRequest: 42,
+        evidencePath: fixture.bundlePath,
+        outputRoot: root,
+        collectedAt: "2026-08-12T12:02:00.000Z",
+        client,
+      }),
+    ).rejects.toThrow(/author.*declared delivery identity/iu);
+    expect(client.attestationCalls).toBe(0);
     expect(client.readyCalls).toBe(0);
   });
 

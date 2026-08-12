@@ -36,7 +36,7 @@
   "metadata": {
     "createdAt": "2026-08-12T19:45:00+08:00",
     "id": "example.cedar.live-status.proposal",
-    "receiptDigest": "sha256:ad403f7fc3c08a7ed5fcc13eea7e32cdaab6c4318998c06c79259ab35097a102"
+    "receiptDigest": "sha256:cd0ba4e265c7ceaebd74dfcee273df7afa5bba08d0bb94265cf5c9272d59c1b9"
   },
   "output": {
     "changedPaths": [
@@ -52,7 +52,7 @@
       "path": ".coga/work-orders/cedar-status/agent-proposal.patch"
     }
   },
-  "schemaVersion": "coga.dev/factory/v0.2",
+  "schemaVersion": "coga.dev/factory/v0.3",
   "subject": {
     "application": {
       "id": "application.cedar.insight.h5",
@@ -91,7 +91,7 @@
       },
       {
         "bytes": 1112,
-        "digest": "sha256:8e178f502fbaf78d343783a0f06114bbc9284f31f14b11951110274dca41b04f",
+        "digest": "sha256:4879408d8c8bc768bd40ebd600b154252e1077f0f5b08b7403908c3b8968d465",
         "path": "examples/broker-digital-channel/applications/cedar-insight-h5/factory/application.factory.yaml"
       },
       {

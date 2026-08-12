@@ -1,6 +1,6 @@
 {
   "name": "@coga/factory",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Governed work orders, isolated execution, evidence, and draft-PR delivery for COGA factory cells.",
   "type": "module",
   "bin": {

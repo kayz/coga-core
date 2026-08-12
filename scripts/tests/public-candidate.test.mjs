@@ -52,6 +52,7 @@ function releaseManifest(overrides = {}) {
         ],
         files: [
           ".gitattributes",
+          ".github/CODEOWNERS",
           ".gitignore",
           ".prettierignore",
           "LICENSE",
@@ -296,6 +297,22 @@ test("boundary accepts the explicitly classified Prettier ignore file", (t) => {
 
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.stdout, /2 candidate files/u);
+});
+
+test("boundary accepts and privacy scans the exact CODEOWNERS path", (t) => {
+  const root = createRepository(t, {
+    ...releaseManifest(),
+    allow: ["public.release.json", ".github/CODEOWNERS"],
+  });
+  writeFile(root, ".github/CODEOWNERS", "* @example-owner\n");
+
+  const boundary = run(BOUNDARY_SCRIPT, root);
+  const privacy = run(PRIVACY_SCRIPT, root);
+
+  assert.equal(boundary.status, 0, boundary.stderr);
+  assert.match(boundary.stdout, /2 candidate files/u);
+  assert.equal(privacy.status, 0, privacy.stderr);
+  assert.match(privacy.stdout, /2 public text files scanned/u);
 });
 
 test("boundary rejects invalid UTF-8 text", (t) => {

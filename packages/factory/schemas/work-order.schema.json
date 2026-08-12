@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://coga.dev/schemas/factory/v0.2/work-order.schema.json",
+  "$id": "https://coga.dev/schemas/factory/v0.3/work-order.schema.json",
   "title": "COGA Factory Work Order",
   "type": "object",
   "additionalProperties": false,
@@ -73,7 +73,7 @@
     }
   },
   "properties": {
-    "schemaVersion": { "const": "coga.dev/factory/v0.2" },
+    "schemaVersion": { "const": "coga.dev/factory/v0.3" },
     "kind": { "const": "WorkOrder" },
     "metadata": {
       "type": "object",
@@ -231,14 +231,29 @@
         "delivery": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["adapter", "repository", "draft"],
+          "required": ["adapter", "repository", "draft", "identity"],
           "properties": {
-            "adapter": { "const": "github.draft-pr/v2" },
+            "adapter": { "const": "github.app-draft-pr/v3" },
             "repository": {
               "type": "string",
               "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
             },
-            "draft": { "const": true }
+            "draft": { "const": true },
+            "identity": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "appSlug", "tokenEnvironment"],
+              "properties": {
+                "kind": { "const": "github-app" },
+                "appSlug": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9](?:[a-z0-9-]{0,98}[a-z0-9])?$"
+                },
+                "tokenEnvironment": {
+                  "const": "COGA_FACTORY_GITHUB_TOKEN"
+                }
+              }
+            }
           }
         }
       }

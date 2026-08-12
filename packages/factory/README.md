@@ -4,9 +4,10 @@
 candidate for every affected Application. It is a bounded factory cell, not a
 general-purpose workflow engine.
 
-The package version is `0.3.0`. Its independently versioned documents use
-`coga.dev/factory/v0.2`; v0.1 Factory documents are intentionally rejected. Core
-resources remain `coga.dev/v0.2` and `@coga/core` remains `0.2.0`.
+The package version is `0.4.0`. Its independently versioned documents use
+`coga.dev/factory/v0.3`; v0.1 and v0.2 Factory documents are intentionally
+rejected. Core resources remain `coga.dev/v0.2` and `@coga/core` remains
+`0.2.0`.
 
 The controller:
 
@@ -20,8 +21,9 @@ The controller:
    shared domain Patch idempotently;
 6. validates COGA closure and runs only registered test/build adapters in a
    digest-pinned, network-disabled Docker sandbox;
-7. writes one content-addressed Evidence Bundle, commit, and optional GitHub Draft
-   PR per Application;
+7. writes one content-addressed Evidence Bundle and commit per Application, then
+   optionally uses the exact declared GitHub App installation to push a branch
+   and create or reuse a machine-owned Draft PR;
 8. records partial fan-out outcomes and retries only failed targets;
 9. can collect exact remote CI, artifact-attestation, and human Policy-review
    evidence before changing an eligible Draft PR to ready for review.
@@ -30,7 +32,7 @@ The controller:
 
 | Document               | Responsibility                                                                                 |
 | ---------------------- | ---------------------------------------------------------------------------------------------- |
-| `WorkOrder`            | Exact base, changed Artifact, domain Patch, complete targets, Policy and promotion rules       |
+| `WorkOrder`            | Exact base/change/targets, Policy rules, GitHub App delivery identity and human approvers      |
 | `ProposalCompilation`  | Human-reviewed input to compile a pre-authored normalized Patch into a receipt                 |
 | `AgentProposalReceipt` | Model/provider/prompt/tools/budgets, exact input hashes, normalized Patch and output paths     |
 | `ApplicationFactory`   | Application-owned source/change paths and registered test/build adapters                       |
@@ -39,12 +41,13 @@ The controller:
 | `GovernanceView`       | Derived, read-only status across local and remote evidence for every target                    |
 | recovery state         | Per-target workspace, freshly derived exact plan, contiguous step prefix and result binding    |
 
-The model does not receive Git credentials or write the repository. A proposal is
-accepted only as normalized unified-diff bytes, then compiled into a versioned
-receipt. `compile-proposal` does not call a model; it records and validates an
-already produced candidate against an explicit compilation request. An ignored
-build directory cannot enter the context closure, while an untracked,
-non-ignored source file must be included and hashed or planning fails.
+The model and verification sandbox do not receive Git credentials or write the
+repository. A proposal is accepted only as normalized unified-diff bytes, then
+compiled into a versioned receipt. `compile-proposal` does not call a model; it
+records and validates an already produced candidate against an explicit
+compilation request. An ignored build directory cannot enter the context closure,
+while an untracked, non-ignored source file must be included and hashed or
+planning fails.
 
 Every target owns a distinct branch, worktree, recovery state, Evidence Bundle,
 commit and Draft PR. A target failure produces an aggregate `partial` result and
@@ -62,19 +65,28 @@ a Factory Evidence Bundle exit without attestation. When exactly one Bundle is
 present, the workflow performs no checkout and executes no repository code; it
 binds the content-addressed Bundle to the exact open Draft PR head and creates a
 GitHub artifact attestation.
-The local collector independently verifies that attestation, the configured check
-set, the exact remote Proposal Receipt, and an authorized `APPROVED` review for
-every Policy. It also re-downloads the governed domain and proposal Patches and
-requires the PR/Evidence Bundle file set to equal their exact path closure. A
-review body must contain:
+GitHub delivery uses `github.app-draft-pr/v3`. The Work Order fixes an App slug
+and the only accepted credential entry point,
+`COGA_FACTORY_GITHUB_TOKEN`. Before any push, the adapter proves that this is an
+installation token whose repository set contains the exact target repository.
+The token is supplied only through scrubbed child-process environments, never a
+command argument, remote URL, Work Order or evidence file. The adapter then
+requires the created or reused PR author to equal `<app-slug>[bot]`. That machine
+identity and its bot login are forbidden from the human approver allowlist.
+
+The local collector independently verifies the declared PR author, attestation,
+configured check set, exact remote Proposal Receipt, and an authorized
+`APPROVED` review for every Policy. It also re-downloads the governed domain and
+proposal Patches and requires the PR/Evidence Bundle file set to equal their exact
+path closure. A review body must contain:
 
 ```text
 [coga-policy:<policy-id>@<version>]
 ```
 
 and the review must be bound to the current head commit. `--promote` performs a
-fresh PR identity check and can only change Draft to ready for review. It never
-merges, publishes, releases, tags or deploys.
+fresh PR identity check, including author, and can only change Draft to ready for
+review. It never merges, publishes, releases, tags or deploys.
 
 ## Commands
 
@@ -109,5 +121,9 @@ and Birch H5 Applications, each receives its own proposal, sandbox verification,
 candidate and evidence.
 
 Use `--delivery github` only when the exact base branch is already available on
-the configured remote and Draft PR creation is intended. GitHub CLI authentication
-and remote governance authority remain operator responsibilities.
+the configured remote and Draft PR creation is intended. Supply a short-lived
+installation token for the declared App through `COGA_FACTORY_GITHUB_TOKEN`.
+The reference repository also requires a CODEOWNER human review and the five
+Work Order checks on `main`; those server-side rules remain administrator
+responsibilities. App creation, installation and token minting are deliberately
+outside the Work Order and are never performed by proposal code.
