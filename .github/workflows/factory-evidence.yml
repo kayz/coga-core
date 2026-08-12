@@ -16,7 +16,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
+      actions: read
       contents: read
+      pull-requests: read
       id-token: write
       attestations: write
       artifact-metadata: write
@@ -34,37 +36,61 @@ jobs:
           set -euo pipefail
           umask 077
 
-          [[ "$COGA_HEAD_SHA" =~ ^[0-9a-f]{40}$ ]] || {
-            echo "Invalid workflow head commit." >&2
+          fail() {
+            echo "::error::$*" >&2
             exit 1
           }
+          require_equal() {
+            [[ "$1" == "$2" ]] || fail "$3"
+          }
 
-          run_json="$(gh api "repos/$COGA_REPOSITORY/actions/runs/$COGA_RUN_ID")"
-          test "$(jq -r '.event' <<<"$run_json")" = "pull_request"
-          test "$(jq -r '.conclusion' <<<"$run_json")" = "success"
-          test "$(jq -r '.head_sha' <<<"$run_json")" = "$COGA_HEAD_SHA"
-          test "$(jq '.pull_requests | length' <<<"$run_json")" -eq 1
+          [[ "$COGA_HEAD_SHA" =~ ^[0-9a-f]{40}$ ]] || \
+            fail "Invalid workflow head commit."
+
+          run_json="$(gh api "repos/$COGA_REPOSITORY/actions/runs/$COGA_RUN_ID")" || \
+            fail "Unable to read triggering workflow run $COGA_RUN_ID."
+          require_equal "$(jq -r '.event' <<<"$run_json")" "pull_request" \
+            "Trigger is not a pull_request run."
+          require_equal "$(jq -r '.conclusion' <<<"$run_json")" "success" \
+            "Triggering public-checks run did not succeed."
+          require_equal "$(jq -r '.head_sha' <<<"$run_json")" "$COGA_HEAD_SHA" \
+            "Triggering run head does not match the workflow event."
+          test "$(jq '.pull_requests | length' <<<"$run_json")" -eq 1 || \
+            fail "Triggering run must bind exactly one pull request."
           pr_number="$(jq -r '.pull_requests[0].number' <<<"$run_json")"
           case "$pr_number" in
-            ''|*[!0-9]*) echo "Invalid PR number." >&2; exit 1 ;;
+            ''|*[!0-9]*) fail "Invalid PR number." ;;
           esac
 
-          pr_json="$(gh api "repos/$COGA_REPOSITORY/pulls/$pr_number")"
-          test "$(jq -r '.state' <<<"$pr_json")" = "open"
-          test "$(jq -r '.draft' <<<"$pr_json")" = "true"
-          test "$(jq -r '.head.sha' <<<"$pr_json")" = "$COGA_HEAD_SHA"
-          test "$(jq -r '.head.repo.full_name' <<<"$pr_json")" = "$COGA_REPOSITORY"
+          pr_json="$(gh api "repos/$COGA_REPOSITORY/pulls/$pr_number")" || \
+            fail "Unable to read pull request #$pr_number."
+          require_equal "$(jq -r '.state' <<<"$pr_json")" "open" \
+            "Pull request #$pr_number is not open."
+          require_equal "$(jq -r '.head.sha' <<<"$pr_json")" "$COGA_HEAD_SHA" \
+            "Pull request #$pr_number head does not match the successful run."
+          require_equal "$(jq -r '.head.repo.full_name' <<<"$pr_json")" "$COGA_REPOSITORY" \
+            "Pull request #$pr_number is not from this repository."
           changed_files="$(jq -r '.changed_files' <<<"$pr_json")"
-          test "$changed_files" -ge 1
-          test "$changed_files" -le 100
+          test "$changed_files" -ge 1 || fail "Pull request has no changed files."
+          test "$changed_files" -le 100 || fail "Pull request exceeds the 100-file evidence budget."
 
-          files_json="$(gh api "repos/$COGA_REPOSITORY/pulls/$pr_number/files?per_page=100")"
-          test "$(jq 'length' <<<"$files_json")" -eq "$changed_files"
+          files_json="$(gh api "repos/$COGA_REPOSITORY/pulls/$pr_number/files?per_page=100")" || \
+            fail "Unable to read files for pull request #$pr_number."
+          test "$(jq 'length' <<<"$files_json")" -eq "$changed_files" || \
+            fail "Pull request file list is incomplete."
           jq -e 'all(.[].filename; test("^[^\\u0000-\\u001f\\u007f\\\\]+$"))' \
-            <<<"$files_json" >/dev/null
-          evidence_paths="$(jq -r '[.[].filename | select(test("^\\.coga/evidence/[0-9a-f]{64}\\.json$"))] | unique | .[]' <<<"$files_json")"
-          test "$(grep -c . <<<"$evidence_paths")" -eq 1
-          evidence_path="$evidence_paths"
+            <<<"$files_json" >/dev/null || fail "Pull request contains an unsafe path."
+          evidence_count="$(jq '[.[].filename | select(test("^\\.coga/evidence/[0-9a-f]{64}\\.json$"))] | unique | length' <<<"$files_json")"
+          if [[ "$evidence_count" == "0" ]]; then
+            echo "candidate=false" >>"$GITHUB_OUTPUT"
+            echo "::notice::Pull request #$pr_number has no Factory Evidence Bundle; attestation is not required."
+            exit 0
+          fi
+          [[ "$evidence_count" == "1" ]] || \
+            fail "Pull request #$pr_number must contain exactly one Factory Evidence Bundle."
+          require_equal "$(jq -r '.draft' <<<"$pr_json")" "true" \
+            "A pull request containing Factory evidence must remain Draft."
+          evidence_path="$(jq -r '[.[].filename | select(test("^\\.coga/evidence/[0-9a-f]{64}\\.json$"))] | unique | .[0]' <<<"$files_json")"
 
           output_dir="$COGA_RUNNER_TEMP/coga-factory-attestation"
           mkdir -p "$output_dir"
@@ -72,10 +98,10 @@ jobs:
           gh api \
             -H "Accept: application/vnd.github.raw+json" \
             "repos/$COGA_REPOSITORY/contents/$evidence_path?ref=$COGA_HEAD_SHA" \
-            >"$output_path"
+            >"$output_path" || fail "Unable to download the exact Evidence Bundle bytes."
           bytes="$(wc -c <"$output_path")"
-          test "$bytes" -ge 1
-          test "$bytes" -le 5242880
+          test "$bytes" -ge 1 || fail "Evidence Bundle is empty."
+          test "$bytes" -le 5242880 || fail "Evidence Bundle exceeds the 5 MiB budget."
 
           jq -e \
             --arg repository "$COGA_REPOSITORY" \
@@ -89,26 +115,31 @@ jobs:
              (.subject.application.version | type == "string" and length > 0) and
              (.subject.proposalReceiptDigest | test("^sha256:[0-9a-f]{64}$")) and
              (.metadata.bundleDigest | test("^sha256:[0-9a-f]{64}$"))' \
-            "$output_path" >/dev/null
+            "$output_path" >/dev/null || fail "Evidence Bundle identity is invalid."
 
           declared="$(jq -r '.metadata.bundleDigest' "$output_path")"
           calculated="sha256:$(jq -S 'del(.metadata.bundleDigest)' "$output_path" | sha256sum | cut -d' ' -f1)"
-          test "$declared" = "$calculated"
-          test "$evidence_path" = ".coga/evidence/${declared#sha256:}.json"
+          require_equal "$declared" "$calculated" "Evidence Bundle digest does not match its bytes."
+          require_equal "$evidence_path" ".coga/evidence/${declared#sha256:}.json" \
+            "Evidence Bundle path does not match its digest."
 
           jq -r '.[].filename' <<<"$files_json" | sort >"$output_dir/actual-files"
           {
             jq -r '.subject.changedFiles[].path' "$output_path"
             printf '%s\n' "$evidence_path"
           } | sort >"$output_dir/expected-files"
-          test "$(sort -u "$output_dir/actual-files" | wc -l)" -eq "$changed_files"
-          cmp "$output_dir/actual-files" "$output_dir/expected-files"
+          test "$(sort -u "$output_dir/actual-files" | wc -l)" -eq "$changed_files" || \
+            fail "Pull request contains duplicate file records."
+          cmp "$output_dir/actual-files" "$output_dir/expected-files" || \
+            fail "Pull request files do not equal the governed Patch closure plus Evidence Bundle."
 
+          echo "candidate=true" >>"$GITHUB_OUTPUT"
           echo "subject-path=$output_path" >>"$GITHUB_OUTPUT"
           echo "subject-sha256=$(sha256sum "$output_path" | cut -d' ' -f1)" >>"$GITHUB_OUTPUT"
           echo "pull-request=$pr_number" >>"$GITHUB_OUTPUT"
 
       - name: Attest the exact Evidence Bundle bytes
+        if: steps.prepare.outputs.candidate == 'true'
         uses: actions/attest@c32b4b8b198b65d0bd9d63490e847ff7b53989d4 # v4.0.0
         with:
           subject-path: ${{ steps.prepare.outputs.subject-path }}
