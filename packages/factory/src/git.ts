@@ -27,7 +27,7 @@ function pathAllowed(path: string, allowed: readonly string[]): boolean {
   );
 }
 
-function patchPaths(source: string): string[] {
+export function inspectPatchPaths(source: string): string[] {
   if (source.includes("\0")) throw new Error("Patch contains a NUL byte.");
   const paths = new Set<string>();
   for (const line of source.split(/\r?\n/)) {
@@ -190,6 +190,36 @@ export class GitRepository {
     }
   }
 
+  async createDetachedWorktree(path: string, commit: string): Promise<void> {
+    if (!COMMIT_PATTERN.test(commit)) {
+      throw new Error("Factory planning commit is malformed.");
+    }
+    await this.git(["cat-file", "-e", `${commit}^{commit}`]);
+    if (existsSync(path)) {
+      const [actualCommit, actualBranch, actualRoot, actualCommon, rootCommon] =
+        await Promise.all([
+          this.git(["rev-parse", "HEAD^{commit}"], path),
+          this.git(["branch", "--show-current"], path),
+          this.git(["rev-parse", "--show-toplevel"], path),
+          this.git(["rev-parse", "--git-common-dir"], path),
+          this.git(["rev-parse", "--git-common-dir"], this.root),
+        ]);
+      if (
+        actualCommit !== commit ||
+        actualBranch !== "" ||
+        resolve(actualRoot) !== resolve(path) ||
+        resolve(path, actualCommon) !== resolve(this.root, rootCommon)
+      ) {
+        throw new Error(
+          `Existing planning workspace '${path}' does not match detached commit ${commit}.`,
+        );
+      }
+      return;
+    }
+    mkdirSync(dirname(path), { recursive: true });
+    await this.git(["worktree", "add", "--detach", path, commit]);
+  }
+
   async applyPatch(
     workspace: string,
     reference: FileReference,
@@ -201,7 +231,7 @@ export class GitRepository {
     );
     const patchPath = verifyFileReference(workspace, reference, label);
     const source = readBoundedFile(patchPath, label).toString("utf8");
-    const paths = patchPaths(source);
+    const paths = inspectPatchPaths(source);
     for (const path of paths) {
       if (!pathAllowed(path, normalizedAllowed)) {
         throw new Error(

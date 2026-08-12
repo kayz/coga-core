@@ -1,0 +1,354 @@
+{
+  "generator": {
+    "adapter": {
+      "id": "coga.codex.proposal",
+      "version": "1.0.0"
+    },
+    "budget": {
+      "maxInputTokens": 100000,
+      "maxOutputTokens": 8000,
+      "maxToolCalls": 100,
+      "timeoutMs": 600000
+    },
+    "model": {
+      "id": "codex",
+      "provider": "openai",
+      "version": "gpt-5"
+    },
+    "prompt": {
+      "digest": "sha256:e0c438a1f2be9cdf1d3bab0e64484678e823c2b87f6e0913c34c74dfb22ff80b",
+      "path": ".coga/prompts/cedar-live-status-v1.md",
+      "template": {
+        "id": "coga.prompt.cedar.live-status",
+        "version": "1.0.0"
+      }
+    },
+    "tools": {
+      "allowed": [
+        "repository-context-read",
+        "unified-diff-output"
+      ],
+      "filesystem": "read-only",
+      "network": "none"
+    }
+  },
+  "kind": "AgentProposalReceipt",
+  "metadata": {
+    "createdAt": "2026-08-12T19:45:00+08:00",
+    "id": "example.cedar.live-status.proposal",
+    "receiptDigest": "sha256:ad403f7fc3c08a7ed5fcc13eea7e32cdaab6c4318998c06c79259ab35097a102"
+  },
+  "output": {
+    "changedPaths": [
+      "examples/broker-digital-channel/applications/cedar-insight-h5/src/app.mjs",
+      "examples/broker-digital-channel/applications/cedar-insight-h5/src/index.html",
+      "examples/broker-digital-channel/applications/cedar-insight-h5/src/styles.css",
+      "examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs"
+    ],
+    "normalization": "coga.patch.normalization/v1",
+    "normalizedDigest": "sha256:32ac39b3b5c6207fa56741e0ab1af2c81165606426be32d3e48b75cabf6dfe8f",
+    "patch": {
+      "digest": "sha256:32ac39b3b5c6207fa56741e0ab1af2c81165606426be32d3e48b75cabf6dfe8f",
+      "path": ".coga/work-orders/cedar-status/agent-proposal.patch"
+    }
+  },
+  "schemaVersion": "coga.dev/factory/v0.2",
+  "subject": {
+    "application": {
+      "id": "application.cedar.insight.h5",
+      "version": "0.2.0"
+    },
+    "baseCommit": "work-order-commit",
+    "change": {
+      "id": "web.h5.responsive.shell",
+      "version": "0.2.0"
+    },
+    "inputs": [
+      {
+        "bytes": 686,
+        "digest": "sha256:e0c438a1f2be9cdf1d3bab0e64484678e823c2b87f6e0913c34c74dfb22ff80b",
+        "path": ".coga/prompts/cedar-live-status-v1.md"
+      },
+      {
+        "bytes": 1124,
+        "digest": "sha256:16c8b559ea658f158e5b496f8c3f91f4fd2079acfa62d361aa1614ac0c738fbd",
+        "path": ".coga/work-orders/cedar-status/domain-change.patch"
+      },
+      {
+        "bytes": 2743,
+        "digest": "sha256:7c8cb44d026b11067a8fa57c9f54c8846709b5e52ade79f1b50b020d9d48cd41",
+        "path": "examples/broker-digital-channel/applications/aster-mini-program/application.yaml"
+      },
+      {
+        "bytes": 2672,
+        "digest": "sha256:8a56201553f31211930bcade48bff6ad1120842c8ae4505c40d55a1760881f52",
+        "path": "examples/broker-digital-channel/applications/birch-insight-h5/application.yaml"
+      },
+      {
+        "bytes": 2787,
+        "digest": "sha256:9f001fe3c5d5e577f00ac6dc7d349fd78991c170529e3b1823c4a599b51eeabc",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/application.yaml"
+      },
+      {
+        "bytes": 1112,
+        "digest": "sha256:8e178f502fbaf78d343783a0f06114bbc9284f31f14b11951110274dca41b04f",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/factory/application.factory.yaml"
+      },
+      {
+        "bytes": 202,
+        "digest": "sha256:8dca3cb46b8fff56b90582409871c4373f8788f66022dc632dfa0e6cca69e411",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/package.json"
+      },
+      {
+        "bytes": 717,
+        "digest": "sha256:ef1d7b2a4cb58becefb46902c1d6eded374cf9e61a706a8c66844ef8f8bb6281",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/scripts/build.mjs"
+      },
+      {
+        "bytes": 599,
+        "digest": "sha256:a248edfbe9428531e51c5ed83147854c027d5ed15ecbcd1f1904aaf354ad5395",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/src/app.mjs"
+      },
+      {
+        "bytes": 1036,
+        "digest": "sha256:ef3106262dae390699fc64f466f1f8cd139944699e5749b18da36294fd188eb6",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/src/domain.mjs"
+      },
+      {
+        "bytes": 935,
+        "digest": "sha256:54a310f2fa52394913f5a65bbbeddc2e8db5fff3df6e9f3ed11e99e6f678f249",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/src/index.html"
+      },
+      {
+        "bytes": 745,
+        "digest": "sha256:188005cc97cef81ea2e0f5e88a181836afd7f66f4355c29825d923d00490a4a1",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/src/styles.css"
+      },
+      {
+        "bytes": 1392,
+        "digest": "sha256:41fa42ace21edc66ec2dbd7d7ca6a39cb87f148bbe48d980b6a8837853864d15",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs"
+      },
+      {
+        "bytes": 772,
+        "digest": "sha256:31f6413c44a237cfb8af22f9265b63a446372aa843dcd98ac1b55101f02dcc3e",
+        "path": "examples/broker-digital-channel/applications/cedar-insight-h5/tests/factory-sandbox.test.mjs"
+      },
+      {
+        "bytes": 1015,
+        "digest": "sha256:354d0f8d06964ec61683a9239619f3a5a1e9d8fa5de32686cabe010b086ec23a",
+        "path": "examples/broker-digital-channel/contracts/content-item.schema.json"
+      },
+      {
+        "bytes": 916,
+        "digest": "sha256:9215c572df54ef840bbb1cc548306378ada587336e662182219b920b900e6e1d",
+        "path": "examples/broker-digital-channel/contracts/customer-context.schema.json"
+      },
+      {
+        "bytes": 782,
+        "digest": "sha256:ab77fb1d3d6fa04ba8dacfa2555a7571edddcc727346ec083d88a1f5974485af",
+        "path": "examples/broker-digital-channel/contracts/feedback-command.schema.json"
+      },
+      {
+        "bytes": 829,
+        "digest": "sha256:43b00abc578161dc3608293282ed7f952ed5c473b426ec60b6a32a14efde0bca",
+        "path": "examples/broker-digital-channel/contracts/support-request.schema.json"
+      },
+      {
+        "bytes": 2861,
+        "digest": "sha256:2d97549fa77e7479c4c5aa36646bbc7db2f70a756d4dbea8b6384c9ca506ef5b",
+        "path": "examples/broker-digital-channel/instance.yaml"
+      },
+      {
+        "bytes": 1543,
+        "digest": "sha256:f79dde20472f951a9d3cc63a6f5da4686baf35a2b376bc8aee87424f824727c8",
+        "path": "examples/broker-digital-channel/packages/domain/artifacts/content-provenance.yaml"
+      },
+      {
+        "bytes": 1795,
+        "digest": "sha256:185d4a21af96d30f7409135978dd6f78a82bbe05b484d9e18dc5f19759f46905",
+        "path": "examples/broker-digital-channel/packages/domain/artifacts/entitlement-authority.yaml"
+      },
+      {
+        "bytes": 1456,
+        "digest": "sha256:ea9f4a4c30fe6babe8bfdcf5507a353543979d1cb02d8f5801beeec030ab4ab8",
+        "path": "examples/broker-digital-channel/packages/domain/artifacts/identity-context.yaml"
+      },
+      {
+        "bytes": 1713,
+        "digest": "sha256:9066c6706e83a064e1ad6ebb5b2242d6bd8e12bf7e03b79506612492803323d5",
+        "path": "examples/broker-digital-channel/packages/domain/artifacts/personal-data-minimization.yaml"
+      },
+      {
+        "bytes": 1832,
+        "digest": "sha256:5439c0ea06edc8e5ab4aec0571f800fe82b783f76a24db27f275ca0a98d83270",
+        "path": "examples/broker-digital-channel/packages/domain/artifacts/scenario-content-and-suitability.yaml"
+      },
+      {
+        "bytes": 1275,
+        "digest": "sha256:d7ad723f07f546eb1b859d783dd2f7ae7c81aa80505728c899cab8a052cc5272",
+        "path": "examples/broker-digital-channel/packages/domain/artifacts/scenario-data-denial.yaml"
+      },
+      {
+        "bytes": 1704,
+        "digest": "sha256:5f7e9c55164f86240a7f32c9bc5a8dac9fa1363d2ec71b393e2b218cf0c63002",
+        "path": "examples/broker-digital-channel/packages/domain/artifacts/scenario-identity-and-entitlement.yaml"
+      },
+      {
+        "bytes": 1683,
+        "digest": "sha256:0f7beaabbaf344a08345c6485809e3285cb1743213fbeff4855979b7b9a55229",
+        "path": "examples/broker-digital-channel/packages/domain/artifacts/suitability-boundary.yaml"
+      },
+      {
+        "bytes": 1494,
+        "digest": "sha256:1f9e9155de65a2459289d335db93a84c17e84d5a039c78843ebdda8e18994b94",
+        "path": "examples/broker-digital-channel/packages/domain/package.yaml"
+      },
+      {
+        "bytes": 1465,
+        "digest": "sha256:425c69b16a750d5e1576b14c23d0c99bcf55f26144bf4825e595a7e3e7adccbb",
+        "path": "examples/broker-digital-channel/packages/engineering-frontend/artifacts/accessible-interaction.yaml"
+      },
+      {
+        "bytes": 1483,
+        "digest": "sha256:24dd35f561cc7790ea7998fd3c95386822df14da3b7837bd1952f1f9d7da18cc",
+        "path": "examples/broker-digital-channel/packages/engineering-frontend/artifacts/contract-boundary.yaml"
+      },
+      {
+        "bytes": 1516,
+        "digest": "sha256:51b61ff86086638223cb2594f513bf4158cfa1f994ee2de889b3f634d0f25a4c",
+        "path": "examples/broker-digital-channel/packages/engineering-frontend/artifacts/explicit-state.yaml"
+      },
+      {
+        "bytes": 1446,
+        "digest": "sha256:ec864ae338603bf66231c3377c7077f9e2dbed6e6a603c88d0debd295e4d7da3",
+        "path": "examples/broker-digital-channel/packages/engineering-frontend/artifacts/scenario-accessibility.yaml"
+      },
+      {
+        "bytes": 1576,
+        "digest": "sha256:e0c308eabb425f7491a7eb36a3d421cafbdaf94b7cd5a2e828d52e8626c40307",
+        "path": "examples/broker-digital-channel/packages/engineering-frontend/artifacts/scenario-contract-and-state.yaml"
+      },
+      {
+        "bytes": 2067,
+        "digest": "sha256:6b090752f2871722a3c276130f8ea56ce90edbce8b27b83ecabeb62084d62476",
+        "path": "examples/broker-digital-channel/packages/engineering-frontend/artifacts/verification-evidence.yaml"
+      },
+      {
+        "bytes": 1207,
+        "digest": "sha256:d83cef84efd6527e205de5ab8500e1d588aa4be83cf5c8d1c4c14261d0f26ba3",
+        "path": "examples/broker-digital-channel/packages/engineering-frontend/package.yaml"
+      },
+      {
+        "bytes": 2173,
+        "digest": "sha256:5f88f23eede646bdf116164e97cacdef98f1be171f00d320cb8dccaa7f35859a",
+        "path": "examples/broker-digital-channel/packages/operations-client/artifacts/incident-triage.yaml"
+      },
+      {
+        "bytes": 2093,
+        "digest": "sha256:25e97401add39e7faaa37961cf2008b2ad6a0bd4fdf21e5e8486ff612985dd74",
+        "path": "examples/broker-digital-channel/packages/operations-client/artifacts/release-rollback.yaml"
+      },
+      {
+        "bytes": 1512,
+        "digest": "sha256:294b41d12c2ca822f300314802edc3efaf122c3ba0f8340483a36391e2002487",
+        "path": "examples/broker-digital-channel/packages/operations-client/artifacts/scenario-incident.yaml"
+      },
+      {
+        "bytes": 1221,
+        "digest": "sha256:c6aec5f0b1fd12aa46d802645a8b75f4bff20111e086615d6af8aeb69237947b",
+        "path": "examples/broker-digital-channel/packages/operations-client/artifacts/scenario-release.yaml"
+      },
+      {
+        "bytes": 1868,
+        "digest": "sha256:6988f15fc699d888aea68bb754b639305929261ef4b1b4a06fb26647eb0bb314",
+        "path": "examples/broker-digital-channel/packages/operations-client/artifacts/telemetry-minimization.yaml"
+      },
+      {
+        "bytes": 1215,
+        "digest": "sha256:f3df30f57ef73941ed17bf499ef8bda8ffbc81c1a4fc3ca007825e0c6a9854c3",
+        "path": "examples/broker-digital-channel/packages/operations-client/package.yaml"
+      },
+      {
+        "bytes": 1608,
+        "digest": "sha256:dc5c4f3411bf14ab420c1d4e87fd099a1145383828363082c5db32c50af4938b",
+        "path": "examples/broker-digital-channel/packages/organization-example/artifacts/change-approval.yaml"
+      },
+      {
+        "bytes": 1644,
+        "digest": "sha256:7cf9bcad6d3d5f60049e89c2e2c5d062d4527790780fc0fa0f286831aef0d991",
+        "path": "examples/broker-digital-channel/packages/organization-example/artifacts/publication-allowlist.yaml"
+      },
+      {
+        "bytes": 1686,
+        "digest": "sha256:a5fef722f9d1f24956f1ce89f03bcbf585d5da224e0f10742b5ace81fffe616e",
+        "path": "examples/broker-digital-channel/packages/organization-example/artifacts/scenario-governed-change.yaml"
+      },
+      {
+        "bytes": 1255,
+        "digest": "sha256:733acac75929fc9ea08a4ba776043cb2f15d9b3b3efb48ce3ad35cf8150f519d",
+        "path": "examples/broker-digital-channel/packages/organization-example/artifacts/scenario-publication.yaml"
+      },
+      {
+        "bytes": 1836,
+        "digest": "sha256:ab04e0adabb493bb69a244e76913e93560f74fde66b82a4ef4a9a5637cf183bc",
+        "path": "examples/broker-digital-channel/packages/organization-example/artifacts/secret-isolation.yaml"
+      },
+      {
+        "bytes": 1268,
+        "digest": "sha256:9f2327d14ad8e97066d141d64da14a5f66337289be3b7fbc9e2b99d027a57192",
+        "path": "examples/broker-digital-channel/packages/organization-example/package.yaml"
+      },
+      {
+        "bytes": 1163,
+        "digest": "sha256:bf5d43c6eebabb1f32c1239b4debe3b869cafe752e77d1d85644b5099360ea5a",
+        "path": "examples/broker-digital-channel/packages/platform-web-h5/artifacts/responsive-shell.yaml"
+      },
+      {
+        "bytes": 986,
+        "digest": "sha256:2e0febad9e2e1682038016abb4aade87523b68ca85e6fb4f6b89dd0cb4112cc8",
+        "path": "examples/broker-digital-channel/packages/platform-web-h5/artifacts/scenario-responsive-shell.yaml"
+      },
+      {
+        "bytes": 693,
+        "digest": "sha256:7fe7180b3a1cbb287d16cdcf17b355cc1c19782de2c1d81248f426b703e68b44",
+        "path": "examples/broker-digital-channel/packages/platform-web-h5/package.yaml"
+      },
+      {
+        "bytes": 1860,
+        "digest": "sha256:8be1d2aedb7359f9d17c5ebf8b00bf684b2fe5640ae1786274a88bb5245f6d41",
+        "path": "examples/broker-digital-channel/packages/platform-wechat-mini-program/artifacts/delivery-evidence.yaml"
+      },
+      {
+        "bytes": 1457,
+        "digest": "sha256:0a061352a014a2b872140c9657a214fc29fb4bc74676c0b4e87581b8e4ca843e",
+        "path": "examples/broker-digital-channel/packages/platform-wechat-mini-program/artifacts/package-boundary.yaml"
+      },
+      {
+        "bytes": 1873,
+        "digest": "sha256:4aed6168c6039f9bff1b1fe3f6d8266244b75a9207a1c66441f439f2c9c2b507",
+        "path": "examples/broker-digital-channel/packages/platform-wechat-mini-program/artifacts/privacy-authorization.yaml"
+      },
+      {
+        "bytes": 1539,
+        "digest": "sha256:8f609724db9e1dfd57fe55fbd0440c94130793eaf6a350724f0f4697d5499455",
+        "path": "examples/broker-digital-channel/packages/platform-wechat-mini-program/artifacts/scenario-delivery.yaml"
+      },
+      {
+        "bytes": 1764,
+        "digest": "sha256:83fa4092a17d668ff10c69fd92660a037f7f909191768ce31f198c755d13e22c",
+        "path": "examples/broker-digital-channel/packages/platform-wechat-mini-program/artifacts/scenario-session-and-privacy.yaml"
+      },
+      {
+        "bytes": 1699,
+        "digest": "sha256:1c065e62b62cc3fca418af12a863b8ebc42f04a5ce698ad87a33fcb0087a2f6d",
+        "path": "examples/broker-digital-channel/packages/platform-wechat-mini-program/artifacts/session-exchange.yaml"
+      },
+      {
+        "bytes": 1266,
+        "digest": "sha256:d9855861e77221e7d7eeb5c5b2c2c30d926d4f4cacb1df15545c0a89d0d2afb4",
+        "path": "examples/broker-digital-channel/packages/platform-wechat-mini-program/package.yaml"
+      }
+    ]
+  }
+}

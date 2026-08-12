@@ -4,7 +4,9 @@ import type {
   ValidationProfile,
 } from "@coga/core";
 
-export const FACTORY_SCHEMA_VERSION = "coga.dev/factory/v0.1" as const;
+export const FACTORY_SCHEMA_VERSION = "coga.dev/factory/v0.2" as const;
+export const PATCH_NORMALIZATION_VERSION =
+  "coga.patch.normalization/v1" as const;
 
 export const FACTORY_STATES = [
   "requested",
@@ -28,6 +30,10 @@ export interface FileReference {
   digest: Sha256Digest;
 }
 
+export interface EvidenceFile extends FileReference {
+  bytes: number;
+}
+
 export interface FactoryApproval {
   policy: ExactReference;
   approver: string;
@@ -35,9 +41,21 @@ export interface FactoryApproval {
   evidence: FileReference[];
 }
 
+export interface TargetDelivery {
+  branch: string;
+  title: string;
+  body: string;
+  commitMessage: string;
+}
+
 export interface WorkOrderTarget {
   application: ExactReference;
   factoryDefinition: string;
+  proposal: {
+    adapter: "coga.agent.proposal/v2";
+    receipt: FileReference;
+  };
+  delivery: TargetDelivery;
 }
 
 export interface WorkOrder {
@@ -68,20 +86,84 @@ export interface WorkOrder {
     governance: {
       requiredPolicies: ExactReference[];
       approvals: FactoryApproval[];
-    };
-    proposal: {
-      adapter: "coga.agent.patch/v1";
-      patch: FileReference;
+      promotion: {
+        requiredChecks: string[];
+        authorizedApprovers: string[];
+        requireArtifactAttestation: true;
+      };
     };
     delivery: {
-      adapter: "github.draft-pr/v1";
+      adapter: "github.draft-pr/v2";
       repository: string;
-      branch: string;
-      title: string;
-      body: string;
-      commitMessage: string;
       draft: true;
     };
+  };
+}
+
+export interface AgentProposalReceipt {
+  schemaVersion: typeof FACTORY_SCHEMA_VERSION;
+  kind: "AgentProposalReceipt";
+  metadata: {
+    id: string;
+    createdAt: string;
+    receiptDigest: Sha256Digest;
+  };
+  subject: {
+    baseCommit: string;
+    change: ExactReference;
+    application: ExactReference;
+    inputs: EvidenceFile[];
+  };
+  generator: {
+    adapter: ExactReference;
+    model: {
+      provider: string;
+      id: string;
+      version: string;
+    };
+    prompt: {
+      template: ExactReference;
+      path: string;
+      digest: Sha256Digest;
+    };
+    tools: {
+      allowed: string[];
+      network: "none" | "model-provider-only";
+      filesystem: "read-only";
+    };
+    budget: {
+      maxInputTokens: number;
+      maxOutputTokens: number;
+      maxToolCalls: number;
+      timeoutMs: number;
+    };
+  };
+  output: {
+    patch: FileReference;
+    normalization: typeof PATCH_NORMALIZATION_VERSION;
+    normalizedDigest: Sha256Digest;
+    changedPaths: string[];
+  };
+}
+
+export interface ProposalCompilationRequest {
+  schemaVersion: typeof FACTORY_SCHEMA_VERSION;
+  kind: "ProposalCompilation";
+  metadata: {
+    id: string;
+    createdAt: string;
+  };
+  subject: {
+    baseCommit: string;
+    change: ExactReference;
+    application: ExactReference;
+    inputPaths: string[];
+  };
+  generator: AgentProposalReceipt["generator"];
+  output: {
+    patchPath: string;
+    receiptPath: string;
+    allowedPaths: string[];
   };
 }
 
@@ -132,11 +214,14 @@ export interface PlannedTarget {
   application: ExactReference;
   factoryDefinitionPath: string;
   definition: ApplicationFactoryDefinition;
+  proposalReceiptPath: string;
+  proposalReceipt: AgentProposalReceipt;
+  delivery: TargetDelivery;
 }
 
-export interface ExecutionPlan {
+export interface FanOutExecutionPlan {
   schemaVersion: typeof FACTORY_SCHEMA_VERSION;
-  kind: "ExecutionPlan";
+  kind: "FanOutExecutionPlan";
   workOrder: {
     id: string;
     digest: Sha256Digest;
@@ -147,9 +232,24 @@ export interface ExecutionPlan {
   change: ExactReference;
   impact: ImpactResult;
   targets: PlannedTarget[];
+  planningFailures: FactoryTargetFailure[];
+  planDigest: Sha256Digest;
+}
+
+export interface TargetExecutionPlan {
+  schemaVersion: typeof FACTORY_SCHEMA_VERSION;
+  kind: "TargetExecutionPlan";
+  workOrder: FanOutExecutionPlan["workOrder"];
+  baseCommit: string;
+  instanceManifest: string;
+  change: ExactReference;
+  impact: ImpactResult;
+  target: PlannedTarget;
   steps: ExecutionPlanStep[];
   planDigest: Sha256Digest;
 }
+
+export type ExecutionPlan = TargetExecutionPlan;
 
 export interface AdapterManifest {
   id: string;
@@ -190,12 +290,6 @@ export interface SandboxEvidence {
   };
 }
 
-export interface EvidenceFile {
-  path: string;
-  digest: Sha256Digest;
-  bytes: number;
-}
-
 export interface EvidenceBundle {
   schemaVersion: typeof FACTORY_SCHEMA_VERSION;
   kind: "EvidenceBundle";
@@ -208,8 +302,10 @@ export interface EvidenceBundle {
     repository: string;
     baseCommit: string;
     subjectTree: string;
+    application: ExactReference;
     workOrderDigest: Sha256Digest;
     planDigest: Sha256Digest;
+    proposalReceiptDigest: Sha256Digest;
     changedFiles: EvidenceFile[];
   };
   governance: {
@@ -229,29 +325,9 @@ export interface FactoryStepState {
   receipt?: AdapterReceipt;
 }
 
-export interface FactoryRunState {
-  schemaVersion: typeof FACTORY_SCHEMA_VERSION;
-  workOrderId: string;
-  workOrderDigest: Sha256Digest;
-  status: FactoryState;
-  baseCommit: string;
-  workspacePath: string;
-  branch: string;
-  plan?: ExecutionPlan;
-  steps: FactoryStepState[];
-  evidence?: {
-    path: string;
-    digest: Sha256Digest;
-  };
-  resultCommit?: string;
-  result?: FactoryRunResult;
-  failure?: string;
-  updatedAt: string;
-}
-
-export interface FactoryRunResult {
+export interface FactoryTargetRunResult {
   status: "completed";
-  workOrderId: string;
+  application: ExactReference;
   baseCommit: string;
   resultCommit: string;
   branch: string;
@@ -263,6 +339,45 @@ export interface FactoryRunResult {
     state: string;
     draft: boolean;
   };
+}
+
+export interface FactoryTargetFailure {
+  status: "failed";
+  application: ExactReference;
+  branch: string;
+  failure: string;
+}
+
+export type FactoryTargetOutcome =
+  | FactoryTargetRunResult
+  | FactoryTargetFailure;
+
+export interface FactoryRunResult {
+  status: "completed" | "partial" | "failed";
+  workOrderId: string;
+  baseCommit: string;
+  targets: FactoryTargetOutcome[];
+}
+
+export interface FactoryRunState {
+  schemaVersion: typeof FACTORY_SCHEMA_VERSION;
+  workOrderId: string;
+  workOrderDigest: Sha256Digest;
+  application: ExactReference;
+  status: FactoryState;
+  baseCommit: string;
+  workspacePath: string;
+  branch: string;
+  plan?: TargetExecutionPlan;
+  steps: FactoryStepState[];
+  evidence?: {
+    path: string;
+    digest: Sha256Digest;
+  };
+  resultCommit?: string;
+  result?: FactoryTargetRunResult;
+  failure?: string;
+  updatedAt: string;
 }
 
 export interface FactoryControllerOptions {
@@ -287,6 +402,7 @@ export interface ProcessResult {
   stdout: string;
   stderr: string;
   timedOut: boolean;
+  outputExceeded?: boolean;
 }
 
 export interface SandboxRequest {
@@ -303,4 +419,115 @@ export interface SandboxRequest {
 export interface SandboxRunner {
   evidence(image: string): SandboxEvidence;
   run(request: SandboxRequest): Promise<ProcessResult>;
+}
+
+export interface RemoteCheckEvidence {
+  name: string;
+  app: string;
+  conclusion: "success";
+  completedAt: string;
+  url: string;
+}
+
+export interface RemotePolicyApproval {
+  policy: ExactReference;
+  reviewer: string;
+  reviewId: number;
+  submittedAt: string;
+  commit: string;
+  url: string;
+}
+
+export interface RemoteEvidence {
+  schemaVersion: typeof FACTORY_SCHEMA_VERSION;
+  kind: "RemoteEvidence";
+  metadata: {
+    collectedAt: string;
+    remoteEvidenceDigest: Sha256Digest;
+  };
+  subject: {
+    evidenceBundle: FileReference;
+    repository: string;
+    pullRequest: number;
+    pullRequestUrl: string;
+    baseCommit: string;
+    headCommit: string;
+    application: ExactReference;
+    workOrder: {
+      id: string;
+      digest: Sha256Digest;
+    };
+  };
+  checks: RemoteCheckEvidence[];
+  attestation: {
+    verified: true;
+    subjectDigest: Sha256Digest;
+    verifier: "gh-attestation";
+  };
+  approvals: RemotePolicyApproval[];
+  promotion: {
+    eligible: boolean;
+    blockers: string[];
+  };
+}
+
+export interface GovernanceTargetView {
+  application: ExactReference;
+  proposalReceipt: FileReference;
+  localEvidence?: FileReference;
+  remoteEvidence?: FileReference;
+  requiredPolicies: ExactReference[];
+  pendingPolicies: ExactReference[];
+  promotion: {
+    eligible: boolean;
+    blockers: string[];
+  };
+}
+
+export interface GovernanceView {
+  schemaVersion: typeof FACTORY_SCHEMA_VERSION;
+  kind: "GovernanceView";
+  workOrder: {
+    id: string;
+    digest: Sha256Digest;
+  };
+  change: ExactReference;
+  targets: GovernanceTargetView[];
+}
+
+export interface GitHubPullRequestSnapshot {
+  number: number;
+  url: string;
+  state: "OPEN" | "CLOSED" | "MERGED";
+  isDraft: boolean;
+  baseCommit: string;
+  headCommit: string;
+  changedFiles: number;
+}
+
+export interface GitHubReviewSnapshot {
+  id: number;
+  reviewer: string;
+  state: string;
+  body: string;
+  submittedAt: string;
+  commit: string;
+  url: string;
+}
+
+export interface GitHubEvidenceClient {
+  pullRequest(
+    repository: string,
+    number: number,
+  ): Promise<GitHubPullRequestSnapshot>;
+  evidenceFile(
+    repository: string,
+    commit: string,
+    path: string,
+  ): Promise<Buffer>;
+  pullRequestFiles(repository: string, number: number): Promise<string[]>;
+  checks(repository: string, commit: string): Promise<RemoteCheckEvidence[]>;
+  reviews(repository: string, number: number): Promise<GitHubReviewSnapshot[]>;
+  verifyAttestation(repository: string, evidencePath: string): Promise<void>;
+  markReady(repository: string, number: number): Promise<void>;
 }

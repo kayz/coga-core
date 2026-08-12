@@ -1,0 +1,104 @@
+schemaVersion: coga.dev/factory/v0.2
+kind: ProposalCompilation
+metadata:
+  id: example.cedar.live-status.proposal
+  createdAt: 2026-08-12T19:45:00+08:00
+subject:
+  baseCommit: work-order-commit
+  change:
+    id: web.h5.responsive.shell
+    version: 0.2.0
+  application:
+    id: application.cedar.insight.h5
+    version: 0.2.0
+  inputPaths:
+    - .coga/prompts/cedar-live-status-v1.md
+    - .coga/work-orders/cedar-status/domain-change.patch
+    - examples/broker-digital-channel/applications/aster-mini-program/application.yaml
+    - examples/broker-digital-channel/applications/birch-insight-h5/application.yaml
+    - examples/broker-digital-channel/applications/cedar-insight-h5/application.yaml
+    - examples/broker-digital-channel/applications/cedar-insight-h5/factory/application.factory.yaml
+    - examples/broker-digital-channel/applications/cedar-insight-h5/package.json
+    - examples/broker-digital-channel/applications/cedar-insight-h5/scripts/build.mjs
+    - examples/broker-digital-channel/applications/cedar-insight-h5/src/app.mjs
+    - examples/broker-digital-channel/applications/cedar-insight-h5/src/domain.mjs
+    - examples/broker-digital-channel/applications/cedar-insight-h5/src/index.html
+    - examples/broker-digital-channel/applications/cedar-insight-h5/src/styles.css
+    - examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs
+    - examples/broker-digital-channel/applications/cedar-insight-h5/tests/factory-sandbox.test.mjs
+    - examples/broker-digital-channel/contracts/content-item.schema.json
+    - examples/broker-digital-channel/contracts/customer-context.schema.json
+    - examples/broker-digital-channel/contracts/feedback-command.schema.json
+    - examples/broker-digital-channel/contracts/support-request.schema.json
+    - examples/broker-digital-channel/instance.yaml
+    - examples/broker-digital-channel/packages/domain/artifacts/content-provenance.yaml
+    - examples/broker-digital-channel/packages/domain/artifacts/entitlement-authority.yaml
+    - examples/broker-digital-channel/packages/domain/artifacts/identity-context.yaml
+    - examples/broker-digital-channel/packages/domain/artifacts/personal-data-minimization.yaml
+    - examples/broker-digital-channel/packages/domain/artifacts/scenario-content-and-suitability.yaml
+    - examples/broker-digital-channel/packages/domain/artifacts/scenario-data-denial.yaml
+    - examples/broker-digital-channel/packages/domain/artifacts/scenario-identity-and-entitlement.yaml
+    - examples/broker-digital-channel/packages/domain/artifacts/suitability-boundary.yaml
+    - examples/broker-digital-channel/packages/domain/package.yaml
+    - examples/broker-digital-channel/packages/engineering-frontend/artifacts/accessible-interaction.yaml
+    - examples/broker-digital-channel/packages/engineering-frontend/artifacts/contract-boundary.yaml
+    - examples/broker-digital-channel/packages/engineering-frontend/artifacts/explicit-state.yaml
+    - examples/broker-digital-channel/packages/engineering-frontend/artifacts/scenario-accessibility.yaml
+    - examples/broker-digital-channel/packages/engineering-frontend/artifacts/scenario-contract-and-state.yaml
+    - examples/broker-digital-channel/packages/engineering-frontend/artifacts/verification-evidence.yaml
+    - examples/broker-digital-channel/packages/engineering-frontend/package.yaml
+    - examples/broker-digital-channel/packages/operations-client/artifacts/incident-triage.yaml
+    - examples/broker-digital-channel/packages/operations-client/artifacts/release-rollback.yaml
+    - examples/broker-digital-channel/packages/operations-client/artifacts/scenario-incident.yaml
+    - examples/broker-digital-channel/packages/operations-client/artifacts/scenario-release.yaml
+    - examples/broker-digital-channel/packages/operations-client/artifacts/telemetry-minimization.yaml
+    - examples/broker-digital-channel/packages/operations-client/package.yaml
+    - examples/broker-digital-channel/packages/organization-example/artifacts/change-approval.yaml
+    - examples/broker-digital-channel/packages/organization-example/artifacts/publication-allowlist.yaml
+    - examples/broker-digital-channel/packages/organization-example/artifacts/scenario-governed-change.yaml
+    - examples/broker-digital-channel/packages/organization-example/artifacts/scenario-publication.yaml
+    - examples/broker-digital-channel/packages/organization-example/artifacts/secret-isolation.yaml
+    - examples/broker-digital-channel/packages/organization-example/package.yaml
+    - examples/broker-digital-channel/packages/platform-web-h5/artifacts/responsive-shell.yaml
+    - examples/broker-digital-channel/packages/platform-web-h5/artifacts/scenario-responsive-shell.yaml
+    - examples/broker-digital-channel/packages/platform-web-h5/package.yaml
+    - examples/broker-digital-channel/packages/platform-wechat-mini-program/artifacts/delivery-evidence.yaml
+    - examples/broker-digital-channel/packages/platform-wechat-mini-program/artifacts/package-boundary.yaml
+    - examples/broker-digital-channel/packages/platform-wechat-mini-program/artifacts/privacy-authorization.yaml
+    - examples/broker-digital-channel/packages/platform-wechat-mini-program/artifacts/scenario-delivery.yaml
+    - examples/broker-digital-channel/packages/platform-wechat-mini-program/artifacts/scenario-session-and-privacy.yaml
+    - examples/broker-digital-channel/packages/platform-wechat-mini-program/artifacts/session-exchange.yaml
+    - examples/broker-digital-channel/packages/platform-wechat-mini-program/package.yaml
+generator:
+  adapter:
+    id: coga.codex.proposal
+    version: 1.0.0
+  model:
+    provider: openai
+    id: codex
+    version: gpt-5
+  prompt:
+    template:
+      id: coga.prompt.cedar.live-status
+      version: 1.0.0
+    path: .coga/prompts/cedar-live-status-v1.md
+    digest: sha256:e0c438a1f2be9cdf1d3bab0e64484678e823c2b87f6e0913c34c74dfb22ff80b
+  tools:
+    allowed:
+      - repository-context-read
+      - unified-diff-output
+    network: none
+    filesystem: read-only
+  budget:
+    maxInputTokens: 100000
+    maxOutputTokens: 8000
+    maxToolCalls: 100
+    timeoutMs: 600000
+output:
+  patchPath: .coga/work-orders/cedar-status/agent-proposal.patch
+  receiptPath: .coga/work-orders/cedar-status/cedar-agent-proposal.json
+  allowedPaths:
+    - examples/broker-digital-channel/applications/cedar-insight-h5/src/app.mjs
+    - examples/broker-digital-channel/applications/cedar-insight-h5/src/index.html
+    - examples/broker-digital-channel/applications/cedar-insight-h5/src/styles.css
+    - examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs

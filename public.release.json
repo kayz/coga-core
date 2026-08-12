@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "allow": [
     ".gitattributes",
+    ".prettierignore",
     ".coga/",
     ".github/",
     ".gitignore",
@@ -54,6 +55,7 @@
       "files": [
         ".gitattributes",
         ".gitignore",
+        ".prettierignore",
         "LICENSE",
         "packages/core/LICENSE",
         "packages/factory/LICENSE"

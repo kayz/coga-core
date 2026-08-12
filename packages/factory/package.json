@@ -1,6 +1,6 @@
 {
   "name": "@coga/factory",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Governed work orders, isolated execution, evidence, and draft-PR delivery for COGA factory cells.",
   "type": "module",
   "bin": {
@@ -27,7 +27,7 @@
     "directory": "packages/factory"
   },
   "scripts": {
-    "build": "npm run build --workspace @coga/core && tsc -p tsconfig.json",
+    "build": "npm run build --workspace @coga/core && node ./scripts/clean-dist.mjs && tsc -p tsconfig.json",
     "test": "npm run build && vitest run",
     "typecheck": "npm run build --workspace @coga/core && tsc -p tsconfig.json --noEmit",
     "test:e2e": "npm run build && vitest run tests/factory-e2e.test.ts",

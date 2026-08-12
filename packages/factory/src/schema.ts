@@ -8,7 +8,13 @@ import {
 } from "ajv/dist/2020.js";
 import type { FormatsPlugin } from "ajv-formats";
 import { parse as parseYaml } from "yaml";
-import type { ApplicationFactoryDefinition, WorkOrder } from "./types.js";
+import type {
+  AgentProposalReceipt,
+  ApplicationFactoryDefinition,
+  ProposalCompilationRequest,
+  RemoteEvidence,
+  WorkOrder,
+} from "./types.js";
 import { readBoundedFile } from "./utils.js";
 
 const MAX_NODES = 100_000;
@@ -32,6 +38,13 @@ const validateWorkOrder = compiler(schema("work-order.schema.json"));
 const validateApplicationFactory = compiler(
   schema("application-factory.schema.json"),
 );
+const validateAgentProposalReceipt = compiler(
+  schema("agent-proposal-receipt.schema.json"),
+);
+const validateProposalCompilation = compiler(
+  schema("proposal-compilation.schema.json"),
+);
+const validateRemoteEvidence = compiler(schema("remote-evidence.schema.json"));
 
 function inspect(value: unknown, label: string): void {
   const active = new WeakSet<object>();
@@ -117,4 +130,36 @@ export function loadApplicationFactory(
     );
   }
   return document as ApplicationFactoryDefinition;
+}
+
+export function loadAgentProposalReceipt(path: string): AgentProposalReceipt {
+  const document = readDocument(path, "Agent Proposal Receipt");
+  if (!validateAgentProposalReceipt(document)) {
+    throw new Error(
+      `Invalid Agent Proposal Receipt: ${formatErrors(validateAgentProposalReceipt.errors)}.`,
+    );
+  }
+  return document as AgentProposalReceipt;
+}
+
+export function loadProposalCompilation(
+  path: string,
+): ProposalCompilationRequest {
+  const document = readDocument(path, "Proposal Compilation request");
+  if (!validateProposalCompilation(document)) {
+    throw new Error(
+      `Invalid Proposal Compilation request: ${formatErrors(validateProposalCompilation.errors)}.`,
+    );
+  }
+  return document as ProposalCompilationRequest;
+}
+
+export function loadRemoteEvidence(path: string): RemoteEvidence {
+  const document = readDocument(path, "Remote Evidence");
+  if (!validateRemoteEvidence(document)) {
+    throw new Error(
+      `Invalid Remote Evidence: ${formatErrors(validateRemoteEvidence.errors)}.`,
+    );
+  }
+  return document as RemoteEvidence;
 }

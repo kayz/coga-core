@@ -18,11 +18,14 @@ systems as authoritative.
   and application catalog.
 - [`packages/`](packages/): reusable domain, platform, engineering, example
   organization, and client-operations harness packages.
-- [`applications/`](applications/): two entirely fictitious consumers, one WeChat
-  mini-program and one mobile H5 application.
+- [`applications/`](applications/): three entirely fictitious consumers: one
+  WeChat mini-program and two independent H5 applications.
 - [`applications/cedar-insight-h5/`](applications/cedar-insight-h5/): a real,
   dependency-free implementation of the fictitious Cedar manifest, including its
   Application Factory definition, tests, and static build.
+- [`applications/birch-insight-h5/`](applications/birch-insight-h5/): a second
+  real, dependency-free H5 implementation used to prove per-Application Factory
+  fan-out, failure isolation, and evidence.
 - [`docs/`](docs/): human-readable boundaries, representation decisions, and the
   governed knowledge lifecycle.
 - [`ui/`](ui/): a JSON Schema form contract and presentation hints. They prepare a
@@ -34,7 +37,7 @@ systems as authoritative.
 
 1. Read [`docs/bounded-context.md`](docs/bounded-context.md).
 2. Inspect [`instance.yaml`](instance.yaml) and one package manifest.
-3. Compare the two application manifests to see what is reusable and what remains
+3. Compare the three application manifests to see what is reusable and what remains
    application-owned.
 4. Read [`docs/knowledge-governance.md`](docs/knowledge-governance.md) before
    proposing a shared rule.

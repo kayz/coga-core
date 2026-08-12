@@ -204,7 +204,7 @@ export async function runProcess(
         ? `\n[factory output exceeded ${maxOutputBytes} bytes]`
         : "";
       resolvePromise({
-        exitCode: code ?? (timedOut || outputExceeded ? 137 : 1),
+        exitCode: timedOut || outputExceeded ? 137 : (code ?? 1),
         stdout:
           Buffer.concat(stdout).toString("utf8") +
           (outputExceeded ? suffix : ""),
@@ -212,9 +212,97 @@ export async function runProcess(
           Buffer.concat(stderr).toString("utf8") +
           (outputExceeded ? suffix : ""),
         timedOut,
+        outputExceeded,
       });
     });
   });
+}
+
+export interface BinaryProcessResult {
+  exitCode: number;
+  stdout: Buffer;
+  stderr: Buffer;
+  timedOut: boolean;
+}
+
+export async function runBinaryProcess(
+  command: string,
+  args: readonly string[],
+  options: {
+    cwd: string;
+    timeoutMs?: number;
+    maxOutputBytes?: number;
+    env?: NodeJS.ProcessEnv;
+  },
+): Promise<BinaryProcessResult> {
+  const timeoutMs = options.timeoutMs ?? 60_000;
+  const maxOutputBytes = options.maxOutputBytes ?? 1024 * 1024;
+  return await new Promise<BinaryProcessResult>((resolvePromise, reject) => {
+    const child = spawn(command, [...args], {
+      cwd: options.cwd,
+      env: options.env ?? process.env,
+      shell: false,
+      windowsHide: true,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    const stdout: Buffer[] = [];
+    const stderr: Buffer[] = [];
+    let stdoutBytes = 0;
+    let stderrBytes = 0;
+    let timedOut = false;
+    let outputExceeded = false;
+
+    const append = (
+      target: Buffer[],
+      chunk: Buffer,
+      stream: "stdout" | "stderr",
+    ) => {
+      const current = stream === "stdout" ? stdoutBytes : stderrBytes;
+      const remaining = Math.max(0, maxOutputBytes - current);
+      if (remaining > 0) target.push(chunk.subarray(0, remaining));
+      if (stream === "stdout") stdoutBytes += chunk.byteLength;
+      else stderrBytes += chunk.byteLength;
+      if (current + chunk.byteLength > maxOutputBytes) {
+        outputExceeded = true;
+        child.kill("SIGKILL");
+      }
+    };
+
+    child.stdout.on("data", (chunk: Buffer) => append(stdout, chunk, "stdout"));
+    child.stderr.on("data", (chunk: Buffer) => append(stderr, chunk, "stderr"));
+    child.once("error", reject);
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill("SIGKILL");
+    }, timeoutMs);
+    timer.unref();
+    child.once("close", (code) => {
+      clearTimeout(timer);
+      resolvePromise({
+        exitCode: timedOut || outputExceeded ? 137 : (code ?? 1),
+        stdout: Buffer.concat(stdout),
+        stderr: Buffer.concat(stderr),
+        timedOut,
+      });
+    });
+  });
+}
+
+export async function runCheckedBinary(
+  command: string,
+  args: readonly string[],
+  options: Parameters<typeof runBinaryProcess>[2],
+  label: string,
+): Promise<BinaryProcessResult> {
+  const result = await runBinaryProcess(command, args, options);
+  if (result.exitCode !== 0) {
+    const detail =
+      result.stderr.toString("utf8").trim() ||
+      result.stdout.toString("utf8").trim() ||
+      "no output";
+    throw new Error(`${label} failed with exit ${result.exitCode}: ${detail}`);
+  }
+  return result;
 }
 
 export async function runChecked(

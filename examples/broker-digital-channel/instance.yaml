@@ -52,6 +52,9 @@ spec:
     - id: application.cedar.insight.h5
       version: 0.2.0
       path: applications/cedar-insight-h5/application.yaml
+    - id: application.birch.insight.h5
+      version: 0.2.0
+      path: applications/birch-insight-h5/application.yaml
   governance:
     extensions:
       sourceOfTruth: versioned-files

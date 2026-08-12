@@ -162,22 +162,25 @@ test(
             "if (SCHEMA_VERSION !== 'coga.dev/v0.2') throw new Error('wrong schema version');",
             "if (VALIDATION_PROFILES.join(',') !== 'local,public,release') throw new Error('wrong profiles');",
             "if (!canTransitionLifecycle('approved', 'published')) throw new Error('broken lifecycle API');",
-            "if (FACTORY_SCHEMA_VERSION !== 'coga.dev/factory/v0.1') throw new Error('wrong factory schema version');",
+            "if (FACTORY_SCHEMA_VERSION !== 'coga.dev/factory/v0.2') throw new Error('wrong factory schema version');",
             "if (!FACTORY_STATES.includes('review')) throw new Error('wrong factory states');",
             "if (typeof FactoryController !== 'function') throw new Error('missing factory controller');",
             "const schemaPath = createRequire(import.meta.url).resolve('@coga/core/schemas/coga-instance.schema.json');",
             "const schema = JSON.parse(await readFile(schemaPath, 'utf8'));",
             "if (schema.$id !== 'https://coga.dev/schemas/v0.2/coga-instance.schema.json') throw new Error('wrong schema export');",
             "if (schema.$schema !== 'https://json-schema.org/draft/2020-12/schema') throw new Error('wrong schema dialect');",
-            "const factorySchemaPath = createRequire(import.meta.url).resolve('@coga/factory/schemas/work-order.schema.json');",
-            "const factorySchema = JSON.parse(await readFile(factorySchemaPath, 'utf8'));",
-            "if (factorySchema.$id !== 'https://coga.dev/schemas/factory/v0.1/work-order.schema.json') throw new Error('wrong factory schema export');",
+            "for (const name of ['work-order', 'application-factory', 'agent-proposal-receipt', 'proposal-compilation', 'evidence-bundle', 'remote-evidence']) {",
+            "  const factorySchemaPath = createRequire(import.meta.url).resolve(`@coga/factory/schemas/${name}.schema.json`);",
+            "  const factorySchema = JSON.parse(await readFile(factorySchemaPath, 'utf8'));",
+            "  if (factorySchema.$id !== `https://coga.dev/schemas/factory/v0.2/${name}.schema.json`) throw new Error(`wrong ${name} schema export`);",
+            "  if (factorySchema.$schema !== 'https://json-schema.org/draft/2020-12/schema') throw new Error(`wrong ${name} schema dialect`);",
+            "}",
             "console.log(`${SCHEMA_VERSION}|${FACTORY_SCHEMA_VERSION}`);",
           ].join("\n"),
         ],
         consumerDir,
       );
-      assert.equal(esm.stdout.trim(), "coga.dev/v0.2|coga.dev/factory/v0.1");
+      assert.equal(esm.stdout.trim(), "coga.dev/v0.2|coga.dev/factory/v0.2");
 
       const cli = await npm(
         [

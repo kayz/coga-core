@@ -53,6 +53,7 @@ function releaseManifest(overrides = {}) {
         files: [
           ".gitattributes",
           ".gitignore",
+          ".prettierignore",
           "LICENSE",
           "packages/core/LICENSE",
           "packages/factory/LICENSE",
@@ -277,6 +278,19 @@ test("boundary accepts the explicitly classified package license", (t) => {
     allow: ["public.release.json", "packages/core/"],
   });
   writeFile(root, "packages/core/LICENSE", "Apache License 2.0\n");
+
+  const result = run(BOUNDARY_SCRIPT, root);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /2 candidate files/u);
+});
+
+test("boundary accepts the explicitly classified Prettier ignore file", (t) => {
+  const root = createRepository(t, {
+    ...releaseManifest(),
+    allow: ["public.release.json", ".prettierignore"],
+  });
+  writeFile(root, ".prettierignore", "generated-evidence.json\n");
 
   const result = run(BOUNDARY_SCRIPT, root);
 

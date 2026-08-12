@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://coga.dev/schemas/factory/v0.1/evidence-bundle.schema.json",
+  "$id": "https://coga.dev/schemas/factory/v0.2/evidence-bundle.schema.json",
   "title": "COGA Factory Evidence Bundle",
   "type": "object",
   "additionalProperties": false,
@@ -210,7 +210,7 @@
     }
   },
   "properties": {
-    "schemaVersion": { "const": "coga.dev/factory/v0.1" },
+    "schemaVersion": { "const": "coga.dev/factory/v0.2" },
     "kind": { "const": "EvidenceBundle" },
     "metadata": {
       "type": "object",
@@ -232,8 +232,10 @@
         "repository",
         "baseCommit",
         "subjectTree",
+        "application",
         "workOrderDigest",
         "planDigest",
+        "proposalReceiptDigest",
         "changedFiles"
       ],
       "properties": {
@@ -243,8 +245,10 @@
         },
         "baseCommit": { "$ref": "#/$defs/gitObject" },
         "subjectTree": { "$ref": "#/$defs/gitObject" },
+        "application": { "$ref": "#/$defs/exactReference" },
         "workOrderDigest": { "$ref": "#/$defs/digest" },
         "planDigest": { "$ref": "#/$defs/digest" },
+        "proposalReceiptDigest": { "$ref": "#/$defs/digest" },
         "changedFiles": {
           "type": "array",
           "minItems": 1,

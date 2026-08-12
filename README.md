@@ -14,9 +14,11 @@ and an exact artifact version can be traced through package and artifact edges t
 direct, transitive, and older-pin application consumers.
 
 The repository also contains one deliberately narrow Factory Cell. It turns a
-digest-bound Work Order for an exact Artifact version into a tested Application
-commit and, when explicitly requested, a GitHub Draft PR. This proves one real
-production path without turning Core resource files into executable instructions.
+digest-bound Work Order for an exact Artifact version into independently tested
+candidates for every affected Application and, when explicitly requested, one
+GitHub Draft PR per target. Versioned proposal, local execution, remote CI,
+attestation, and human Policy receipts keep that path auditable without turning
+Core resource files into executable instructions.
 
 ## The boundary
 
@@ -41,9 +43,10 @@ governance decisions.
 ## Included in 0.2
 
 - [`@coga/core`](packages/core/README.md), a TypeScript library and `coga` CLI;
-- [`@coga/factory`](packages/factory/README.md), versioned Work Order,
-  Application Factory, adapter-receipt, recovery-state, and Evidence Bundle
-  contracts plus the `coga-factory` CLI;
+- [`@coga/factory`](packages/factory/README.md) `0.3.0`, with versioned Work
+  Order, Agent Proposal Receipt, Application Factory, per-target recovery,
+  Evidence Bundle, Remote Evidence and governance-view contracts plus the
+  `coga-factory` CLI;
 - JSON Schema 2020-12 contracts for four resource kinds;
 - bounded canonical loading, JSON Schema validation, exact resource-graph closure,
   contract identity/content validation, lifecycle and governance-record checks,
@@ -54,10 +57,11 @@ governance decisions.
   direct, transitive, and older-pin application consumers;
 - a sanitized
   [Broker Digital Customer Channel example](examples/broker-digital-channel/README.md)
-  with five Harness layers, two fictitious consuming manifests, and one real,
-  dependency-free Cedar H5 reference Application used by the Factory Cell;
-- exact impact-to-target planning, bounded Git patches, a digest-pinned and
-  network-disabled Docker test/build sandbox, content-addressed evidence, and
+  with five Harness layers, three fictitious consuming manifests, and two real,
+  dependency-free Cedar/Birch H5 reference Applications used by the Factory Cell;
+- exact impact-to-target fan-out, versioned model/prompt/context/output receipts,
+  bounded Git patches, a digest-pinned network-disabled Docker test/build
+  sandbox, content-addressed local/remote evidence, isolated retry, and
   idempotent Draft-PR delivery;
 - form-ready schema hints and narrow agent playbooks, while keeping versioned
   files and pull requests as the source of truth;
@@ -83,13 +87,16 @@ npm run factory:e2e
 ```
 
 `factory:e2e` needs Docker and uses the exact image digest recorded by the
-Factory. The included Work Order contains a digest-bound external Agent proposal;
-0.2 verifies and executes that patch but does not yet invoke a model to create it.
-To inspect the registered adapter surface after building:
+Factory. The included Work Order contains two `AgentProposalReceipt` documents
+that bind model identity, prompt, tool policy, budgets, exact input hashes and
+normalized output Patches. The example records already-produced proposals; the
+Factory does not give a model Git write access or silently invoke one. To inspect
+the registered adapter surface after building:
 
 ```console
 node packages/factory/dist/cli.js adapters
 node packages/factory/dist/cli.js run .coga/work-orders/cedar-status/work-order.yaml --delivery local
+node packages/factory/dist/cli.js governance .coga/work-orders/cedar-status/work-order.yaml --format markdown
 ```
 
 Release-payload generation is a separate, stricter lane pinned to Node.js
@@ -167,7 +174,8 @@ envelope. Exact Harness, artifact, policy, and contract versions are required;
 backward compatibility is not promised before 1.0. Core verifies declarations and
 recorded evidence but does not execute scenarios, tests, reviews, or arbitrary
 commands. The separate Factory package runs only registered adapters behind a
-bounded Work Order and never merges, publishes, or deploys. The project is licensed
+bounded Work Order. Its strongest mutation is changing an exactly verified Draft
+PR to ready for review; it never merges, publishes, tags, releases or deploys. The project is licensed
 under Apache License 2.0. The private local
 Application now has executable conformance evidence, while DevTools/device
 acceptance remains manual. Release tooling prepares attestable GitHub assets but

@@ -33,9 +33,9 @@ export const ADAPTER_MANIFESTS: Readonly<Record<string, AdapterManifest>> = {
     mutatesWorkspace: true,
     credentialAccess: "none",
   },
-  "coga.agent.patch/v1": {
-    id: "coga.agent.patch",
-    version: "1",
+  "coga.agent.proposal/v2": {
+    id: "coga.agent.proposal",
+    version: "2",
     kind: "apply-agent-proposal",
     network: "none",
     mutatesWorkspace: true,
@@ -65,17 +65,17 @@ export const ADAPTER_MANIFESTS: Readonly<Record<string, AdapterManifest>> = {
     mutatesWorkspace: false,
     credentialAccess: "none",
   },
-  "coga.evidence.bundle/v1": {
+  "coga.evidence.bundle/v2": {
     id: "coga.evidence.bundle",
-    version: "1",
+    version: "2",
     kind: "create-evidence",
     network: "none",
     mutatesWorkspace: true,
     credentialAccess: "none",
   },
-  "github.draft-pr/v1": {
+  "github.draft-pr/v2": {
     id: "github.draft-pr",
-    version: "1",
+    version: "2",
     kind: "deliver-draft-pr",
     network: "github-only",
     mutatesWorkspace: false,

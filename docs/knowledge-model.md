@@ -131,19 +131,27 @@ external workflow; the `release` profile verifies the resulting records and exac
 Policy attestations without rerunning them.
 
 The separate `@coga/factory` package is one such bounded workflow, not part of
-Core resource evaluation. Its `coga.dev/factory/v0.1` Work Order is an execution
-request bound to an exact Git base, Artifact version, patch digests, impact targets,
-and governance Policies. Application Factory definitions select only registered
-adapters and repository-relative paths; they do not accept commands. The resulting
-Evidence Bundle binds the plan, subject tree, changed files, receipts, sandbox
-facts, and the exact partition of approved versus pending Policies. It remains a
-record of execution, not proof that an approver was authorized or that domain
-meaning was correct.
+Core resource evaluation. Its `coga.dev/factory/v0.2` Work Order is an execution
+request bound to an exact Git base, Artifact version, Patch digests, complete
+impact targets, and governance Policies. Application Factory definitions select
+only registered adapters and repository-relative paths; they do not accept
+commands. Every affected Application receives an independent worktree, recovery
+state, Evidence Bundle, commit and optional Draft PR.
 
-The current Agent adapter consumes a pre-authored digest-bound patch. Model choice,
-prompt/context assembly, tool traces, and proposal evaluation are not represented
-yet, so 0.2 does not claim reproducible Agent generation. This is the next protocol
-boundary to define before introducing an autonomous proposal step.
+An `AgentProposalReceipt` binds the declared model/provider/version, prompt
+template and digest, tool/network/filesystem policy, budgets, exact Harness input
+file hashes, normalized Patch bytes, and authorized outputs. It makes a supplied
+proposal attributable and replayable without giving the model Git write access.
+The example compiler records an already-produced candidate; it is not a model
+provider attestation and does not silently invoke a model.
+
+Local Evidence Bundles bind their target Application and Proposal Receipt. A
+separate Remote Evidence record binds the tracked Work Order and base, an exact
+open PR head, the complete governed domain/proposal Patch path closure, successful
+checks, GitHub artifact attestation, and authorized human Policy reviews on that
+same head. The derived governance view is replaceable and read-only. Even complete
+execution evidence is not proof that domain meaning was correct; the strongest
+automatic promotion is Draft to ready for review, never merge or deployment.
 
 [Open Policy Agent](https://www.openpolicyagent.org/docs/policy-language) is a
 mature policy-as-code system and may later enforce factory authorization or release
