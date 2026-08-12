@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://coga.dev/schemas/factory/v0.1/application-factory.schema.json",
+  "title": "COGA Application Factory Definition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "metadata", "spec"],
+  "$defs": {
+    "exactReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "version": { "type": "string", "minLength": 1, "maxLength": 100 }
+      }
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "pattern": "^(?![A-Za-z]:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    }
+  },
+  "properties": {
+    "schemaVersion": { "const": "coga.dev/factory/v0.1" },
+    "kind": { "const": "ApplicationFactory" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "version": { "type": "string", "minLength": 1, "maxLength": 100 }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "application",
+        "manifest",
+        "sourceRoot",
+        "changePaths",
+        "verification"
+      ],
+      "properties": {
+        "application": { "$ref": "#/$defs/exactReference" },
+        "manifest": { "$ref": "#/$defs/relativePath" },
+        "sourceRoot": { "$ref": "#/$defs/relativePath" },
+        "changePaths": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/relativePath" }
+        },
+        "verification": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 20,
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["adapter", "files"],
+                "properties": {
+                  "adapter": { "const": "coga.node.test/v1" },
+                  "files": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/relativePath" }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["adapter", "entrypoint"],
+                "properties": {
+                  "adapter": { "const": "coga.node.build/v1" },
+                  "entrypoint": { "$ref": "#/$defs/relativePath" }
+                }
+              }
+            ]
+          },
+          "allOf": [
+            {
+              "contains": {
+                "type": "object",
+                "properties": { "adapter": { "const": "coga.node.test/v1" } },
+                "required": ["adapter"]
+              }
+            },
+            {
+              "contains": {
+                "type": "object",
+                "properties": { "adapter": { "const": "coga.node.build/v1" } },
+                "required": ["adapter"]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

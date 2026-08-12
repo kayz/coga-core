@@ -37,6 +37,18 @@ Versioning; `0.y.z` remains initial development.
 - Add an empty-project tarball consumer test for the installed ESM API, CLI, and
   schema exports, with a Linux pull-request matrix on Node.js 20.20.2, 22.22.1,
   and 24.18.0.
+- Add `@coga/factory` and the independently versioned `coga.dev/factory/v0.1`
+  Work Order, Application Factory, recovery-state, adapter-receipt, and
+  content-addressed Evidence Bundle protocols.
+- Add exact impact-to-target planning, bounded and idempotent Git patching,
+  tamper-evident recovery, and digest-pinned network-disabled Docker test/build
+  adapters whose isolation facts are recorded in evidence.
+- Add a real dependency-free Cedar H5 reference Application and a governed
+  responsive-shell Work Order that deterministically produces its tested change,
+  local candidate commit, and optional GitHub Draft PR without merging,
+  publishing, or deploying.
+- Extend the empty-project consumer test to install both Core and Factory
+  tarballs and exercise both ESM APIs, CLIs, and schema exports.
 
 ## 0.1.0 — 2026-08-08
 

@@ -1,0 +1,57 @@
+{
+  "name": "@coga/factory",
+  "version": "0.2.0",
+  "description": "Governed work orders, isolated execution, evidence, and draft-PR delivery for COGA factory cells.",
+  "type": "module",
+  "bin": {
+    "coga-factory": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas/*": "./schemas/*"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kayz/coga-core.git",
+    "directory": "packages/factory"
+  },
+  "scripts": {
+    "build": "npm run build --workspace @coga/core && tsc -p tsconfig.json",
+    "test": "npm run build && vitest run",
+    "typecheck": "npm run build --workspace @coga/core && tsc -p tsconfig.json --noEmit",
+    "test:e2e": "npm run build && vitest run tests/factory-e2e.test.ts",
+    "prepack": "npm run build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@coga/core": "0.2.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "yaml": "2.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "coga",
+    "software-factory",
+    "evidence",
+    "work-order"
+  ]
+}

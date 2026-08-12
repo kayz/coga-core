@@ -6,6 +6,8 @@ COGA Core 是一个开源、与领域无关的契约层，用来支撑“人类�
 
 0.2 候选补齐了模型的语义图闭包：人类可读、受版本控制的文件继续承载领域规则、平台约束、工程实践、组织策略和运维知识；Core 会校验契约与资源图闭包；一个精确版本的 Artifact 可以沿 Package 与 Artifact 边追踪到直接、传递和旧锁 Application 消费者。
 
+仓库还包含一条刻意收窄的 Factory Cell：它把绑定精确 Artifact 版本和摘要的 Work Order 转换为经过测试的 Application 提交，并且只在显式要求时创建 GitHub Draft PR。这证明了一条真实生产路径，同时不把 Core 资源文件变成可执行指令。
+
 ## 三层边界
 
 ```text
@@ -24,11 +26,13 @@ COGA Core                         COGA Instance                       Applicatio
 ## 0.2 包含什么
 
 - [`@coga/core`](packages/core/README.md)：TypeScript 库与 `coga` CLI；
+- [`@coga/factory`](packages/factory/README.md)：版本化 Work Order、Application Factory、适配器回执、恢复状态和 Evidence Bundle 契约，以及 `coga-factory` CLI；
 - 四类资源的 JSON Schema 2020-12 契约；
 - 有预算的规范资源装载、Schema 校验、精确资源图闭包、契约身份与内容校验、生命周期与治理记录检查、传递可见性检查和循环安全的明文秘密扫描；
 - `local`、`public` 与 `release` 三档 Profile，以及严格的公开根目录和发布证据要求；
 - Markdown/JSON 目录，以及从精确 Artifact 版本到直接、传递和旧锁 Application 消费者的可重现路径；
-- 一个脱敏的[券商数字客户渠道示例](examples/broker-digital-channel/README.md)，包含五层 Harness 和两个虚构消费应用；
+- 一个脱敏的[券商数字客户渠道示例](examples/broker-digital-channel/README.md)，包含五层 Harness、两个虚构消费 manifest，以及供 Factory Cell 使用的真实、零依赖 Cedar H5 参考 Application；
+- 精确的影响到目标规划、受限 Git 补丁、摘要固定且断网的 Docker 测试/构建沙箱、内容寻址证据和幂等 Draft PR 交付；
 - 面向未来表单的 Schema 提示与窄职责 Agent 操作手册；
 - 显式公开白名单、隐私和边界检查；
 - LICENSE 完整、字节可复现的 Core 发布载荷，规范化 CycloneDX SBOM、SHA-256 发布清单，以及只接受已验证签名版本 tag、生成 GitHub artifact attestation 与待复核 draft 的工作流。
@@ -44,10 +48,18 @@ npm ci
 npm run check:public
 npm run catalog:example
 npm run impact:example
+npm run factory:e2e
+```
+
+`factory:e2e` 需要 Docker，并使用 Factory 记录的精确镜像摘要。示例 Work Order 携带一个摘要绑定的外部 Agent 提案；0.2 会验证并执行这个补丁，但尚不调用模型生成它。构建后可检查已登记的适配器和本地运行生产线：
+
+```console
+node packages/factory/dist/cli.js adapters
+node packages/factory/dist/cli.js run .coga/work-orders/cedar-status/work-order.yaml --delivery local
 ```
 
 发布载荷生成属于独立的严格通道，固定使用 Node.js 24.18.0 与 npm 11.16.0；只有在这组精确工具链上运行 `npm run release:test`。普通公开检查继续支持 Node.js 22+。
-`npm run package:consumer-test` 会重新构建 tarball、安装到空目录，并从安装后的包验证公开 ESM API、CLI 与 Schema exports；PR CI 在 Node.js 20.20.2、22.22.1 和 24.18.0 上重复该消费测试。
+`npm run package:consumer-test` 会重新构建 Core 与 Factory tarball、同时安装到空目录，并从安装后的包验证公开 ESM API、CLI 与 Schema exports；PR CI 在 Node.js 20.20.2、22.22.1 和 24.18.0 上重复该消费测试。
 
 构建后可以用 CLI 检查其他 Instance：
 
@@ -90,6 +102,8 @@ Agent 可以研究、识别和起草候选资产；人类仍负责领域语义�
 
 ```text
 packages/core/                       与领域无关的库、CLI 和 Schema
+packages/factory/                    受治理的 Factory Cell 控制器与协议
+.coga/work-orders/                   可评审、摘要绑定的示例 Work Order
 examples/broker-digital-channel/     脱敏且可复用的 COGA Instance
 docs/                                跨层架构决策
 scripts/                             隐私与公开边界门禁
@@ -101,4 +115,4 @@ scripts/                             隐私与公开边界门禁
 
 ## 状态
 
-`0.2.0` 仍属于初始开发契约，并明确拒绝 v0.1 envelope。Harness、Artifact、Policy 与 Contract 都必须精确锁定版本；1.0 之前不承诺向后兼容。Core 校验声明和已记录证据，但不会执行 Scenario、测试、评审或任意命令。私有本地 Application 已补可执行一致性证据，DevTools/真机验收仍为人工门禁。发布工具只准备可签名的 GitHub 资产，不发布 npm；当前尚未占用的 `@coga/core` 包名必须先经单独授权完成首次发布，之后才能配置 trusted publishing。项目采用 Apache License 2.0；精确边界见[设计审计](设计方案及差异.md)。
+`0.2.0` 仍属于初始开发契约，并明确拒绝 v0.1 envelope。Harness、Artifact、Policy 与 Contract 都必须精确锁定版本；1.0 之前不承诺向后兼容。Core 校验声明和已记录证据，但不会执行 Scenario、测试、评审或任意命令；独立 Factory 包只在受限 Work Order 后运行已登记适配器，绝不合并、发布或部署。私有本地 Application 已补可执行一致性证据，DevTools/真机验收仍为人工门禁。发布工具只准备可签名的 GitHub 资产，不发布 npm；当前尚未占用的 `@coga/core` 包名必须先经单独授权完成首次发布，之后才能配置 trusted publishing。项目采用 Apache License 2.0；精确边界见[设计审计](设计方案及差异.md)。

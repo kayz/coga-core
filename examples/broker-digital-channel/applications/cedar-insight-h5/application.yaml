@@ -21,6 +21,8 @@ spec:
       version: 0.2.0
     - id: frontend.client.engineering
       version: 0.2.0
+    - id: web.h5.platform
+      version: 0.2.0
     - id: example.broker.organization
       version: 0.2.0
     - id: client.application.operations
@@ -51,6 +53,8 @@ spec:
     - id: frontend.client.scenario.contract.and.state
       version: 0.2.0
     - id: frontend.client.scenario.accessibility
+      version: 0.2.0
+    - id: web.h5.scenario.responsive.shell
       version: 0.2.0
     - id: client.operations.scenario.incident
       version: 0.2.0

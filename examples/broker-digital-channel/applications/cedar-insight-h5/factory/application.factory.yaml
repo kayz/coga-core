@@ -1,0 +1,23 @@
+schemaVersion: coga.dev/factory/v0.1
+kind: ApplicationFactory
+metadata:
+  id: factory.application.cedar.insight.h5
+  version: 0.1.0
+spec:
+  application:
+    id: application.cedar.insight.h5
+    version: 0.2.0
+  manifest: examples/broker-digital-channel/applications/cedar-insight-h5/application.yaml
+  sourceRoot: examples/broker-digital-channel/applications/cedar-insight-h5
+  changePaths:
+    - examples/broker-digital-channel/applications/cedar-insight-h5/src/app.mjs
+    - examples/broker-digital-channel/applications/cedar-insight-h5/src/index.html
+    - examples/broker-digital-channel/applications/cedar-insight-h5/src/styles.css
+    - examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs
+  verification:
+    - adapter: coga.node.test/v1
+      files:
+        - examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs
+        - examples/broker-digital-channel/applications/cedar-insight-h5/tests/factory-sandbox.test.mjs
+    - adapter: coga.node.build/v1
+      entrypoint: examples/broker-digital-channel/applications/cedar-insight-h5/scripts/build.mjs

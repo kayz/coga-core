@@ -33,6 +33,9 @@ spec:
     - id: wechat.miniprogram.platform
       version: 0.2.0
       path: packages/platform-wechat-mini-program/package.yaml
+    - id: web.h5.platform
+      version: 0.2.0
+      path: packages/platform-web-h5/package.yaml
     - id: frontend.client.engineering
       version: 0.2.0
       path: packages/engineering-frontend/package.yaml

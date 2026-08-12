@@ -39,6 +39,7 @@ function releaseManifest(overrides = {}) {
           ".json",
           ".md",
           ".mjs",
+          ".patch",
           ".svg",
           ".ts",
           ".tsv",
@@ -54,6 +55,7 @@ function releaseManifest(overrides = {}) {
           ".gitignore",
           "LICENSE",
           "packages/core/LICENSE",
+          "packages/factory/LICENSE",
         ],
       },
       binary: {

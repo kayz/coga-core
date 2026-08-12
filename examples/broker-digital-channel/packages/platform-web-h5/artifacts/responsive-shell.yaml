@@ -1,0 +1,38 @@
+schemaVersion: coga.dev/v0.2
+kind: DomainArtifact
+metadata:
+  id: web.h5.responsive.shell
+  title: Responsive H5 shell
+  version: 0.2.0
+  lifecycle: candidate
+  scope: instance
+  visibility: public
+  owners:
+    - example.platform.web
+  tags:
+    - responsive
+    - accessibility
+  attestations: []
+spec:
+  artifactType: rule
+  summary: A public H5 client remains understandable and operable across narrow and wide viewports.
+  statement:
+    The document uses semantic landmarks, exposes a keyboard skip link, preserves a readable
+    measure, and does not hide authoritative source time or access state when space is constrained.
+  scope: Applies to the public Cedar H5 reference Application and future browser clients.
+  provenance:
+    - source: https://www.w3.org/TR/WCAG22/
+      sourceType: standard
+      note: WCAG 2.2 provides the accessibility baseline for the example.
+  relations:
+    - type: depends-on
+      target:
+        id: frontend.client.accessible.interaction
+        version: 0.2.0
+  validation:
+    - type: scenario
+      status: pending
+      target:
+        id: web.h5.scenario.responsive.shell
+        version: 0.2.0
+  contractRefs: []

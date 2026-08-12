@@ -1,0 +1,33 @@
+schemaVersion: coga.dev/v0.2
+kind: DomainArtifact
+metadata:
+  id: web.h5.scenario.responsive.shell
+  title: Responsive shell preserves context
+  version: 0.2.0
+  lifecycle: candidate
+  scope: instance
+  visibility: public
+  owners:
+    - example.platform.web
+  tags:
+    - scenario
+    - h5
+  attestations: []
+spec:
+  artifactType: scenario
+  summary: Verify that the H5 shell exposes navigation, source context, and access state.
+  statement:
+    Given a public or authenticated customer context, when the Cedar page is rendered at a
+    narrow viewport, then semantic navigation remains available and source/access context is
+    represented in text rather than inferred from layout or color.
+  scope: Automated DOM-independent view-model tests plus later browser accessibility evidence.
+  provenance: []
+  relations:
+    - type: verifies
+      target:
+        id: web.h5.responsive.shell
+        version: 0.2.0
+  validation:
+    - type: test
+      status: pending
+  contractRefs: []

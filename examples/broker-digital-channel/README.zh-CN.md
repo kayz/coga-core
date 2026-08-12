@@ -22,17 +22,18 @@
 
 它明确排除交易核心、清算托管、账本、投研计算、定价模型和 FICANT。后端系统即使由这些系统提供能力，也只能通过独立、版本化、受治理的外部契约接入。
 
-## 五个可组合 Harness Package
+## 六个可组合 Harness Package
 
 | Package                               | Layer        | 作用                                                   |
 | ------------------------------------- | ------------ | ------------------------------------------------------ |
 | `broker.digital.channel.domain@0.2.0` | domain       | 客户渠道概念、权益与适当性边界、内容来源和个人信息规则 |
 | `wechat.miniprogram.platform@0.2.0`   | platform     | 微信登录交换、隐私授权、分包和交付证据                 |
+| `web.h5.platform@0.2.0`               | platform     | 响应式 H5 shell、渐进增强和 live status 场景           |
 | `frontend.client.engineering@0.2.0`   | engineering  | 契约优先、显式 UI 状态、无障碍和验证证据               |
 | `example.broker.organization@0.2.0`   | organization | 完全虚构、可替换的审批、密钥隔离和公开发布策略         |
 | `client.application.operations@0.2.0` | operations   | 脱敏遥测、故障分诊和发布回退 Runbook                   |
 
-小程序锁定全部五个 Package；H5 不依赖微信 Package。这种差异说明 Instance 不是某一种技术模板，而是可以按 Application 交付目标组合的领域工厂。
+小程序锁定原有五个 Package；H5 组合 Web H5 Platform，而不依赖微信 Package。这种差异说明 Instance 不是某一种技术模板，而是可以按 Application 交付目标组合的领域工厂。Cedar manifest 现在还有一个真实、零依赖的 H5 参考实现和 Application Factory 定义，用于证明受治理变化能形成测试、构建、证据和 Draft PR 候选。
 
 ## Core、Instance 与 Application 的归属
 
@@ -72,5 +73,6 @@ Agent 可以起草、检查和解释，但不能创造缺失的法律或业务�
 3. 两个 [`applications/`](applications/) manifest
 4. [`docs/knowledge-governance.md`](docs/knowledge-governance.md)
 5. [`docs/representation-and-form-readiness.md`](docs/representation-and-form-readiness.md)
+6. [Factory Work Order](../../.coga/work-orders/cedar-status/work-order.yaml)
 
 `0.2.0` 是演示资源合同，不是任何机构可直接采用的生产合规基线。公开法规、标准和平台文档只提供来源追踪；真实适用性仍需负责该组织的专业人员判断。

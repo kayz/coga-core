@@ -1,0 +1,47 @@
+diff --git a/examples/broker-digital-channel/applications/cedar-insight-h5/src/app.mjs b/examples/broker-digital-channel/applications/cedar-insight-h5/src/app.mjs
+index 0d168a2..69d305f 100644
+--- a/examples/broker-digital-channel/applications/cedar-insight-h5/src/app.mjs
++++ b/examples/broker-digital-channel/applications/cedar-insight-h5/src/app.mjs
+@@ -2,0 +3,4 @@ import { createViewModel } from "./domain.mjs";
++export function statusMessage(model) {
++  return `Access state: ${model.accessLabel}. Source: ${model.sourceLabel}.`;
++}
++
+@@ -7,0 +12 @@ export function renderPage(document, context, now = new Date()) {
++  document.querySelector("[data-status]").textContent = statusMessage(model);
+diff --git a/examples/broker-digital-channel/applications/cedar-insight-h5/src/index.html b/examples/broker-digital-channel/applications/cedar-insight-h5/src/index.html
+index 93b97b6..c4fb321 100644
+--- a/examples/broker-digital-channel/applications/cedar-insight-h5/src/index.html
++++ b/examples/broker-digital-channel/applications/cedar-insight-h5/src/index.html
+@@ -15,0 +16,3 @@
++    <p class="status-strip" role="status" aria-live="polite" data-status>
++      Access state: Customer context unavailable. Source: Fictitious broker learning feed.
++    </p>
+diff --git a/examples/broker-digital-channel/applications/cedar-insight-h5/src/styles.css b/examples/broker-digital-channel/applications/cedar-insight-h5/src/styles.css
+index 68dba4f..950f5cf 100644
+--- a/examples/broker-digital-channel/applications/cedar-insight-h5/src/styles.css
++++ b/examples/broker-digital-channel/applications/cedar-insight-h5/src/styles.css
+@@ -20,0 +21,9 @@ header {
++.status-strip {
++  width: min(68rem, calc(100% - 2rem));
++  box-sizing: border-box;
++  margin: 0 auto 1.5rem;
++  padding: 0.75rem 1rem;
++  color: #ffffff;
++  background: #193f75;
++}
++
+diff --git a/examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs b/examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs
+index 3251778..16c60b4 100644
+--- a/examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs
++++ b/examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs
+@@ -3,0 +4 @@ import { createViewModel, customerAccessState } from "../src/domain.mjs";
++import { statusMessage } from "../src/app.mjs";
+@@ -17,0 +19,7 @@ test("defaults to a public summary without inventing customer authority", () =>
++test("announces access state and source as text", () => {
++  assert.equal(
++    statusMessage(createViewModel({ authenticated: false }, now)),
++    "Access state: Public summary. Source: Fictitious broker learning feed.",
++  );
++});
++

@@ -1,0 +1,334 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://coga.dev/schemas/factory/v0.1/evidence-bundle.schema.json",
+  "title": "COGA Factory Evidence Bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "kind",
+    "metadata",
+    "subject",
+    "governance",
+    "impact",
+    "steps"
+  ],
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "gitObject": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "pattern": "^(?![A-Za-z]:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    },
+    "exactReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "version": { "type": "string", "minLength": 1, "maxLength": 100 }
+      }
+    },
+    "fileReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "digest"],
+      "properties": {
+        "path": { "$ref": "#/$defs/relativePath" },
+        "digest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "evidenceFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "digest", "bytes"],
+      "properties": {
+        "path": { "$ref": "#/$defs/relativePath" },
+        "digest": { "$ref": "#/$defs/digest" },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20971520
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy", "approver", "approvedAt", "evidence"],
+      "properties": {
+        "policy": { "$ref": "#/$defs/exactReference" },
+        "approver": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "approvedAt": { "type": "string", "format": "date-time" },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": { "$ref": "#/$defs/fileReference" }
+        }
+      }
+    },
+    "sandboxEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runner",
+        "image",
+        "isolation",
+        "network",
+        "rootFilesystem",
+        "repositoryMount",
+        "credentialAccess",
+        "user",
+        "limits"
+      ],
+      "properties": {
+        "runner": { "$ref": "#/$defs/exactReference" },
+        "image": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9./_-]*@sha256:[0-9a-f]{64}$"
+        },
+        "isolation": { "enum": ["docker", "test-double"] },
+        "network": { "const": "none" },
+        "rootFilesystem": { "enum": ["read-only", "simulated"] },
+        "repositoryMount": { "enum": ["read-only", "simulated"] },
+        "credentialAccess": { "const": "none" },
+        "user": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pids", "memoryBytes", "cpus"],
+          "properties": {
+            "pids": { "type": "integer", "minimum": 0, "maximum": 100000 },
+            "memoryBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 68719476736
+            },
+            "cpus": { "type": "number", "minimum": 0, "maximum": 256 }
+          }
+        }
+      }
+    },
+    "impactPathNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "kind"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "version": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "kind": { "enum": ["artifact", "package", "application"] }
+      }
+    },
+    "impactReason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "path"],
+      "properties": {
+        "type": { "enum": ["direct", "transitive", "older-pin"] },
+        "path": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": { "$ref": "#/$defs/impactPathNode" }
+        }
+      }
+    },
+    "impactApplication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "version",
+        "path",
+        "reasons",
+        "rerunScenarios",
+        "rerunRunbooks"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "version": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "path": { "$ref": "#/$defs/relativePath" },
+        "reasons": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": { "$ref": "#/$defs/impactReason" }
+        },
+        "rerunScenarios": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/exactReference" }
+        },
+        "rerunRunbooks": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/exactReference" }
+        }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stepId",
+        "adapter",
+        "status",
+        "startedAt",
+        "finishedAt",
+        "exitCode",
+        "stdoutDigest",
+        "stderrDigest"
+      ],
+      "properties": {
+        "stepId": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "adapter": { "$ref": "#/$defs/exactReference" },
+        "status": { "const": "passed" },
+        "startedAt": { "type": "string", "format": "date-time" },
+        "finishedAt": { "type": "string", "format": "date-time" },
+        "exitCode": { "const": 0 },
+        "stdoutDigest": { "$ref": "#/$defs/digest" },
+        "stderrDigest": { "$ref": "#/$defs/digest" },
+        "sandbox": { "$ref": "#/$defs/sandboxEvidence" },
+        "outputFiles": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/evidenceFile" }
+        },
+        "detail": { "type": "string", "maxLength": 4000 }
+      }
+    }
+  },
+  "properties": {
+    "schemaVersion": { "const": "coga.dev/factory/v0.1" },
+    "kind": { "const": "EvidenceBundle" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workOrderId", "generatedAt", "bundleDigest"],
+      "properties": {
+        "workOrderId": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9.-]{2,127}$"
+        },
+        "generatedAt": { "type": "string", "format": "date-time" },
+        "bundleDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "baseCommit",
+        "subjectTree",
+        "workOrderDigest",
+        "planDigest",
+        "changedFiles"
+      ],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "baseCommit": { "$ref": "#/$defs/gitObject" },
+        "subjectTree": { "$ref": "#/$defs/gitObject" },
+        "workOrderDigest": { "$ref": "#/$defs/digest" },
+        "planDigest": { "$ref": "#/$defs/digest" },
+        "changedFiles": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/evidenceFile" }
+        }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requiredPolicies",
+        "approvals",
+        "pendingPolicies",
+        "draftOnly"
+      ],
+      "properties": {
+        "requiredPolicies": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": { "$ref": "#/$defs/exactReference" }
+        },
+        "approvals": {
+          "type": "array",
+          "maxItems": 20,
+          "items": { "$ref": "#/$defs/approval" }
+        },
+        "pendingPolicies": {
+          "type": "array",
+          "maxItems": 20,
+          "items": { "$ref": "#/$defs/exactReference" }
+        },
+        "draftOnly": { "const": true }
+      }
+    },
+    "impact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact", "found", "packages", "affectedApplications"],
+      "properties": {
+        "artifact": { "$ref": "#/$defs/exactReference" },
+        "found": { "const": true },
+        "packages": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "version", "layer", "path"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1, "maxLength": 200 },
+              "version": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "layer": {
+                "enum": [
+                  "domain",
+                  "platform",
+                  "engineering",
+                  "organization",
+                  "operations"
+                ]
+              },
+              "path": { "$ref": "#/$defs/relativePath" }
+            }
+          }
+        },
+        "affectedApplications": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/impactApplication" }
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": { "$ref": "#/$defs/receipt" }
+    }
+  }
+}

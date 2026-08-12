@@ -26,6 +26,7 @@ const SUPPORTED_TEXT_EXTENSIONS = [
   ".json",
   ".md",
   ".mjs",
+  ".patch",
   ".svg",
   ".ts",
   ".tsv",
@@ -42,6 +43,7 @@ const SUPPORTED_TEXT_FILES = [
   ".gitignore",
   "LICENSE",
   "packages/core/LICENSE",
+  "packages/factory/LICENSE",
 ];
 
 const SUPPORTED_BINARY_EXTENSIONS = {
