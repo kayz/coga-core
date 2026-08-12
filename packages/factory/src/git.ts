@@ -214,6 +214,13 @@ export class GitRepository {
       }
     }
 
+    const reverse = await runProcess(
+      "git",
+      ["apply", "--reverse", "--check", "--unidiff-zero", patchPath],
+      { cwd: workspace, timeoutMs: 30_000, maxOutputBytes: 1024 * 1024 },
+    );
+    if (reverse.exitCode === 0) return { paths, alreadyApplied: true };
+
     const check = await runProcess(
       "git",
       [
@@ -226,12 +233,6 @@ export class GitRepository {
       { cwd: workspace, timeoutMs: 30_000, maxOutputBytes: 1024 * 1024 },
     );
     if (check.exitCode !== 0) {
-      const reverse = await runProcess(
-        "git",
-        ["apply", "--reverse", "--check", "--unidiff-zero", patchPath],
-        { cwd: workspace, timeoutMs: 30_000, maxOutputBytes: 1024 * 1024 },
-      );
-      if (reverse.exitCode === 0) return { paths, alreadyApplied: true };
       throw new Error(
         `${label} cannot be applied: ${check.stderr.trim() || check.stdout.trim()}.`,
       );

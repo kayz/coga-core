@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -48,6 +48,33 @@ describe("bounded Patch adapter", () => {
     await expect(
       repository.applyPatch(root, reference, ["allowed.txt"], "test patch"),
     ).resolves.toMatchObject({ alreadyApplied: true, paths: ["allowed.txt"] });
+  });
+
+  it("does not duplicate an already applied zero-context addition", async () => {
+    const patch = [
+      "diff --git a/allowed.txt b/allowed.txt",
+      "--- a/allowed.txt",
+      "+++ b/allowed.txt",
+      "@@ -1,0 +2 @@",
+      "+after",
+      "",
+    ].join("\n");
+    const path = join(root, ".local", "zero-context.patch");
+    writeFileSync(path, patch);
+    const repository = await GitRepository.open(root);
+    const reference = {
+      path: ".local/zero-context.patch",
+      digest: sha256(patch),
+    };
+    await expect(
+      repository.applyPatch(root, reference, ["allowed.txt"], "zero patch"),
+    ).resolves.toMatchObject({ alreadyApplied: false });
+    await expect(
+      repository.applyPatch(root, reference, ["allowed.txt"], "zero patch"),
+    ).resolves.toMatchObject({ alreadyApplied: true });
+    expect(
+      readFileSync(join(root, "allowed.txt"), "utf8").replaceAll("\r\n", "\n"),
+    ).toBe("before\nafter\n");
   });
 
   it("rejects disallowed, escaping, symlink, mode-conversion, and deletion patches", async () => {
