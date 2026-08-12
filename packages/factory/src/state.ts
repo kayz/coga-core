@@ -1,6 +1,11 @@
 import { mkdirSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, resolve } from "node:path";
-import type { FactoryRunState, FactoryState, Sha256Digest } from "./types.js";
+import type {
+  FactoryRunState,
+  FactoryState,
+  Sha256Digest,
+  TargetExecutionPlan,
+} from "./types.js";
 import { FACTORY_SCHEMA_VERSION, FACTORY_STATES } from "./types.js";
 import {
   canonicalJson,
@@ -77,6 +82,9 @@ function assertShape(value: unknown): FactoryRunState {
     "workOrderDigest",
     "document",
   );
+  const application = record(document.application, "document.application");
+  requiredString(application, "id", "document.application");
+  requiredString(application, "version", "document.application");
   const status = requiredString(document, "status", "document");
   const baseCommit = requiredString(document, "baseCommit", "document");
   const workspacePath = requiredString(document, "workspacePath", "document");
@@ -127,8 +135,9 @@ export function runStatePath(
   stateRoot: string,
   workOrderId: string,
   digest: Sha256Digest,
+  applicationId: string,
 ): string {
-  const name = `${sanitizeIdentifier(workOrderId)}-${digest.slice("sha256:".length, "sha256:".length + 12)}`;
+  const name = `${sanitizeIdentifier(workOrderId)}-${digest.slice("sha256:".length, "sha256:".length + 12)}-${sanitizeIdentifier(applicationId)}`;
   return resolve(stateRoot, name, "state.json");
 }
 
@@ -151,15 +160,19 @@ export function assertRunStateIntegrity(
   expected: {
     workOrderId: string;
     workOrderDigest: Sha256Digest;
+    application: { id: string; version: string };
     baseCommit: string;
     workspacePath: string;
     branch: string;
+    plan: TargetExecutionPlan;
   },
 ): void {
   if (state.workOrderId !== expected.workOrderId)
     invalid("workOrderId does not match the Work Order");
   if (state.workOrderDigest !== expected.workOrderDigest)
     invalid("workOrderDigest does not match the Work Order");
+  if (exactKey(state.application) !== exactKey(expected.application))
+    invalid("application does not match the target");
   if (state.baseCommit !== expected.baseCommit)
     invalid("baseCommit does not match the Work Order");
   if (resolve(state.workspacePath) !== resolve(expected.workspacePath))
@@ -167,6 +180,9 @@ export function assertRunStateIntegrity(
   if (state.branch !== expected.branch)
     invalid("branch does not match the Work Order");
   if (!state.plan) invalid("Execution Plan is missing");
+  if (canonicalJson(state.plan) !== canonicalJson(expected.plan)) {
+    invalid("Execution Plan does not match the freshly derived target plan");
+  }
 
   const { planDigest, ...planPayload } = state.plan;
   if (!DIGEST_PATTERN.test(planDigest)) invalid("planDigest is malformed");
@@ -225,7 +241,7 @@ export function assertRunStateIntegrity(
     if (!state.resultCommit || !state.evidence)
       invalid("result is missing its commit or evidence binding");
     if (
-      state.result.workOrderId !== expected.workOrderId ||
+      exactKey(state.result.application) !== exactKey(expected.application) ||
       state.result.baseCommit !== expected.baseCommit ||
       state.result.resultCommit !== state.resultCommit ||
       state.result.branch !== expected.branch ||

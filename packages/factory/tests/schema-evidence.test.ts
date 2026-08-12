@@ -7,7 +7,11 @@ import {
   evidenceDigest,
   verifyEvidenceBundle,
 } from "../src/evidence.js";
-import { loadApplicationFactory, loadWorkOrder } from "../src/schema.js";
+import {
+  loadAgentProposalReceipt,
+  loadApplicationFactory,
+  loadWorkOrder,
+} from "../src/schema.js";
 import type { ExecutionPlan, WorkOrder } from "../src/types.js";
 import { canonicalJson } from "../src/utils.js";
 
@@ -44,7 +48,9 @@ describe("Factory schemas", () => {
     );
 
     delete valid.spec.shell;
-    valid.spec.proposal.patch.path = "../outside.patch";
+    const firstTarget = valid.spec.targets[0];
+    if (!firstTarget) throw new Error("Expected an example target.");
+    firstTarget.proposal.receipt.path = "../outside.json";
     const escaping = join(directory, "escaping.json");
     writeFileSync(escaping, JSON.stringify(valid));
     expect(() => loadWorkOrder(escaping)).toThrow(/Invalid Work Order/iu);
@@ -55,9 +61,16 @@ describe("Evidence Bundle", () => {
   it("is content-addressed and rejects payload tampering", () => {
     const directory = mkdtempSync(join(tmpdir(), "coga-factory-evidence-"));
     const workOrder = loadWorkOrder(workOrderPath);
+    const target = workOrder.spec.targets.find(
+      (entry) => entry.application.id === "application.cedar.insight.h5",
+    );
+    if (!target) throw new Error("Expected Cedar target.");
+    const proposalReceipt = loadAgentProposalReceipt(
+      resolve(repositoryRoot, target.proposal.receipt.path),
+    );
     const plan = {
       schemaVersion: workOrder.schemaVersion,
-      kind: "ExecutionPlan",
+      kind: "TargetExecutionPlan",
       workOrder: {
         id: workOrder.metadata.id,
         digest:
@@ -98,7 +111,14 @@ describe("Evidence Bundle", () => {
           },
         ],
       },
-      targets: [],
+      target: {
+        application: target.application,
+        factoryDefinitionPath: target.factoryDefinition,
+        definition: loadApplicationFactory(definitionPath),
+        proposalReceiptPath: target.proposal.receipt.path,
+        proposalReceipt,
+        delivery: target.delivery,
+      },
       steps: [],
       planDigest:
         "sha256:2222222222222222222222222222222222222222222222222222222222222222",

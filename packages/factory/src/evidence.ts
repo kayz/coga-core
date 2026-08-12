@@ -192,8 +192,11 @@ export function createEvidenceBundle(parameters: {
       repository: parameters.workOrder.spec.delivery.repository,
       baseCommit: parameters.plan.baseCommit,
       subjectTree: parameters.subjectTree,
+      application: parameters.plan.target.application,
       workOrderDigest: parameters.plan.workOrder.digest,
       planDigest: parameters.plan.planDigest,
+      proposalReceiptDigest:
+        parameters.plan.target.proposalReceipt.metadata.receiptDigest,
       changedFiles: parameters.changedFiles,
     },
     governance: {

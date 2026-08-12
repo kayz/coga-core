@@ -31,7 +31,14 @@ dockerTest(
       commandTimeoutMs: 180_000,
     }).run(join(repository, workOrderRelativePath));
     expect(result.status).toBe("completed");
-    expect(result.pullRequest).toBeUndefined();
+    expect(result.targets).toHaveLength(2);
+    const cedar = result.targets.find(
+      (entry) => entry.application.id === "application.cedar.insight.h5",
+    );
+    if (!cedar || cedar.status !== "completed") {
+      throw new Error("Expected a completed Cedar target.");
+    }
+    expect(cedar.pullRequest).toBeUndefined();
     expect(
       execFileSync(
         "git",
@@ -39,7 +46,7 @@ dockerTest(
           "-C",
           repository,
           "show",
-          `${result.resultCommit}:examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs`,
+          `${cedar.resultCommit}:examples/broker-digital-channel/applications/cedar-insight-h5/tests/app.test.mjs`,
         ],
         { encoding: "utf8" },
       ),
@@ -51,7 +58,7 @@ dockerTest(
           "-C",
           repository,
           "show",
-          `${result.resultCommit}:${result.evidencePath}`,
+          `${cedar.resultCommit}:${cedar.evidencePath}`,
         ],
         { encoding: "utf8" },
       ),
@@ -78,6 +85,24 @@ dockerTest(
         repositoryMount: "read-only",
       });
     }
+    const birch = result.targets.find(
+      (entry) => entry.application.id === "application.birch.insight.h5",
+    );
+    if (!birch || birch.status !== "completed") {
+      throw new Error("Expected a completed Birch target.");
+    }
+    expect(
+      execFileSync(
+        "git",
+        [
+          "-C",
+          repository,
+          "show",
+          `${birch.resultCommit}:examples/broker-digital-channel/applications/birch-insight-h5/tests/app.test.mjs`,
+        ],
+        { encoding: "utf8" },
+      ),
+    ).toContain("announces brief state");
   },
   240_000,
 );

@@ -6,6 +6,7 @@ export const workOrderRelativePath =
 const patchRelativePaths = [
   ".coga/work-orders/cedar-status/domain-change.patch",
   ".coga/work-orders/cedar-status/agent-proposal.patch",
+  ".coga/work-orders/cedar-status/birch-agent-proposal.patch",
 ] as const;
 
 function succeeds(root: string, ...args: string[]): boolean {

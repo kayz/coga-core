@@ -1,4 +1,4 @@
-schemaVersion: coga.dev/factory/v0.1
+schemaVersion: coga.dev/factory/v0.2
 kind: WorkOrder
 metadata:
   id: example.cedar.live-status
@@ -19,7 +19,7 @@ spec:
       version: 0.2.0
     patch:
       path: .coga/work-orders/cedar-status/domain-change.patch
-      digest: sha256:9db56d5a27b9b5ab14b9732c220ac103121e5b76e3d16fe3545623bfc8adf69f
+      digest: sha256:16c8b559ea658f158e5b496f8c3f91f4fd2079acfa62d361aa1614ac0c738fbd
     allowedPaths:
       - examples/broker-digital-channel/packages/platform-web-h5/artifacts/responsive-shell.yaml
   targets:
@@ -27,25 +27,54 @@ spec:
         id: application.cedar.insight.h5
         version: 0.2.0
       factoryDefinition: examples/broker-digital-channel/applications/cedar-insight-h5/factory/application.factory.yaml
+      proposal:
+        adapter: coga.agent.proposal/v2
+        receipt:
+          path: .coga/work-orders/cedar-status/cedar-agent-proposal.json
+          digest: sha256:2237a312102d6454cf6fdc6882811afe49e216799cf93be0424dc47119a99d55
+      delivery:
+        branch: codex/factory-output/cedar-live-status-v2
+        title: "Factory fan-out: enforce Cedar live status evidence"
+        body:
+          This Draft PR is one isolated target from a governed fan-out run. It updates
+          the Cedar H5 Application, preserves the exact Proposal Receipt and local
+          Evidence Bundle, and remains draft until remote evidence and human Policy
+          approvals are complete.
+        commitMessage: "feat(example): announce Cedar access state"
+    - application:
+        id: application.birch.insight.h5
+        version: 0.2.0
+      factoryDefinition: examples/broker-digital-channel/applications/birch-insight-h5/factory/application.factory.yaml
+      proposal:
+        adapter: coga.agent.proposal/v2
+        receipt:
+          path: .coga/work-orders/cedar-status/birch-agent-proposal.json
+          digest: sha256:8f7c30fcebb8783cc99c81ab11559cffad60c7d3bd09ee58d83acac3b68ee99e
+      delivery:
+        branch: codex/factory-output/birch-live-status-v2
+        title: "Factory fan-out: enforce Birch live status evidence"
+        body:
+          This Draft PR is one isolated target from a governed fan-out run. It updates
+          the Birch H5 Application, preserves the exact Proposal Receipt and local
+          Evidence Bundle, and remains draft until remote evidence and human Policy
+          approvals are complete.
+        commitMessage: "feat(example): announce Birch brief state"
   governance:
     requiredPolicies:
       - id: example.organization.change.approval
         version: 0.2.0
     approvals: []
-  proposal:
-    adapter: coga.agent.patch/v1
-    patch:
-      path: .coga/work-orders/cedar-status/agent-proposal.patch
-      digest: sha256:32ac39b3b5c6207fa56741e0ab1af2c81165606426be32d3e48b75cabf6dfe8f
+    promotion:
+      requiredChecks:
+        - verify
+        - factory-cell
+        - package-consumer-node-20.20.2
+        - package-consumer-node-22.22.1
+        - package-consumer-node-24.18.0
+      authorizedApprovers:
+        - kayz
+      requireArtifactAttestation: true
   delivery:
-    adapter: github.draft-pr/v1
+    adapter: github.draft-pr/v2
     repository: kayz/coga-core
-    branch: codex/factory-cell-demo-main
-    title: "Factory demo from main: enforce Cedar live status evidence"
-    body:
-      This Draft PR is generated from the governed responsive-shell change. It updates
-      the real Cedar H5 reference Application, runs COGA closure plus sandboxed tests and
-      build, and commits a content-addressed Evidence Bundle. Human policy approval is
-      intentionally still pending.
-    commitMessage: "feat(example): announce Cedar access state"
     draft: true

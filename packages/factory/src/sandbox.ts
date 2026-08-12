@@ -112,7 +112,7 @@ export class DockerSandbox implements SandboxRunner {
         DOCKER_HOST: process.env.DOCKER_HOST,
       },
     });
-    if (result.timedOut) {
+    if (result.timedOut || result.outputExceeded) {
       await runProcess("docker", ["rm", "--force", name], {
         cwd: request.workspacePath,
         timeoutMs: 30_000,

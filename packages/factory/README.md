@@ -1,67 +1,111 @@
 # `@coga/factory`
 
-`@coga/factory` turns one governed, exact COGA Artifact change into a verified
-Application change and an optional GitHub Draft PR. It is deliberately a small
-factory cell, not a general-purpose workflow engine.
+`@coga/factory` turns one governed, exact COGA Artifact change into an isolated
+candidate for every affected Application. It is a bounded factory cell, not a
+general-purpose workflow engine.
 
-Its package version is `0.2.0`; the independently versioned protocol is
-`coga.dev/factory/v0.1`.
+The package version is `0.3.0`. Its independently versioned documents use
+`coga.dev/factory/v0.2`; v0.1 Factory documents are intentionally rejected. Core
+resources remain `coga.dev/v0.2` and `@coga/core` remains `0.2.0`.
 
 The controller:
 
 1. loads a versioned Work Order from an exact Git commit;
-2. validates the base COGA Instance and computes exact Application impact;
-3. requires the Work Order to cover every affected Application;
-4. applies a bounded domain patch and a bounded Agent proposal in an isolated Git
-   worktree;
-5. validates COGA closure and runs only registered test/build adapters in a
+2. validates the base COGA Instance and recomputes exact Application impact;
+3. requires one target for every affected Application;
+4. verifies each `AgentProposalReceipt`, including model identity, prompt digest,
+   tool/network/filesystem policy, budgets, the exact Harness context closure,
+   normalized Patch bytes, and authorized output paths;
+5. runs each Application in its own worktree and recovery state, applying the
+   shared domain Patch idempotently;
+6. validates COGA closure and runs only registered test/build adapters in a
    digest-pinned, network-disabled Docker sandbox;
-6. writes a content-addressed Evidence Bundle outside canonical Artifact files;
-7. creates a commit and, only when requested, an idempotent GitHub Draft PR.
+7. writes one content-addressed Evidence Bundle, commit, and optional GitHub Draft
+   PR per Application;
+8. records partial fan-out outcomes and retries only failed targets;
+9. can collect exact remote CI, artifact-attestation, and human Policy-review
+   evidence before changing an eligible Draft PR to ready for review.
 
 ## Protocols
 
-| Document             | Responsibility                                                                    |
-| -------------------- | --------------------------------------------------------------------------------- |
-| `WorkOrder`          | Exact base, changed Artifact, patch digests, complete impact targets, Policy set  |
-| `ApplicationFactory` | Application-owned change paths and registered test/build adapters                 |
-| `EvidenceBundle`     | Base/tree/plan/file hashes, impact, governance partition, receipts, sandbox facts |
-| recovery state       | Content-addressed workspace, plan digest, contiguous step prefix, result binding  |
+| Document               | Responsibility                                                                                 |
+| ---------------------- | ---------------------------------------------------------------------------------------------- |
+| `WorkOrder`            | Exact base, changed Artifact, domain Patch, complete targets, Policy and promotion rules       |
+| `ProposalCompilation`  | Human-reviewed input to compile a pre-authored normalized Patch into a receipt                 |
+| `AgentProposalReceipt` | Model/provider/prompt/tools/budgets, exact input hashes, normalized Patch and output paths     |
+| `ApplicationFactory`   | Application-owned source/change paths and registered test/build adapters                       |
+| `EvidenceBundle`       | Per-target base/tree/plan/file hashes, impact, receipts and sandbox facts                      |
+| `RemoteEvidence`       | Exact Work Order/base/PR head/Patch closure, successful checks, attestation and Policy reviews |
+| `GovernanceView`       | Derived, read-only status across local and remote evidence for every target                    |
+| recovery state         | Per-target workspace, freshly derived exact plan, contiguous step prefix and result binding    |
 
-The controller recomputes COGA validation and impact rather than trusting a target
-list supplied by an Agent. A resumed run must match the same Work Order digest,
-base commit, branch, workspace, plan digest, step sequence, and Git worktree
-identity. Evidence is stored at `.coga/evidence/<sha256>.json`; changing its payload
-without changing the address is rejected.
+The model does not receive Git credentials or write the repository. A proposal is
+accepted only as normalized unified-diff bytes, then compiled into a versioned
+receipt. `compile-proposal` does not call a model; it records and validates an
+already produced candidate against an explicit compilation request. An ignored
+build directory cannot enter the context closure, while an untracked,
+non-ignored source file must be included and hashed or planning fails.
+
+Every target owns a distinct branch, worktree, recovery state, Evidence Bundle,
+commit and Draft PR. A target failure produces an aggregate `partial` result and
+does not prevent other targets from completing. Rerunning the same Work Order
+reuses completed results and resumes only failed steps.
 
 Node verification uses a digest-pinned image with no network, read-only root and
-repository mounts, no capabilities, no-new-privileges, a non-root user, and bounded
-CPU, memory, processes, output, and time. The Evidence Bundle records those sandbox
-facts. Unit-test doubles are explicitly labeled and cannot masquerade as Docker
-evidence.
+repository mounts, no capabilities, no-new-privileges, a non-root user, and
+bounded CPU, memory, processes, output, and time. Test doubles are explicitly
+labeled and cannot masquerade as Docker evidence.
 
-Work Orders cannot contain shell commands. Docker receives no GitHub credentials,
-the repository is mounted read-only during tests/builds, and build output uses a
-separate ephemeral mount. Approval records may remain pending for Draft PR review;
-the factory never merges, publishes, deploys, or fabricates an approval.
+The default-branch `factory-evidence-attestation` workflow reacts only after a
+successful `public-checks` PR run from the same repository. It performs no
+checkout and executes no repository code; it binds one content-addressed Evidence
+Bundle to the exact open Draft PR head and creates a GitHub artifact attestation.
+The local collector independently verifies that attestation, the configured check
+set, the exact remote Proposal Receipt, and an authorized `APPROVED` review for
+every Policy. It also re-downloads the governed domain and proposal Patches and
+requires the PR/Evidence Bundle file set to equal their exact path closure. A
+review body must contain:
 
-The 0.2 Agent adapter consumes a pre-authored, digest-bound unified patch. Model
-invocation, prompt/context assembly, and proposal generation are intentionally not
-part of this first cell; adding them requires a separately versioned adapter and
-evidence contract.
+```text
+[coga-policy:<policy-id>@<version>]
+```
+
+and the review must be bound to the current head commit. `--promote` performs a
+fresh PR identity check and can only change Draft to ready for review. It never
+merges, publishes, releases, tags or deploys.
+
+## Commands
 
 ```powershell
 npm run build --workspace @coga/factory
 node packages/factory/dist/cli.js adapters
+node packages/factory/dist/cli.js compile-proposal .coga/work-orders/cedar-status/proposal-compilation.yaml --repo-root .
 node packages/factory/dist/cli.js run .coga/work-orders/cedar-status/work-order.yaml --delivery local
+node packages/factory/dist/cli.js governance .coga/work-orders/cedar-status/work-order.yaml --format markdown
 npm run factory:e2e
 ```
 
-The repository must be clean and the Work Order must already exist in the exact
-base commit. `factory:e2e` also requires Docker. The reference Work Order changes
-`web.h5.responsive.shell@0.2.0`, proves that impact resolves exactly to
-`application.cedar.insight.h5@0.2.0`, updates the real Cedar H5 source, and runs
-its tests and build in the sandbox.
+For an existing Draft PR whose Evidence Bundle has been attested:
+
+```powershell
+node packages/factory/dist/cli.js collect-remote `
+  .coga/work-orders/cedar-status/work-order.yaml `
+  application.cedar.insight.h5@0.2.0 `
+  42 `
+  .coga/evidence/<bundle-digest>.json
+```
+
+Add `--promote` only after the exact-head human Policy review exists. Omit it to
+collect append-only evidence without mutating the PR.
+
+The repository must be clean and the Work Order must already exist byte-for-byte
+in the exact base commit. `collect-remote` resolves and verifies that same tracked
+Work Order before trusting its remote base or governance rules. `factory:e2e`
+requires Docker. The reference Work Order changes
+`web.h5.responsive.shell@0.2.0`; impact resolves exactly to the independent Cedar
+and Birch H5 Applications, each receives its own proposal, sandbox verification,
+candidate and evidence.
 
 Use `--delivery github` only when the exact base branch is already available on
-the configured GitHub remote and a Draft PR is intended.
+the configured remote and Draft PR creation is intended. GitHub CLI authentication
+and remote governance authority remain operator responsibilities.

@@ -1,0 +1,114 @@
+name: factory-evidence-attestation
+
+on:
+  workflow_run:
+    workflows: [public-checks]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  attest-evidence:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    steps:
+      - name: Bind and verify the Factory Evidence Bundle
+        id: prepare
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COGA_REPOSITORY: ${{ github.repository }}
+          COGA_RUN_ID: ${{ github.event.workflow_run.id }}
+          COGA_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          COGA_RUNNER_TEMP: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          umask 077
+
+          [[ "$COGA_HEAD_SHA" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "Invalid workflow head commit." >&2
+            exit 1
+          }
+
+          run_json="$(gh api "repos/$COGA_REPOSITORY/actions/runs/$COGA_RUN_ID")"
+          test "$(jq -r '.event' <<<"$run_json")" = "pull_request"
+          test "$(jq -r '.conclusion' <<<"$run_json")" = "success"
+          test "$(jq -r '.head_sha' <<<"$run_json")" = "$COGA_HEAD_SHA"
+          test "$(jq '.pull_requests | length' <<<"$run_json")" -eq 1
+          pr_number="$(jq -r '.pull_requests[0].number' <<<"$run_json")"
+          case "$pr_number" in
+            ''|*[!0-9]*) echo "Invalid PR number." >&2; exit 1 ;;
+          esac
+
+          pr_json="$(gh api "repos/$COGA_REPOSITORY/pulls/$pr_number")"
+          test "$(jq -r '.state' <<<"$pr_json")" = "open"
+          test "$(jq -r '.draft' <<<"$pr_json")" = "true"
+          test "$(jq -r '.head.sha' <<<"$pr_json")" = "$COGA_HEAD_SHA"
+          test "$(jq -r '.head.repo.full_name' <<<"$pr_json")" = "$COGA_REPOSITORY"
+          changed_files="$(jq -r '.changed_files' <<<"$pr_json")"
+          test "$changed_files" -ge 1
+          test "$changed_files" -le 100
+
+          files_json="$(gh api "repos/$COGA_REPOSITORY/pulls/$pr_number/files?per_page=100")"
+          test "$(jq 'length' <<<"$files_json")" -eq "$changed_files"
+          jq -e 'all(.[].filename; test("^[^\\u0000-\\u001f\\u007f\\\\]+$"))' \
+            <<<"$files_json" >/dev/null
+          evidence_paths="$(jq -r '[.[].filename | select(test("^\\.coga/evidence/[0-9a-f]{64}\\.json$"))] | unique | .[]' <<<"$files_json")"
+          test "$(grep -c . <<<"$evidence_paths")" -eq 1
+          evidence_path="$evidence_paths"
+
+          output_dir="$COGA_RUNNER_TEMP/coga-factory-attestation"
+          mkdir -p "$output_dir"
+          output_path="$output_dir/$(basename "$evidence_path")"
+          gh api \
+            -H "Accept: application/vnd.github.raw+json" \
+            "repos/$COGA_REPOSITORY/contents/$evidence_path?ref=$COGA_HEAD_SHA" \
+            >"$output_path"
+          bytes="$(wc -c <"$output_path")"
+          test "$bytes" -ge 1
+          test "$bytes" -le 5242880
+
+          jq -e \
+            --arg repository "$COGA_REPOSITORY" \
+            --arg base "$(jq -r '.base.sha' <<<"$pr_json")" \
+            '.schemaVersion == "coga.dev/factory/v0.2" and
+             .kind == "EvidenceBundle" and
+             .governance.draftOnly == true and
+             .subject.repository == $repository and
+             .subject.baseCommit == $base and
+             (.subject.application.id | type == "string" and length > 0) and
+             (.subject.application.version | type == "string" and length > 0) and
+             (.subject.proposalReceiptDigest | test("^sha256:[0-9a-f]{64}$")) and
+             (.metadata.bundleDigest | test("^sha256:[0-9a-f]{64}$"))' \
+            "$output_path" >/dev/null
+
+          declared="$(jq -r '.metadata.bundleDigest' "$output_path")"
+          calculated="sha256:$(jq -S 'del(.metadata.bundleDigest)' "$output_path" | sha256sum | cut -d' ' -f1)"
+          test "$declared" = "$calculated"
+          test "$evidence_path" = ".coga/evidence/${declared#sha256:}.json"
+
+          jq -r '.[].filename' <<<"$files_json" | sort >"$output_dir/actual-files"
+          {
+            jq -r '.subject.changedFiles[].path' "$output_path"
+            printf '%s\n' "$evidence_path"
+          } | sort >"$output_dir/expected-files"
+          test "$(sort -u "$output_dir/actual-files" | wc -l)" -eq "$changed_files"
+          cmp "$output_dir/actual-files" "$output_dir/expected-files"
+
+          echo "subject-path=$output_path" >>"$GITHUB_OUTPUT"
+          echo "subject-sha256=$(sha256sum "$output_path" | cut -d' ' -f1)" >>"$GITHUB_OUTPUT"
+          echo "pull-request=$pr_number" >>"$GITHUB_OUTPUT"
+
+      - name: Attest the exact Evidence Bundle bytes
+        uses: actions/attest@c32b4b8b198b65d0bd9d63490e847ff7b53989d4 # v4.0.0
+        with:
+          subject-path: ${{ steps.prepare.outputs.subject-path }}

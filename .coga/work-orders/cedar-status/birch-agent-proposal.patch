@@ -1,0 +1,81 @@
+diff --git a/examples/broker-digital-channel/applications/birch-insight-h5/src/app.mjs b/examples/broker-digital-channel/applications/birch-insight-h5/src/app.mjs
+index 02c71ae..78232c7 100644
+--- a/examples/broker-digital-channel/applications/birch-insight-h5/src/app.mjs
++++ b/examples/broker-digital-channel/applications/birch-insight-h5/src/app.mjs
+@@ -1,5 +1,9 @@
+ import { viewModel } from "./domain.mjs";
+ 
++export function statusMessage(model) {
++  return `Brief state: ${model.access}. Source: ${model.source}.`;
++}
++
+ export function render(document, context, now = new Date()) {
+   const model = viewModel(context, now);
+   document.querySelector("[data-heading]").textContent = model.heading;
+@@ -7,5 +11,6 @@ export function render(document, context, now = new Date()) {
+   document.querySelector("[data-access]").textContent = model.access;
+   document.querySelector("[data-support]").disabled = !model.supportEnabled;
++  document.querySelector("[data-status]").textContent = statusMessage(model);
+   return model;
+ }
+ 
+diff --git a/examples/broker-digital-channel/applications/birch-insight-h5/src/index.html b/examples/broker-digital-channel/applications/birch-insight-h5/src/index.html
+index 84b4697..b41a8df 100644
+--- a/examples/broker-digital-channel/applications/birch-insight-h5/src/index.html
++++ b/examples/broker-digital-channel/applications/birch-insight-h5/src/index.html
+@@ -12,6 +12,9 @@
+       <h1 data-heading>Birch research brief</h1>
+       <p data-access>Customer support unavailable</p>
+     </header>
++    <p class="status-strip" role="status" aria-live="polite" data-status>
++      Brief state: Customer support unavailable. Source: Fictitious learning desk.
++    </p>
+     <main id="brief">
+       <article>
+         <h2>Learning note</h2>
+diff --git a/examples/broker-digital-channel/applications/birch-insight-h5/src/styles.css b/examples/broker-digital-channel/applications/birch-insight-h5/src/styles.css
+index fb1466b..7d66241 100644
+--- a/examples/broker-digital-channel/applications/birch-insight-h5/src/styles.css
++++ b/examples/broker-digital-channel/applications/birch-insight-h5/src/styles.css
+@@ -17,6 +17,15 @@ header {
+   padding-block: 4rem 2rem;
+ }
+ 
++.status-strip {
++  width: min(64rem, calc(100% - 2rem));
++  box-sizing: border-box;
++  margin: 0 auto 1.5rem;
++  padding: 0.75rem 1rem;
++  color: #ffffff;
++  background: #24553a;
++}
++
+ main {
+   display: grid;
+   gap: 1.5rem;
+diff --git a/examples/broker-digital-channel/applications/birch-insight-h5/tests/app.test.mjs b/examples/broker-digital-channel/applications/birch-insight-h5/tests/app.test.mjs
+index 21ac9e9..72c9273 100644
+--- a/examples/broker-digital-channel/applications/birch-insight-h5/tests/app.test.mjs
++++ b/examples/broker-digital-channel/applications/birch-insight-h5/tests/app.test.mjs
+@@ -1,6 +1,7 @@
+ import assert from "node:assert/strict";
+ import test from "node:test";
+ import { accessState, viewModel } from "../src/domain.mjs";
++import { statusMessage } from "../src/app.mjs";
+ 
+ const now = new Date("2026-08-12T00:00:00.000Z");
+ 
+@@ -15,6 +16,13 @@ test("keeps the public brief separate from customer authority", () => {
+   });
+ });
+ 
++test("announces brief state and source as text", () => {
++  assert.equal(
++    statusMessage(viewModel({ authenticated: false }, now)),
++    "Brief state: Public learning brief. Source: Fictitious learning desk.",
++  );
++});
++
+ test("enables support only for a current authenticated context", () => {
+   const current = {
+     authenticated: true,

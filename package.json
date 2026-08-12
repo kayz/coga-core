@@ -11,7 +11,7 @@
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "format:check": "prettier --check \"**/*.{cjs,js,json,md,mjs,ts,yaml,yml}\" --ignore-path .gitignore",
+    "format:check": "prettier --check \"**/*.{cjs,js,json,md,mjs,ts,yaml,yml}\" --ignore-path .gitignore --ignore-path .prettierignore",
     "validate:example": "node packages/core/dist/cli.js validate examples/broker-digital-channel/instance.yaml --profile release",
     "catalog:example": "node packages/core/dist/cli.js catalog examples/broker-digital-channel/instance.yaml --format markdown --profile public",
     "impact:example": "node packages/core/dist/cli.js impact examples/broker-digital-channel/instance.yaml broker.channel.identity.context@0.2.0 --profile public",

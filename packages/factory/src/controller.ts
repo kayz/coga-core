@@ -15,7 +15,10 @@ import {
 } from "./evidence.js";
 import { GitRepository } from "./git.js";
 import { deliverGitHubDraft } from "./github.js";
-import { createExecutionPlan } from "./planner.js";
+import {
+  createFanOutExecutionPlan,
+  createTargetExecutionPlan,
+} from "./planner.js";
 import { DockerSandbox } from "./sandbox.js";
 import { loadWorkOrder } from "./schema.js";
 import {
@@ -32,12 +35,16 @@ import type {
   FactoryRunResult,
   FactoryRunState,
   FactoryState,
+  FactoryTargetFailure,
+  FactoryTargetRunResult,
+  FanOutExecutionPlan,
   PlannedTarget,
   WorkOrder,
 } from "./types.js";
 import { DEFAULT_NODE_IMAGE, FACTORY_SCHEMA_VERSION } from "./types.js";
 import {
   canonicalJson,
+  compareText,
   normalizeRelativePath,
   resolveWithin,
   sanitizeIdentifier,
@@ -70,20 +77,6 @@ function phaseFor(step: ExecutionPlanStep): FactoryState {
     return "verifying";
   }
   return "review";
-}
-
-function targetForStep(
-  state: FactoryRunState,
-  step: ExecutionPlanStep,
-): PlannedTarget {
-  const application = step.application;
-  const target = state.plan?.targets.find(
-    (entry) =>
-      application && exactKey(entry.application) === exactKey(application),
-  );
-  if (!target)
-    throw new Error(`Step '${step.id}' has no planned Application target.`);
-  return target;
 }
 
 function verificationIndex(step: ExecutionPlanStep): number {
@@ -158,15 +151,6 @@ export class FactoryController {
       localWorkOrderPath,
       workOrder.spec.repository.baseCommit,
     );
-    const stateRoot = resolve(
-      this.options.stateRoot ?? resolve(repository.root, ".local/factory/runs"),
-    );
-    const statePath = runStatePath(
-      stateRoot,
-      workOrder.metadata.id,
-      workOrderDigest,
-    );
-    let state = loadRunState(statePath);
     const workspaceRoot = resolve(
       this.options.workspaceRoot ??
         resolve(
@@ -178,24 +162,128 @@ export class FactoryController {
           ),
         ),
     );
+    const planningWorkspace = resolve(
+      workspaceRoot,
+      `plan-${sanitizeIdentifier(workOrder.metadata.id)}-${workOrderDigest.slice("sha256:".length, "sha256:".length + 12)}`,
+    );
+    await repository.createDetachedWorktree(planningWorkspace, baseCommit);
+    let fanOutPlan: FanOutExecutionPlan;
+    try {
+      const planningWorkOrderPath = resolveWithin(
+        planningWorkspace,
+        relativeWorkOrder,
+        "Work Order path",
+      );
+      const planningWorkOrder = loadWorkOrder(planningWorkOrderPath);
+      if (sha256(canonicalJson(planningWorkOrder)) !== workOrderDigest) {
+        throw new Error(
+          "Work Order changed between the source checkout and planning workspace.",
+        );
+      }
+      fanOutPlan = createFanOutExecutionPlan(
+        planningWorkspace,
+        planningWorkOrderPath,
+        planningWorkOrder,
+        baseCommit,
+      );
+    } finally {
+      await repository.removeWorktree(planningWorkspace);
+    }
+
+    const outcomes: FactoryRunResult["targets"] = [
+      ...fanOutPlan.planningFailures,
+    ];
+    for (const target of fanOutPlan.targets) {
+      try {
+        outcomes.push(
+          await this.runTarget({
+            repository,
+            relativeWorkOrder,
+            workOrder,
+            workOrderDigest,
+            fanOutPlan,
+            target,
+            workspaceRoot,
+          }),
+        );
+      } catch (error) {
+        if (error instanceof FactoryPausedError) throw error;
+        const failure: FactoryTargetFailure = {
+          status: "failed",
+          application: target.application,
+          branch: target.delivery.branch,
+          failure: error instanceof Error ? error.message : String(error),
+        };
+        outcomes.push(failure);
+      }
+    }
+    const completed = outcomes.filter(
+      (entry) => entry.status === "completed",
+    ).length;
+    return {
+      status:
+        completed === outcomes.length
+          ? "completed"
+          : completed === 0
+            ? "failed"
+            : "partial",
+      workOrderId: workOrder.metadata.id,
+      baseCommit,
+      targets: outcomes.sort((left, right) =>
+        compareText(exactKey(left.application), exactKey(right.application)),
+      ),
+    };
+  }
+
+  private async runTarget(parameters: {
+    repository: GitRepository;
+    relativeWorkOrder: string;
+    workOrder: WorkOrder;
+    workOrderDigest: ReturnType<typeof sha256>;
+    fanOutPlan: FanOutExecutionPlan;
+    target: PlannedTarget;
+    workspaceRoot: string;
+  }): Promise<FactoryTargetRunResult> {
+    const {
+      repository,
+      relativeWorkOrder,
+      workOrder,
+      workOrderDigest,
+      fanOutPlan,
+      target,
+      workspaceRoot,
+    } = parameters;
+    const stateRoot = resolve(
+      this.options.stateRoot ?? resolve(repository.root, ".local/factory/runs"),
+    );
+    const statePath = runStatePath(
+      stateRoot,
+      workOrder.metadata.id,
+      workOrderDigest,
+      target.application.id,
+    );
     const workspace = resolve(
       workspaceRoot,
-      `${sanitizeIdentifier(workOrder.metadata.id)}-${workOrderDigest.slice("sha256:".length, "sha256:".length + 12)}`,
+      `${sanitizeIdentifier(workOrder.metadata.id)}-${workOrderDigest.slice("sha256:".length, "sha256:".length + 12)}-${sanitizeIdentifier(target.application.id)}`,
     );
+    const plan = createTargetExecutionPlan(fanOutPlan, target);
+    let state = loadRunState(statePath);
     if (state) {
       assertRunStateIntegrity(state, {
         workOrderId: workOrder.metadata.id,
         workOrderDigest,
-        baseCommit,
+        application: target.application,
+        baseCommit: fanOutPlan.baseCommit,
         workspacePath: workspace,
-        branch: workOrder.spec.delivery.branch,
+        branch: target.delivery.branch,
+        plan,
       });
       if (state.result && state.status === "completed") return state.result;
     }
     await repository.createWorktree(
       workspace,
-      state?.resultCommit ?? baseCommit,
-      workOrder.spec.delivery.branch,
+      state?.resultCommit ?? fanOutPlan.baseCommit,
+      target.delivery.branch,
     );
     const workspaceWorkOrderPath = resolveWithin(
       workspace,
@@ -205,25 +293,20 @@ export class FactoryController {
     const workspaceWorkOrder = loadWorkOrder(workspaceWorkOrderPath);
     if (sha256(canonicalJson(workspaceWorkOrder)) !== workOrderDigest) {
       throw new Error(
-        "Work Order changed between the source checkout and isolated workspace.",
+        "Work Order changed between the source checkout and target workspace.",
       );
     }
 
     if (!state) {
-      const plan = createExecutionPlan(
-        workspace,
-        workspaceWorkOrderPath,
-        workspaceWorkOrder,
-        baseCommit,
-      );
       state = {
         schemaVersion: FACTORY_SCHEMA_VERSION,
         workOrderId: workOrder.metadata.id,
         workOrderDigest,
+        application: target.application,
         status: "planned",
-        baseCommit,
+        baseCommit: fanOutPlan.baseCommit,
         workspacePath: workspace,
-        branch: workOrder.spec.delivery.branch,
+        branch: target.delivery.branch,
         plan,
         steps: plan.steps.map((step) => ({
           id: step.id,
@@ -245,14 +328,15 @@ export class FactoryController {
       state.updatedAt = this.options.now().toISOString();
       saveRunState(statePath, state);
     }
-    if (!state.plan) throw new Error("Factory state has no Execution Plan.");
+    if (!state.plan) throw new Error("Factory target state has no plan.");
 
     for (const plannedStep of state.plan.steps) {
       const stepState = state.steps.find(
         (entry) => entry.id === plannedStep.id,
       );
-      if (!stepState)
+      if (!stepState) {
         throw new Error(`Factory state is missing step '${plannedStep.id}'.`);
+      }
       if (stepState.status === "passed") continue;
       stepState.status = "running";
       stepState.attempts += 1;
@@ -296,8 +380,9 @@ export class FactoryController {
       }
     }
 
-    if (!state.result)
-      throw new Error("Factory completed all steps without a result.");
+    if (!state.result) {
+      throw new Error("Factory target completed all steps without a result.");
+    }
     state.status = "completed";
     state.updatedAt = this.options.now().toISOString();
     saveRunState(statePath, state);
@@ -314,7 +399,8 @@ export class FactoryController {
     step: ExecutionPlanStep,
     statePath: string,
   ): Promise<AdapterReceipt> {
-    if (!state.plan) throw new Error("Factory state has no plan.");
+    if (!state.plan) throw new Error("Factory state has no target plan.");
+    const target = state.plan.target;
     const now = this.options.now;
     const startedAt = now().toISOString();
     if (step.kind === "apply-domain-change") {
@@ -333,21 +419,18 @@ export class FactoryController {
       );
     }
     if (step.kind === "apply-agent-proposal") {
-      const allowedPaths = state.plan.targets.flatMap(
-        (target) => target.definition.spec.changePaths,
-      );
       const result = await repository.applyPatch(
         state.workspacePath,
-        workOrder.spec.proposal.patch,
-        allowedPaths,
-        "Agent proposal patch",
+        target.proposalReceipt.output.patch,
+        target.definition.spec.changePaths,
+        `Agent proposal for ${exactKey(target.application)}`,
       );
       return passedReceipt(
         step.id,
         step.adapter,
         startedAt,
         now().toISOString(),
-        `${result.alreadyApplied ? "Reused" : "Applied"} ${result.paths.length} Agent-proposed Application path(s).`,
+        `${result.alreadyApplied ? "Reused" : "Applied"} ${result.paths.length} Agent-proposed path(s) from ${target.proposalReceipt.metadata.receiptDigest}.`,
       );
     }
     if (step.kind === "validate-instance") {
@@ -360,7 +443,6 @@ export class FactoryController {
       );
     }
     if (step.kind === "test-application" || step.kind === "build-application") {
-      const target = targetForStep(state, step);
       return await runNodeVerification({
         stepId: step.id,
         workspace: state.workspacePath,
@@ -394,17 +476,18 @@ export class FactoryController {
       }
       const allowed = [
         ...workOrder.spec.change.allowedPaths,
-        ...state.plan.targets.flatMap(
-          (target) => target.definition.spec.changePaths,
-        ),
+        ...target.definition.spec.changePaths,
       ];
       const changed = await repository.assertOnlyAllowedChanges(
         state.workspacePath,
         state.baseCommit,
         allowed,
       );
-      if (changed.length === 0)
-        throw new Error("Work Order produced no governed changes.");
+      if (changed.length === 0) {
+        throw new Error(
+          `Work Order produced no governed changes for ${exactKey(target.application)}.`,
+        );
+      }
       const files = repository.evidenceFiles(state.workspacePath, changed);
       const subjectTree = await repository.stageAndWriteTree(
         state.workspacePath,
@@ -435,13 +518,12 @@ export class FactoryController {
       );
     }
     if (step.kind === "deliver-draft-pr") {
-      if (!state.evidence)
+      if (!state.evidence) {
         throw new Error("Draft delivery requires an Evidence Bundle.");
+      }
       const allowed = [
         ...workOrder.spec.change.allowedPaths,
-        ...state.plan.targets.flatMap(
-          (target) => target.definition.spec.changePaths,
-        ),
+        ...target.definition.spec.changePaths,
         ".coga/evidence",
       ];
       await repository.assertOnlyAllowedChanges(
@@ -452,14 +534,14 @@ export class FactoryController {
       if (!state.resultCommit) {
         state.resultCommit = await repository.commit(
           state.workspacePath,
-          workOrder.spec.delivery.commitMessage,
+          target.delivery.commitMessage,
         );
         state.updatedAt = now().toISOString();
         saveRunState(statePath, state);
       }
-      const result: FactoryRunResult = {
+      const result: FactoryTargetRunResult = {
         status: "completed",
-        workOrderId: workOrder.metadata.id,
+        application: target.application,
         baseCommit: state.baseCommit,
         resultCommit: state.resultCommit,
         branch: state.branch,
@@ -470,6 +552,7 @@ export class FactoryController {
         result.pullRequest = await deliverGitHubDraft({
           workspace: state.workspacePath,
           workOrder,
+          target,
           baseCommit: state.baseCommit,
           resultCommit: state.resultCommit,
           evidencePath: state.evidence.path,

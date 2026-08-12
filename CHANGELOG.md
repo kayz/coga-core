@@ -3,6 +3,34 @@
 All notable changes to COGA Core are recorded here. Versions follow Semantic
 Versioning; `0.y.z` remains initial development.
 
+## `@coga/factory` 0.3.0 — Unreleased
+
+- Replace the Factory v0.1 protocol with `coga.dev/factory/v0.2`; v0.1 Factory
+  documents are explicitly rejected while Core remains `0.2.0`.
+- Add `ProposalCompilation` and content-addressed `AgentProposalReceipt`
+  contracts binding model/provider/version, prompt template and digest, tool and
+  network policy, budgets, the exact COGA Harness context closure, normalized
+  unified-diff bytes, and authorized output paths.
+- Fan one exact Artifact change out to every impacted Application, using an
+  independent worktree, branch, recovery state, Evidence Bundle, commit and
+  optional Draft PR per target. Aggregate results distinguish completed,
+  partial and failed runs; retry reuses completed targets.
+- Add the Birch H5 reference Application so the responsive-shell example proves
+  two independent consumers and isolated candidates rather than a single-target
+  special case.
+- Add `RemoteEvidence` collection for the tracked Work Order/base, exact PR head,
+  governed Patch path closure, check/attestation and authorized exact-head
+  Policy-review bindings, plus a derived JSON/Markdown governance view. Promotion
+  is limited to Draft-to-ready-for-review after a final identity check and can
+  never merge or deploy.
+- Add a least-privilege `workflow_run` attestation job that checks out and
+  executes no repository code, accepts only a successful same-repository Draft
+  PR, and attests its exact content-addressed Evidence Bundle.
+- Add negative and recovery tests for proposal/input tampering, ignored and
+  unbound source context, partial fan-out and failed-target retry, missing remote
+  checks/approvals, undeclared or Patch-external PR files, raw binary evidence
+  bytes, remote identity races, and workflow privilege boundaries.
+
 ## 0.2.0 — Unreleased
 
 - Replace the v0.1 envelope with `coga.dev/v0.2`; require explicit scope,

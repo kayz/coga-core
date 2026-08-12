@@ -41,6 +41,7 @@ const SUPPORTED_TEXT_EXTENSIONS = [
 const SUPPORTED_TEXT_FILES = [
   ".gitattributes",
   ".gitignore",
+  ".prettierignore",
   "LICENSE",
   "packages/core/LICENSE",
   "packages/factory/LICENSE",
