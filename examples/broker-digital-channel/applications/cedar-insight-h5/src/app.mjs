@@ -1,10 +1,15 @@
 import { createViewModel } from "./domain.mjs";
 
+export function statusMessage(model) {
+  return `Access state: ${model.accessLabel}. Source: ${model.sourceLabel}.`;
+}
+
 export function renderPage(document, context, now = new Date()) {
   const model = createViewModel(context, now);
   document.querySelector("[data-heading]").textContent = model.heading;
   document.querySelector("[data-source]").textContent = model.sourceLabel;
   document.querySelector("[data-access]").textContent = model.accessLabel;
+  document.querySelector("[data-status]").textContent = statusMessage(model);
   const support = document.querySelector("[data-support]");
   support.hidden = !model.canRequestSupport;
   return model;

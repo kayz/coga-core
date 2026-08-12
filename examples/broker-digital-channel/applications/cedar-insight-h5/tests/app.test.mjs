@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createViewModel, customerAccessState } from "../src/domain.mjs";
+import { statusMessage } from "../src/app.mjs";
 
 const now = new Date("2026-08-12T00:00:00.000Z");
 
@@ -13,6 +14,13 @@ test("defaults to a public summary without inventing customer authority", () => 
     accessLabel: "Public summary",
     canRequestSupport: false,
   });
+});
+
+test("announces access state and source as text", () => {
+  assert.equal(
+    statusMessage(createViewModel({ authenticated: false }, now)),
+    "Access state: Public summary. Source: Fictitious broker learning feed.",
+  );
 });
 
 test("accepts only an unexpired authoritative customer context", () => {
