@@ -328,6 +328,8 @@ describe("remote evidence and governance", () => {
       GH_DEBUG: "api",
       GITHUB_API_URL: "https://attacker.invalid/api",
       GITHUB_GRAPHQL_URL: "https://attacker.invalid/graphql",
+      COGA_FACTORY_GITHUB_APP_ID: "42",
+      COGA_FACTORY_GITHUB_APP_PRIVATE_KEY: "private-key-material",
       PATH: "trusted-path",
     });
     expect(environment).toMatchObject({
@@ -341,6 +343,8 @@ describe("remote evidence and governance", () => {
     expect(environment.GH_DEBUG).toBeUndefined();
     expect(environment.GITHUB_API_URL).toBeUndefined();
     expect(environment.GITHUB_GRAPHQL_URL).toBeUndefined();
+    expect(environment.COGA_FACTORY_GITHUB_APP_ID).toBeUndefined();
+    expect(environment.COGA_FACTORY_GITHUB_APP_PRIVATE_KEY).toBeUndefined();
   });
 
   it("preserves non-UTF-8 bytes returned by a remote command", async () => {

@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://coga.dev/schemas/factory/operations/v0.1/slo-report.schema.json",
+  "title": "COGA Factory SLO Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "kind",
+    "metadata",
+    "policy",
+    "metrics",
+    "objectives",
+    "compliant"
+  ],
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "nonNegativeInteger": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    }
+  },
+  "properties": {
+    "schemaVersion": { "const": "coga.dev/factory/operations/v0.1" },
+    "kind": { "const": "FactorySloReport" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["measuredAt", "reportDigest"],
+      "properties": {
+        "measuredAt": { "type": "string", "format": "date-time" },
+        "reportDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "digest"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9.-]{2,127}$"
+        },
+        "digest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "queueDepth",
+        "terminalTasks",
+        "succeededTasks",
+        "failedTasks",
+        "recoveredTasks",
+        "estimatedCostMicros"
+      ],
+      "properties": {
+        "queueDepth": { "$ref": "#/$defs/nonNegativeInteger" },
+        "terminalTasks": { "$ref": "#/$defs/nonNegativeInteger" },
+        "succeededTasks": { "$ref": "#/$defs/nonNegativeInteger" },
+        "failedTasks": { "$ref": "#/$defs/nonNegativeInteger" },
+        "recoveredTasks": { "$ref": "#/$defs/nonNegativeInteger" },
+        "successRate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "p95QueueLatencyMs": { "$ref": "#/$defs/nonNegativeInteger" },
+        "p95RunDurationMs": { "$ref": "#/$defs/nonNegativeInteger" },
+        "isolationFailureRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "estimatedCostMicros": { "$ref": "#/$defs/nonNegativeInteger" }
+      }
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["metric", "operator", "target", "status"],
+        "properties": {
+          "metric": {
+            "enum": [
+              "successRate",
+              "p95QueueLatencyMs",
+              "p95RunDurationMs",
+              "isolationFailureRate",
+              "queueDepth",
+              "estimatedCostMicros"
+            ]
+          },
+          "observed": { "type": "number", "minimum": 0 },
+          "operator": { "enum": [">=", "<="] },
+          "target": { "type": "number", "minimum": 0 },
+          "status": {
+            "enum": ["passed", "failed", "insufficient-data"]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": { "enum": ["passed", "failed"] }
+              }
+            },
+            "then": {
+              "properties": {
+                "observed": { "type": "number", "minimum": 0 }
+              },
+              "required": ["observed"]
+            }
+          }
+        ]
+      }
+    },
+    "compliant": { "type": "boolean" }
+  }
+}

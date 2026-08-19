@@ -167,6 +167,7 @@ function fakeRunner(options: {
 function deliver(
   runner: GitHubDeliveryCommandRunner,
   environment: NodeJS.ProcessEnv,
+  token?: string,
 ) {
   const { workOrder, target } = fixture();
   return deliverGitHubDraft(
@@ -179,7 +180,7 @@ function deliver(
       evidencePath: `.coga/evidence/${"3".repeat(64)}.json`,
       evidenceDigest: `sha256:${"3".repeat(64)}`,
     },
-    { runner, environment },
+    { runner, environment, ...(token ? { token } : {}) },
   );
 }
 
@@ -190,6 +191,36 @@ describe("GitHub App Draft delivery", () => {
       /COGA_FACTORY_GITHUB_TOKEN installation token/iu,
     );
     expect(fake.calls).toEqual([]);
+  });
+
+  it("uses an in-memory lease instead of process-global credentials", async () => {
+    const fake = fakeRunner({});
+    await expect(
+      deliver(
+        fake.runner,
+        {
+          COGA_FACTORY_GITHUB_TOKEN: `ghs_${"wrong".repeat(20)}`,
+          COGA_FACTORY_GITHUB_APP_ID: "42",
+          COGA_FACTORY_GITHUB_APP_PRIVATE_KEY: "private-key-material",
+          GH_TOKEN: "human-token",
+        },
+        installationToken,
+      ),
+    ).resolves.toMatchObject({
+      number: 43,
+      author: "coga-factory-kayz[bot]",
+    });
+    for (const call of fake.calls) {
+      expect(call.args.join("\0")).not.toContain(installationToken);
+      expect(call.options.env?.COGA_FACTORY_GITHUB_TOKEN).toBeUndefined();
+      expect(call.options.env?.COGA_FACTORY_GITHUB_APP_ID).toBeUndefined();
+      expect(
+        call.options.env?.COGA_FACTORY_GITHUB_APP_PRIVATE_KEY,
+      ).toBeUndefined();
+      if (call.command === "gh") {
+        expect(call.options.env?.GH_TOKEN).toBe(installationToken);
+      }
+    }
   });
 
   it("rejects a user token at installation preflight and redacts credentials", async () => {

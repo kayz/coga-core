@@ -71,6 +71,8 @@ export type GitHubDeliveryCommandRunner = (
 export interface GitHubDeliveryDependencies {
   environment?: NodeJS.ProcessEnv;
   runner?: GitHubDeliveryCommandRunner;
+  /** Prefer an in-memory lease over a process-global credential environment. */
+  token?: string;
 }
 
 const COMMIT_PATTERN = /^[0-9a-f]{40}$/u;
@@ -84,7 +86,7 @@ function cleanEnvironment(environment: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
     Object.entries(environment).filter(([key]) => {
       const normalized = key.toUpperCase();
       return (
-        normalized !== GITHUB_FACTORY_TOKEN_ENVIRONMENT &&
+        !normalized.startsWith("COGA_FACTORY_GITHUB_") &&
         !normalized.startsWith("GH_") &&
         !normalized.startsWith("GITHUB_") &&
         !normalized.startsWith("GIT_") &&
@@ -401,7 +403,8 @@ export async function deliverGitHubDraft(
   const repository = parameters.workOrder.spec.repository;
   const expectedAuthor = expectedDeliveryAuthor(parameters.workOrder);
   const environment = dependencies.environment ?? process.env;
-  const token = environment[GITHUB_FACTORY_TOKEN_ENVIRONMENT];
+  const token =
+    dependencies.token ?? environment[GITHUB_FACTORY_TOKEN_ENVIRONMENT];
   if (!token || !TOKEN_PATTERN.test(token)) {
     throw new Error(
       `GitHub App delivery requires a valid ${GITHUB_FACTORY_TOKEN_ENVIRONMENT} installation token.`,
